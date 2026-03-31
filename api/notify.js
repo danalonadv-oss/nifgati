@@ -1,4 +1,4 @@
-// api/notify.js — שליחת מייל סיכום ליד חדש
+// api/notify.js — שליחת מייל סיכום ליד חדש (v2)
 // ═══════════════════════════════════════════
 // משתמש ב-Resend API (https://resend.com)
 // Environment Variable נדרש: RESEND_API_KEY
