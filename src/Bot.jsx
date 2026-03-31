@@ -303,7 +303,7 @@ export default function Bot({ onClose }) {
               <span style={{ width:6,height:6,background:"#22c55e",borderRadius:"50%",display:"inline-block" }}/>
               השיחה לא נשמרת ולא מתועדת
             </span>
-            <a href="tel:0544338212" aria-label="התקשר לעו״ד אלון" title="התקשר" style={{ background:"transparent",border:"1px solid #1e2d4a",color:"#c9a84c",fontSize:16,cursor:"pointer",borderRadius:8,width:32,height:32,display:"flex",alignItems:"center",justifyContent:"center",textDecoration:"none" }}>📞</a>
+            <a href="tel:0544338212" aria-label="התקשר לעו״ד אלון" title="התקשר" style={{ background:"#c9a84c22",border:"1px solid #c9a84c55",color:"#c9a84c",fontSize:16,cursor:"pointer",borderRadius:8,width:32,height:32,display:"flex",alignItems:"center",justifyContent:"center",textDecoration:"none" }}>📞</a>
             <button onClick={onClose} aria-label="סגור בוט" style={{ background:"transparent",border:"none",color:"#7a8fa5",fontSize:20,cursor:"pointer",lineHeight:1 }}>✕</button>
           </div>
         </div>
@@ -321,6 +321,7 @@ export default function Bot({ onClose }) {
               <div style={{ fontSize:11,color:"#c9a84c",letterSpacing:1,marginBottom:6,fontWeight:700 }}>הערכת פיצוי ראשונית</div>
               <div style={{ fontSize:28,fontWeight:900,color:"#fff",marginBottom:4 }}>₪{calc.min.toLocaleString("he-IL")} – ₪{calc.max.toLocaleString("he-IL")}</div>
               <div style={{ fontSize:12,color:"#556070",marginBottom:14 }}>לפני שכ"ט (8%–13%)</div>
+              <div style={{ textAlign:"center",fontSize:22,animation:"bounce 1s ease-in-out infinite",marginBottom:6 }}>👇</div>
               <button onClick={()=>window.open(`https://wa.me/${WA}?text=${encodeURIComponent(waMsg)}`,"_blank")} aria-label="שליחת הנתונים לעורך דין אלון בוואטסאפ" style={{ width:"100%",background:"#25d366",color:"#fff",border:"none",borderRadius:12,fontFamily:"inherit",fontWeight:700,fontSize:14,padding:13,cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",gap:8,lineHeight:1.4 }}>📱 שליחת הנתונים לעו"ד אלון ובדיקת זכאות בוואטסאפ</button>
             </div>
           )}
@@ -377,6 +378,7 @@ export default function Bot({ onClose }) {
         @keyframes bl{0%,80%,100%{opacity:.15}40%{opacity:1}}
         @keyframes wave{0%,100%{height:4px;opacity:.4}50%{height:16px;opacity:1}}
         @keyframes micPulse{0%,100%{box-shadow:0 0 0 0 #22c55e44}50%{box-shadow:0 0 0 8px #22c55e00}}
+        @keyframes bounce{0%,100%{transform:translateY(0)}50%{transform:translateY(8px)}}
       `}</style>
     </div>
   );
