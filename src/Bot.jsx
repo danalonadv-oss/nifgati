@@ -23,10 +23,10 @@ async function callClaude(messages, model = "claude-haiku-4-5-20251001") {
 }
 
 const GREETING_1 = { role:"assistant", content:`היי, אני בוט "נפגעתי" 👋
+הערכה מהירה לפי חוק הפלת"ד. שיחה ישירה, שכ"ט רק מהפיצוי.
+אפשר לכתוב, לדבר בעברית, או להעלות סיכום רפואי 📄.`, privacy: true };
 
-אני כאן כדי לתת לך הערכה מהירה של הפיצוי המגיע לך לפי חוק הפלת"ד. אפשר לכתוב לי, לדבר בעברית, או להעלות סיכום רפואי לניתוח אוטומטי 📄.`, privacy: true };
-
-const GREETING_2 = { role:"assistant", content:"ספר/י לי מה קרה, בן כמה את/ה, האם התאונה הייתה בדרך לעבודה, כמה השכר החודשי ואיפה נפגעת?" };
+const GREETING_2 = { role:"assistant", content:"בוא נתחיל: מה קרה, בן כמה את/ה ואיפה נפגעת בגוף?" };
 
 const INITIAL_MSGS = [GREETING_1, GREETING_2];
 
@@ -42,6 +42,7 @@ export default function Bot({ onClose }) {
   const [docName, setDocName] = useState("");
   const [showFilePicker, setShowFilePicker] = useState(false);
   const [ctaShown, setCtaShown] = useState(false);
+  const [showReferral, setShowReferral] = useState(false);
   const fileRef = useRef(null);
   const camRef  = useRef(null);
   const inpRef  = useRef(null);
@@ -51,17 +52,24 @@ export default function Bot({ onClose }) {
 
   useEffect(()=>{ if(!err) return; const t=setTimeout(()=>setErr(""),6000); return ()=>clearTimeout(t); },[err]);
 
-  function restart() { setMsgs([...INITIAL_MSGS]); setCalc(null); setInp(""); setErr(""); setDocName(""); setCtaShown(false); }
+  function restart() { setMsgs([...INITIAL_MSGS]); setCalc(null); setInp(""); setErr(""); setDocName(""); setCtaShown(false); setShowReferral(false); }
+
+  const REFERRAL_RE = /עורך.?דין|עו"ד|דן אלון|לדבר עם|להעביר|תעביר|אנושי|בן.?אדם|lawyer/i;
 
   async function send(txt) {
     if(!txt.trim()||load) return;
     setErr(""); setInp("");
+    // Detect referral request
+    if (REFERRAL_RE.test(txt)) {
+      setMsgs(p=>[...p,{role:"user",content:txt},{role:"assistant",content:`בשמחה! עו"ד ${MY_NAME} ישמח לעזור. לחץ על הכפתור למטה לשליחת הפרטים בוואטסאפ.`}]);
+      setShowReferral(true);
+      return;
+    }
     const next = [...msgs, {role:"user",content:txt}];
     setMsgs(next); setLoad(true);
     try {
       const rep = await callClaude(next.map(m=>({role:m.role,content:m.content})));
       const updated = [...next, {role:"assistant",content:rep}];
-      // Add CTA after first bot response to user's first real message
       if (!ctaShown && next.filter(m=>m.role==="user").length === 1) {
         updated.push({role:"assistant",content:CTA_MSG});
         setCtaShown(true);
@@ -204,7 +212,7 @@ export default function Bot({ onClose }) {
               <span style={{ width:6,height:6,background:"#22c55e",borderRadius:"50%",display:"inline-block" }}/>
               השיחה לא נשמרת ולא מתועדת
             </span>
-            <button onClick={restart} aria-label="שיחה חדשה" title="שיחה חדשה" style={{ background:"transparent",border:"1px solid #1e2d4a",color:"#7a8fa5",fontSize:12,cursor:"pointer",borderRadius:8,padding:"4px 10px",fontFamily:"inherit",fontWeight:600 }}>שיחה חדשה</button>
+            <a href="tel:0544338212" aria-label="התקשר לעו״ד אלון" title="התקשר" style={{ background:"transparent",border:"1px solid #1e2d4a",color:"#c9a84c",fontSize:16,cursor:"pointer",borderRadius:8,width:32,height:32,display:"flex",alignItems:"center",justifyContent:"center",textDecoration:"none" }}>📞</a>
             <button onClick={onClose} aria-label="סגור בוט" style={{ background:"transparent",border:"none",color:"#7a8fa5",fontSize:20,cursor:"pointer",lineHeight:1 }}>✕</button>
           </div>
         </div>
@@ -223,6 +231,11 @@ export default function Bot({ onClose }) {
               <div style={{ fontSize:28,fontWeight:900,color:"#fff",marginBottom:4 }}>₪{calc.min.toLocaleString("he-IL")} – ₪{calc.max.toLocaleString("he-IL")}</div>
               <div style={{ fontSize:12,color:"#556070",marginBottom:14 }}>לפני שכ"ט (8%–13%)</div>
               <button onClick={()=>window.open(`https://wa.me/${WA}?text=${encodeURIComponent(waMsg)}`,"_blank")} aria-label="שליחת הנתונים לעורך דין אלון בוואטסאפ" style={{ width:"100%",background:"#25d366",color:"#fff",border:"none",borderRadius:12,fontFamily:"inherit",fontWeight:700,fontSize:14,padding:13,cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",gap:8,lineHeight:1.4 }}>📱 שליחת הנתונים לעו"ד אלון ובדיקת זכאות בוואטסאפ</button>
+            </div>
+          )}
+          {showReferral && !calc && (
+            <div style={{ padding:"0 4px" }}>
+              <button onClick={()=>window.open(`https://wa.me/${WA}?text=${encodeURIComponent(waMsg)}`,"_blank")} style={{ width:"100%",background:"#25d366",color:"#fff",border:"none",borderRadius:12,fontFamily:"inherit",fontWeight:700,fontSize:14,padding:14,cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",gap:8,lineHeight:1.4 }}>📱 שליחת הנתונים לעו"ד אלון ובדיקת זכאות בוואטסאפ</button>
             </div>
           )}
           {err && <div role="alert" style={{ textAlign:"center",fontSize:13,color:"#ef4444",display:"flex",alignItems:"center",justifyContent:"center",gap:8 }}><span>{err}</span><button onClick={()=>setErr("")} aria-label="סגור הודעת שגיאה" style={{ background:"transparent",border:"none",color:"#ef4444",cursor:"pointer",fontSize:16,lineHeight:1,flexShrink:0 }}>✕</button></div>}

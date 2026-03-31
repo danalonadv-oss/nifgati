@@ -42,7 +42,7 @@ export default function App() {
 
   const nav=[{l:"איך עובד",h:"#how"},{l:"לקוחות",h:"#why"},{l:"מחשבון",h:"#calc"},{l:"צור קשר",h:"#contact"}];
   const steps=[
-    {n:"01",t:"חשב בחינם",d:"הבוט מחשב 4 ראשי נזק לפי חוק הפלת\"ד תוך דקות — ללא התחייבות."},
+    {n:"01",t:"חשב בחינם",d:"התחל כעת וקבל מייד את הסכום המוערך תוך דקת שיחה."},
     {n:"02",t:"ייעוץ אישי",d:`שיחה ישירה עם ${MY_NAME}. מעריכים את התיק ומסבירים את הדרך.`},
     {n:"03",t:"אנחנו לוחמים",d:"אנחנו מול חברות הביטוח. אתה מתרכז בהחלמה."},
     {n:"04",t:"פיצוי בחשבון",d:"שכ\"ט רק מהפיצוי — 8%–13% בפלת\"ד. ללא תשלום מראש."},
@@ -118,7 +118,7 @@ export default function App() {
                 <span style={{ fontSize:"60%",fontWeight:500,color:"#7a8fa5" }}>בדוק כמה — עכשיו, בחינם.</span>
               </h1>
               <p style={{ fontSize:17,color:"#7a8fa5",lineHeight:1.8,marginBottom:36,maxWidth:530 }}>
-                מחשבון הפיצויים מעריך את שווי התיק שלך תוך דקות. שיחה ישירה, שכ"ט רק מהפיצוי. המידע בשיחה אינו נשמר ואינו מתועד.
+                שיחה ישירה, שכ"ט רק מהפיצוי. המידע אינו נשמר ואינו מתועד.
               </p>
               <div style={{ display:"flex",gap:14,flexWrap:"wrap",marginBottom:40 }}>
                 <button style={gBtn} onClick={()=>setShowBot(true)} aria-label="פתח מחשבון פיצויים">🤖 בוט חישוב פיצויים</button>
@@ -244,10 +244,7 @@ export default function App() {
       {!cookie && (
         <div style={{ position:"fixed",bottom:0,right:0,left:0,background:"#0a0f1eee",borderTop:"1px solid #1e2d4a22",padding:"8px 16px",display:"flex",alignItems:"center",justifyContent:"space-between",gap:12,zIndex:98,fontSize:11,color:"#445566" }}>
           <span>האתר משתמש בעוגיות Remarketing בלבד. שיחות הבוט אינן נשמרות. <a href="/privacy" style={{ color:"#c9a84c88" }}>פרטיות</a></span>
-          <div style={{ display:"flex",gap:6,flexShrink:0 }}>
-            <button style={{ background:"transparent",color:"#445566",border:"1px solid #1e2d4a",borderRadius:8,fontFamily:"inherit",fontSize:11,padding:"4px 10px",cursor:"pointer" }} onClick={()=>setCookie(true)}>רק הכרחיות</button>
-            <button style={{ background:"#c9a84c22",color:"#c9a84c",border:"1px solid #c9a84c44",borderRadius:8,fontFamily:"inherit",fontSize:11,padding:"4px 10px",cursor:"pointer" }} onClick={()=>setCookie(true)}>אישור ✓</button>
-          </div>
+          <button style={{ background:"#c9a84c22",color:"#c9a84c",border:"1px solid #c9a84c44",borderRadius:8,fontFamily:"inherit",fontSize:11,padding:"4px 10px",cursor:"pointer",flexShrink:0 }} onClick={()=>setCookie(true)}>אישור ✓</button>
         </div>
       )}
 
