@@ -45,8 +45,10 @@ async function callClaude(messages, model = "claude-haiku-4-5-20251001") {
 }
 
 // ── Bot overlay ─────────────────────────────────────────
+const INITIAL_MSG = { role:"assistant", content:"שלום 👋\n\nספר/י לי — מה קרה בתאונה וממה אתה סובל/ת?\n\n🎙️ דבר/י, כתוב/י, או 📎 צרף/י מסמך רפואי לניתוח אוטומטי." };
+
 function Bot({ onClose }) {
-  const [msgs, setMsgs] = useState([{ role:"assistant", content:"שלום 👋\n\nספר/י לי — מה קרה בתאונה וממה אתה סובל/ת?\n\n🎙️ דבר/י, כתוב/י, או 📎 צרף/י מסמך רפואי לניתוח אוטומטי." }]);
+  const [msgs, setMsgs] = useState([INITIAL_MSG]);
   const [inp, setInp]   = useState("");
   const [load, setLoad] = useState(false);
   const [calc, setCalc] = useState(null);
@@ -54,8 +56,14 @@ function Bot({ onClose }) {
   const [err, setErr]   = useState("");
   const [docName, setDocName] = useState("");
   const fileRef = useRef(null);
+  const inpRef  = useRef(null);
   const end = useRef(null);
   useEffect(()=>{ end.current?.scrollIntoView({behavior:"smooth"}); },[msgs,load]);
+
+  // Auto-dismiss errors after 6 seconds
+  useEffect(()=>{ if(!err) return; const t=setTimeout(()=>setErr(""),6000); return ()=>clearTimeout(t); },[err]);
+
+  function restart() { setMsgs([INITIAL_MSG]); setCalc(null); setInp(""); setErr(""); setDocName(""); }
 
   async function send(txt) {
     if(!txt.trim()||load) return;
@@ -168,9 +176,12 @@ function Bot({ onClose }) {
     try { r.start(); } catch(e) { setMic(false); setErr("זיהוי קול לא זמין כרגע — נסה לרענן את הדף."); }
   }
 
+  const chatSummary = msgs.filter(m=>m.role==="user").map(m=>typeof m.content==="string"?m.content:"").filter(Boolean).slice(0,3).join(" | ");
   const waMsg = calc
     ? `שלום, השתמשתי במחשבון הפיצויים. הסכום המשוער: ₪${calc.min.toLocaleString("he-IL")}–₪${calc.max.toLocaleString("he-IL")}. אשמח לייעוץ.`
-    : "שלום, פניתי דרך האתר. אשמח לייעוץ בנושא תאונת דרכים.";
+    : chatSummary
+      ? `שלום, פניתי דרך האתר. תיאור קצר: ${chatSummary.slice(0,200)}. אשמח לייעוץ.`
+      : "שלום, פניתי דרך האתר. אשמח לייעוץ בנושא תאונת דרכים.";
 
   return (
     <div role="dialog" aria-modal="true" aria-label="בוט פיצויים" style={{ position:"fixed",inset:0,background:"#080d18ee",zIndex:200,display:"flex",alignItems:"center",justifyContent:"center",padding:16 }}>
@@ -182,6 +193,7 @@ function Bot({ onClose }) {
               <span style={{ width:6,height:6,background:"#22c55e",borderRadius:"50%",display:"inline-block" }}/>
               השיחה לא נשמרת ולא מתועדת
             </span>
+            <button onClick={restart} aria-label="שיחה חדשה" title="שיחה חדשה" style={{ background:"transparent",border:"1px solid #1e2d4a",color:"#7a8fa5",fontSize:12,cursor:"pointer",borderRadius:8,padding:"4px 10px",fontFamily:"inherit",fontWeight:600 }}>שיחה חדשה</button>
             <button onClick={onClose} aria-label="סגור בוט" style={{ background:"transparent",border:"none",color:"#7a8fa5",fontSize:20,cursor:"pointer",lineHeight:1 }}>✕</button>
           </div>
         </div>
@@ -192,7 +204,7 @@ function Bot({ onClose }) {
               <div style={{ background:m.role==="user"?"#c9a84c":"#141b2d",color:m.role==="user"?"#0a0f1e":"#e8eaf0",border:m.role==="user"?"none":"1px solid #1e2d4a",borderRadius:m.role==="user"?"18px 18px 4px 18px":"18px 18px 18px 4px",padding:"10px 14px",maxWidth:"85%",fontSize:14,lineHeight:1.75,fontWeight:m.role==="user"?600:400,whiteSpace:"pre-wrap" }}>{m.content}</div>
             </div>
           ))}
-          {load && <div style={{ display:"flex",justifyContent:"flex-end" }}><div style={{ background:"#141b2d",border:"1px solid #1e2d4a",borderRadius:"18px 18px 18px 4px",padding:"14px 18px",display:"flex",gap:4 }}>{[0,.2,.4].map(d=><span key={d} style={{ display:"inline-block",width:7,height:7,background:"#c9a84c",borderRadius:"50%",animation:"bl 1.2s infinite",animationDelay:`${d}s` }}/>)}</div></div>}
+          {load && <div style={{ display:"flex",justifyContent:"flex-end" }}><div role="status" aria-label="הבוט מקליד..." style={{ background:"#141b2d",border:"1px solid #1e2d4a",borderRadius:"18px 18px 18px 4px",padding:"14px 18px",display:"flex",gap:4 }}><span className="sr-only" style={{ position:"absolute",width:1,height:1,overflow:"hidden",clip:"rect(0,0,0,0)" }}>הבוט מקליד...</span>{[0,.2,.4].map(d=><span key={d} aria-hidden="true" style={{ display:"inline-block",width:7,height:7,background:"#c9a84c",borderRadius:"50%",animation:"bl 1.2s infinite",animationDelay:`${d}s` }}/>)}</div></div>}
           {calc && !load && (
             <div style={{ background:"linear-gradient(135deg,#1a2744,#0f1a30)",border:"1px solid #c9a84c55",borderRadius:16,padding:"18px 20px" }}>
               <div style={{ fontSize:11,color:"#c9a84c",letterSpacing:1,marginBottom:6,fontWeight:700 }}>הערכת פיצוי ראשונית</div>
@@ -201,7 +213,7 @@ function Bot({ onClose }) {
               <button onClick={()=>window.open(`https://wa.me/${WA}?text=${encodeURIComponent(waMsg)}`,"_blank")} aria-label="שלח לוואטסאפ לייעוץ" style={{ width:"100%",background:"#25d366",color:"#fff",border:"none",borderRadius:12,fontFamily:"inherit",fontWeight:700,fontSize:15,padding:13,cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",gap:8 }}>📱 שלח לוואטסאפ לייעוץ חינמי</button>
             </div>
           )}
-          {err && <div role="alert" style={{ textAlign:"center",fontSize:13,color:"#ef4444" }}>{err}</div>}
+          {err && <div role="alert" style={{ textAlign:"center",fontSize:13,color:"#ef4444",display:"flex",alignItems:"center",justifyContent:"center",gap:8 }}><span>{err}</span><button onClick={()=>setErr("")} aria-label="סגור הודעת שגיאה" style={{ background:"transparent",border:"none",color:"#ef4444",cursor:"pointer",fontSize:16,lineHeight:1,flexShrink:0 }}>✕</button></div>}
           <div ref={end}/>
         </div>
 
@@ -210,10 +222,10 @@ function Bot({ onClose }) {
             <button onClick={startMic} aria-label={mic?"מקליד...":"הקלט קול בעברית"} style={{ background:mic?"#c9a84c22":"#141b2d",border:`1px solid ${mic?"#c9a84c":"#1e2d4a"}`,borderRadius:12,color:"#c9a84c",fontSize:20,width:48,height:48,cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0 }}>{mic?"🔴":"🎙️"}</button>
             <button onClick={()=>fileRef.current?.click()} disabled={load} aria-label="צרף מסמך רפואי" title="צרף PDF או תמונה" style={{ background:"#141b2d",border:"1px solid #1e2d4a",borderRadius:12,color:"#7a8fa5",fontSize:20,width:48,height:48,cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0,opacity:load?.35:1 }}>📎</button>
             <input ref={fileRef} type="file" accept="image/*,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document" style={{ display:"none" }} onChange={e=>{ const f=e.target.files?.[0]; if(f) sendDoc(f); e.target.value=""; }}/>
-            <input aria-label="הקלד הודעה" style={{ flex:1,background:"#141b2d",border:"1px solid #1e2d4a",borderRadius:12,color:"#fff",fontFamily:"inherit",fontSize:14,padding:"0 14px",outline:"none",height:48,direction:"rtl" }} placeholder="כתוב, דבר, או צרף מסמך רפואי..." value={inp} onChange={e=>setInp(e.target.value)} onKeyDown={e=>{ if(e.key==="Enter"){e.preventDefault();send(inp);} }}/>
+            <input ref={inpRef} aria-label="הקלד הודעה" style={{ flex:1,background:"#141b2d",border:"1px solid #1e2d4a",borderRadius:12,color:"#fff",fontFamily:"inherit",fontSize:14,padding:"0 14px",outline:"none",height:48,direction:"rtl" }} placeholder="כתוב, דבר, או צרף מסמך רפואי..." value={inp} onChange={e=>setInp(e.target.value)} onKeyDown={e=>{ if(e.key==="Enter"){e.preventDefault();send(inp);} }} onFocus={()=>setTimeout(()=>inpRef.current?.scrollIntoView({behavior:"smooth",block:"nearest"}),300)}/>
             <button onClick={()=>send(inp)} disabled={load||!inp.trim()} aria-label="שלח הודעה" style={{ background:"#c9a84c",color:"#0a0f1e",border:"none",borderRadius:12,fontFamily:"inherit",fontWeight:700,fontSize:14,padding:"0 20px",cursor:"pointer",height:48,opacity:(load||!inp.trim())?.35:1 }}>שלח</button>
           </div>
-          {docName && <p style={{ textAlign:"center",fontSize:12,color:"#c9a84c",marginTop:6 }}>🔍 מנתח: {docName}...</p>}
+          {docName && <p style={{ textAlign:"center",fontSize:12,color:"#c9a84c",marginTop:6 }}>{load ? "📤 מעלה ומנתח" : "🔍 מנתח"}: {docName}...</p>}
           <p style={{ textAlign:"center",fontSize:11,color:"#2a3545",marginTop:8 }}>הערכה ראשונית בלבד • אינה מהווה ייעוץ משפטי • המידע אינו נשמר ואינו מתועד בשום אופן</p>
         </div>
       </div>
