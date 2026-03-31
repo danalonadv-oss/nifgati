@@ -87,6 +87,26 @@ export default function Bot({ onClose }) {
     setLoad(false);
   }
 
+  // Compress image to fit Vercel's 4.5MB body limit
+  async function compressImage(file, maxWidth = 1200, quality = 0.7) {
+    return new Promise((resolve) => {
+      const img = new Image();
+      img.onload = () => {
+        const canvas = document.createElement("canvas");
+        const scale = Math.min(1, maxWidth / Math.max(img.width, img.height));
+        canvas.width = img.width * scale;
+        canvas.height = img.height * scale;
+        const ctx = canvas.getContext("2d");
+        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+        // Convert to JPEG for smaller size
+        const dataUrl = canvas.toDataURL("image/jpeg", quality);
+        resolve({ base64: dataUrl.split(",")[1], mediaType: "image/jpeg" });
+      };
+      img.onerror = () => resolve(null);
+      img.src = URL.createObjectURL(file);
+    });
+  }
+
   async function sendDoc(file) {
     if(load) return;
     if (file.size > 10 * 1024 * 1024) {
@@ -97,13 +117,6 @@ export default function Bot({ onClose }) {
     setDocName(file.name);
 
     try {
-      const base64 = await new Promise((res, rej) => {
-        const reader = new FileReader();
-        reader.onload = () => res(reader.result.split(",")[1]);
-        reader.onerror = () => rej(new Error("שגיאה בקריאת הקובץ"));
-        reader.readAsDataURL(file);
-      });
-
       const isImage = file.type.startsWith("image/");
       const isPDF   = file.type === "application/pdf";
       const isDoc   = ["application/msword","application/vnd.openxmlformats-officedocument.wordprocessingml.document","application/vnd.ms-excel","application/vnd.openxmlformats-officedocument.spreadsheetml.sheet","text/plain"].includes(file.type);
@@ -114,10 +127,36 @@ export default function Bot({ onClose }) {
         return;
       }
 
+      let base64, mediaType;
+
+      if (isImage) {
+        // Compress images to avoid Vercel 4.5MB body limit
+        const compressed = await compressImage(file);
+        if (!compressed) { setErr("שגיאה בעיבוד התמונה — נסה קובץ אחר."); setLoad(false); setDocName(""); return; }
+        base64 = compressed.base64;
+        mediaType = compressed.mediaType;
+      } else {
+        // PDFs and docs — read as-is
+        base64 = await new Promise((res, rej) => {
+          const reader = new FileReader();
+          reader.onload = () => res(reader.result.split(",")[1]);
+          reader.onerror = () => rej(new Error("שגיאה בקריאת הקובץ"));
+          reader.readAsDataURL(file);
+        });
+        mediaType = file.type;
+      }
+
+      // Check final base64 size (Vercel limit ~4.5MB body)
+      if (base64.length > 3_500_000) {
+        setErr("הקובץ גדול מדי לעיבוד — נסה לצלם מחדש באיכות נמוכה יותר.");
+        setLoad(false); setDocName("");
+        return;
+      }
+
       const userContent = [
         isImage
-          ? { type:"image", source:{ type:"base64", media_type:file.type, data:base64 } }
-          : { type:"document", source:{ type:"base64", media_type: file.type, data:base64 } },
+          ? { type:"image", source:{ type:"base64", media_type: mediaType, data:base64 } }
+          : { type:"document", source:{ type:"base64", media_type: mediaType, data:base64 } },
         { type:"text", text:`צירפתי מסמך רפואי (${file.name}). אנא נתח אותו ומצא: אחוזי נכות, אבחנות רפואיות, תאריך פגיעה, וכל מידע רלוונטי לחישוב פיצויים.` }
       ];
 
@@ -252,19 +291,24 @@ export default function Bot({ onClose }) {
           <div ref={end}/>
         </div>
 
-        {/* Custom file picker modal */}
+        {/* Custom file picker modal — dark overlay */}
         {showFilePicker && (
-          <div style={{ position:"absolute",bottom:80,left:16,right:16,background:"#141b2d",border:"1px solid #1e2d4a",borderRadius:16,padding:16,zIndex:10,display:"flex",flexDirection:"column",gap:10 }}>
-            <div style={{ display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:4 }}>
-              <span style={{ fontSize:14,fontWeight:700,color:"#e8eaf0" }}>צירוף מסמך רפואי</span>
-              <button onClick={()=>setShowFilePicker(false)} style={{ background:"transparent",border:"none",color:"#7a8fa5",fontSize:18,cursor:"pointer" }}>✕</button>
+          <div onClick={()=>setShowFilePicker(false)} style={{ position:"absolute",inset:0,background:"#080d18dd",zIndex:10,display:"flex",alignItems:"center",justifyContent:"center",padding:24 }}>
+            <div onClick={e=>e.stopPropagation()} style={{ background:"#0d1323",border:"1px solid #1e2d4a",borderRadius:20,padding:24,width:"100%",maxWidth:320,display:"flex",flexDirection:"column",gap:12 }}>
+              <div style={{ display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:4 }}>
+                <span style={{ fontSize:16,fontWeight:800,color:"#e8eaf0" }}>📎 צירוף מסמך רפואי</span>
+                <button onClick={()=>setShowFilePicker(false)} style={{ background:"transparent",border:"none",color:"#7a8fa5",fontSize:20,cursor:"pointer",lineHeight:1 }}>✕</button>
+              </div>
+              <p style={{ fontSize:12,color:"#556070",lineHeight:1.5,marginBottom:4 }}>PDF, תמונה, או מסמך Word — עד 10MB</p>
+              <button onClick={()=>{ setShowFilePicker(false); setTimeout(()=>camRef.current?.click(),100); }} style={{ background:"#141b2d",border:"1.5px solid #1e2d4a",borderRadius:14,color:"#e8eaf0",fontFamily:"inherit",fontSize:15,fontWeight:700,padding:"16px 18px",cursor:"pointer",display:"flex",alignItems:"center",gap:12,transition:"all .2s" }} onMouseOver={e=>{e.currentTarget.style.borderColor="#c9a84c";e.currentTarget.style.background="#1a2744"}} onMouseOut={e=>{e.currentTarget.style.borderColor="#1e2d4a";e.currentTarget.style.background="#141b2d"}}>
+                <span style={{ fontSize:24,width:36,height:36,background:"#c9a84c18",borderRadius:10,display:"flex",alignItems:"center",justifyContent:"center" }}>📷</span>
+                <div><div>צילום מסמך</div><div style={{ fontSize:11,color:"#7a8fa5",fontWeight:400 }}>פתח מצלמה וצלם</div></div>
+              </button>
+              <button onClick={()=>{ setShowFilePicker(false); setTimeout(()=>fileRef.current?.click(),100); }} style={{ background:"#141b2d",border:"1.5px solid #1e2d4a",borderRadius:14,color:"#e8eaf0",fontFamily:"inherit",fontSize:15,fontWeight:700,padding:"16px 18px",cursor:"pointer",display:"flex",alignItems:"center",gap:12,transition:"all .2s" }} onMouseOver={e=>{e.currentTarget.style.borderColor="#c9a84c";e.currentTarget.style.background="#1a2744"}} onMouseOut={e=>{e.currentTarget.style.borderColor="#1e2d4a";e.currentTarget.style.background="#141b2d"}}>
+                <span style={{ fontSize:24,width:36,height:36,background:"#c9a84c18",borderRadius:10,display:"flex",alignItems:"center",justifyContent:"center" }}>📂</span>
+                <div><div>העלאת קובץ</div><div style={{ fontSize:11,color:"#7a8fa5",fontWeight:400 }}>בחר מהמכשיר</div></div>
+              </button>
             </div>
-            <button onClick={()=>{ setShowFilePicker(false); camRef.current?.click(); }} style={{ background:"#1a2744",border:"1px solid #1e2d4a",borderRadius:12,color:"#e8eaf0",fontFamily:"inherit",fontSize:14,fontWeight:600,padding:"14px 16px",cursor:"pointer",display:"flex",alignItems:"center",gap:10,transition:"border-color .2s" }} onMouseOver={e=>e.currentTarget.style.borderColor="#c9a84c"} onMouseOut={e=>e.currentTarget.style.borderColor="#1e2d4a"}>
-              <span style={{ fontSize:20 }}>📷</span> צילום מסמך רפואי
-            </button>
-            <button onClick={()=>{ setShowFilePicker(false); fileRef.current?.click(); }} style={{ background:"#1a2744",border:"1px solid #1e2d4a",borderRadius:12,color:"#e8eaf0",fontFamily:"inherit",fontSize:14,fontWeight:600,padding:"14px 16px",cursor:"pointer",display:"flex",alignItems:"center",gap:10,transition:"border-color .2s" }} onMouseOver={e=>e.currentTarget.style.borderColor="#c9a84c"} onMouseOut={e=>e.currentTarget.style.borderColor="#1e2d4a"}>
-              <span style={{ fontSize:20 }}>📂</span> בחירת קובץ מהמכשיר
-            </button>
           </div>
         )}
 

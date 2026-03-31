@@ -219,6 +219,20 @@ export default async function handler(req, res) {
     return res.status(400).json({ error: "הודעה ארוכה מדי" });
   }
 
+  // ── File type validation (prevent malicious uploads) ──
+  const ALLOWED_MEDIA = ["image/jpeg","image/png","image/gif","image/webp","application/pdf",
+    "application/msword","application/vnd.openxmlformats-officedocument.wordprocessingml.document","text/plain"];
+  for (const m of messages) {
+    if (!Array.isArray(m.content)) continue;
+    for (const part of m.content) {
+      if ((part.type === "image" || part.type === "document") && part.source?.media_type) {
+        if (!ALLOWED_MEDIA.includes(part.source.media_type)) {
+          return res.status(400).json({ error: "סוג קובץ לא נתמך." });
+        }
+      }
+    }
+  }
+
   // ── Prompt injection sanitization ──────
   // Strip sequences that could manipulate system prompt behavior
   const INJECTION_RE = /\b(system|SYSTEM|<\/?system>|<\/?instructions>|ignore previous|forget your|you are now|new instructions|override|disregard)\b/gi;
@@ -245,9 +259,14 @@ export default async function handler(req, res) {
     ? model
     : "claude-haiku-4-5-20251001";
 
-  // ── Call Anthropic (with 25s timeout) ────
+  // ── Call Anthropic ────
+  // Longer timeout for document/image analysis (Sonnet), shorter for text (Haiku)
+  const hasDocContent = Array.isArray(messages) && messages.some(m =>
+    Array.isArray(m.content) && m.content.some(p => p.type === "image" || p.type === "document")
+  );
+  const timeoutMs = hasDocContent ? 55000 : 25000;
   const controller = new AbortController();
-  const timeout = setTimeout(() => controller.abort(), 25000);
+  const timeout = setTimeout(() => controller.abort(), timeoutMs);
 
   try {
     const response = await fetch("https://api.anthropic.com/v1/messages", {
