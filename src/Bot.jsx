@@ -19,7 +19,9 @@ async function callClaude(messages, model = "claude-haiku-4-5-20251001") {
   });
   if(!r.ok) { const e=await r.json().catch(()=>({})); throw new Error(e.error||"שגיאה"); }
   const d = await r.json();
-  return d.content?.[0]?.text || "";
+  const text = d.content?.[0]?.text;
+  if (!text) throw new Error("תשובה ריקה — נסה שוב.");
+  return text;
 }
 
 const GREETING_1 = { role:"assistant", content:`היי, אני בוט "נפגעתי" 👋
@@ -71,12 +73,15 @@ export default function Bot({ onClose }) {
     try {
       const rep = await callClaude(next.map(m=>({role:m.role,content:m.content})));
       const updated = [...next, {role:"assistant",content:rep}];
-      if (!ctaShown && next.filter(m=>m.role==="user").length === 1) {
+      const userCount = next.filter(m=>m.role==="user").length;
+      // Show CTA after first exchange or after 3+ messages without calc
+      if (!ctaShown && (userCount === 1 || userCount >= 3)) {
         updated.push({role:"assistant",content:CTA_MSG});
         setCtaShown(true);
       }
       setMsgs(updated);
-      const c = parseCalc(rep); if(c) setCalc(c);
+      const c = parseCalc(rep);
+      if (c) { setCalc(c); setShowReferral(true); }
     } catch(e) { setErr(e.message||"שגיאת חיבור"); }
     setLoad(false);
   }
@@ -123,7 +128,10 @@ export default function Bot({ onClose }) {
       const apiMsgs = [...msgs.map(m=>({role:m.role,content:m.content})), userMsg];
       const rep = await callClaude(apiMsgs, "claude-sonnet-4-20250514");
       setMsgs(p=>[...p,{role:"assistant",content:rep}]);
-      const c = parseCalc(rep); if(c) setCalc(c);
+      const c = parseCalc(rep);
+      if (c) { setCalc(c); setShowReferral(true); }
+      // Always show CTA after document analysis
+      if (!ctaShown) { setMsgs(p=>[...p,{role:"assistant",content:CTA_MSG}]); setCtaShown(true); }
 
     } catch(e) {
       setErr(e.message||"שגיאה בניתוח המסמך");
