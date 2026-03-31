@@ -23,7 +23,7 @@ async function callClaude(messages, model = "claude-haiku-4-5-20251001") {
     method:"POST", headers:{"Content-Type":"application/json"},
     body: JSON.stringify({ messages: cleaned, model }),
   });
-  if(!r.ok) { const e=await r.json().catch(()=>({})); throw new Error(e.error||"שגיאה"); }
+  if(!r.ok) { const e=await r.json().catch(()=>({})); console.error("API error:", r.status, e); throw new Error(e.error||"שגיאה"); }
   const d = await r.json();
   const text = d.content?.[0]?.text;
   if (!text) throw new Error("תשובה ריקה — נסה שוב.");
@@ -136,11 +136,21 @@ export default function Bot({ onClose }) {
       let base64, mediaType;
 
       if (isImage) {
-        // Compress images to avoid Vercel 4.5MB body limit
+        // Try to compress images to avoid Vercel 4.5MB body limit
         const compressed = await compressImage(file);
-        if (!compressed) { setErr("שגיאה בעיבוד התמונה — נסה קובץ אחר."); setLoad(false); setDocName(""); return; }
-        base64 = compressed.base64;
-        mediaType = compressed.mediaType;
+        if (compressed) {
+          base64 = compressed.base64;
+          mediaType = compressed.mediaType;
+        } else {
+          // Fallback: send raw if compression fails (e.g., HEIC on some browsers)
+          base64 = await new Promise((res, rej) => {
+            const reader = new FileReader();
+            reader.onload = () => res(reader.result.split(",")[1]);
+            reader.onerror = () => rej(new Error("שגיאה בקריאת הקובץ"));
+            reader.readAsDataURL(file);
+          });
+          mediaType = file.type;
+        }
       } else {
         // PDFs and docs — read as-is
         base64 = await new Promise((res, rej) => {

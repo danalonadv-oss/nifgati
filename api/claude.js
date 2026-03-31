@@ -298,6 +298,12 @@ export default async function handler(req, res) {
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), timeoutMs);
 
+  // Log sanitized message structure for debugging (roles + content types, no data)
+  console.log("API request:", JSON.stringify(sanitized.map(m => ({
+    role: m.role,
+    contentType: typeof m.content === "string" ? "string" : (Array.isArray(m.content) ? m.content.map(p=>p.type) : typeof m.content),
+  }))));
+
   try {
     const response = await fetch("https://api.anthropic.com/v1/messages", {
       method: "POST",
@@ -325,15 +331,20 @@ export default async function handler(req, res) {
       if (status === 429) return res.status(429).json({ error: "יותר מדי בקשות — נסה שוב בעוד דקה." });
       if (status === 413) return res.status(400).json({ error: "הקובץ גדול מדי לעיבוד." });
       if (status === 400) {
-        // Parse Anthropic's error for a user-helpful hint
+        // Return a debug hint from Anthropic's error while keeping it safe
+        let hint = "";
         try {
           const parsed = JSON.parse(errBody);
-          const msg = parsed?.error?.message || "";
-          if (msg.includes("role")) return res.status(400).json({ error: "שגיאה במבנה השיחה — נסה לפתוח שיחה חדשה." });
-          if (msg.includes("size") || msg.includes("too large")) return res.status(400).json({ error: "הקובץ גדול מדי — נסה קובץ קטן יותר." });
-          if (msg.includes("media_type") || msg.includes("type")) return res.status(400).json({ error: "סוג קובץ לא נתמך — נסה PDF או תמונה." });
+          hint = parsed?.error?.message || "";
         } catch(_) {}
-        return res.status(400).json({ error: "שגיאה בנתונים — נסה לפתוח שיחה חדשה." });
+        console.error("Anthropic 400 detail:", hint);
+        // Map known errors to Hebrew messages
+        if (/must.*(alternate|user.*assistant)/i.test(hint)) return res.status(400).json({ error: "שגיאה במבנה השיחה — נסה לפתוח שיחה חדשה." });
+        if (/too large|size/i.test(hint)) return res.status(400).json({ error: "הקובץ גדול מדי — נסה קובץ קטן יותר." });
+        if (/media_type|invalid.*type/i.test(hint)) return res.status(400).json({ error: "סוג קובץ לא נתמך — נסה PDF או תמונה." });
+        if (/base64|decode|data/i.test(hint)) return res.status(400).json({ error: "שגיאה בקריאת הקובץ — נסה להעלות שוב." });
+        // Unknown 400 — show first 80 chars of hint for debugging
+        return res.status(400).json({ error: `שגיאה: ${hint.slice(0,80) || "בעיה לא ידועה"} — נסה שוב.` });
       }
       return res.status(502).json({ error: "שגיאת שרת — נסה שוב." });
     }
