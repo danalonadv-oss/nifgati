@@ -110,7 +110,7 @@ export default function App() {
             <div style={{ maxWidth:700 }}>
               <div style={{ display:"inline-flex",alignItems:"center",gap:8,background:"#c9a84c18",border:"1px solid #c9a84c44",borderRadius:100,padding:"6px 16px",fontSize:13,color:G,marginBottom:28,fontWeight:600 }}>
                 <span className="pulse" style={{ width:7,height:7,background:G,borderRadius:"50%",display:"inline-block" }} aria-hidden="true"/>
-                ייעוץ חינמי ✓ תשלום רק מהפיצוי ✓ מענה תוך 24h
+                מענה מיידי ✓ תשלום רק מהפיצוי ✓ ייעוץ חינמי
               </div>
               <h1 className="ht" style={{ fontSize:54,fontWeight:900,lineHeight:1.2,marginBottom:20 }}>
                 נפגעת בתאונת דרכים?<br/>
@@ -120,16 +120,15 @@ export default function App() {
               <p style={{ fontSize:17,color:"#7a8fa5",lineHeight:1.8,marginBottom:36,maxWidth:530 }}>
                 מחשבון הפיצויים מעריך את שווי התיק שלך תוך דקות. שיחה ישירה, שכ"ט רק מהפיצוי. המידע בשיחה אינו נשמר ואינו מתועד.
               </p>
-              <div style={{ display:"flex",gap:14,flexWrap:"wrap",marginBottom:48 }}>
+              <div style={{ display:"flex",gap:14,flexWrap:"wrap",marginBottom:40 }}>
                 <button style={gBtn} onClick={()=>setShowBot(true)} aria-label="פתח מחשבון פיצויים">🤖 בוט חישוב פיצויים</button>
-                <button style={oBtn} onClick={()=>window.open(`https://wa.me/${WA}`,"_blank")} aria-label="פתח שיחת וואטסאפ">💬 וואטסאפ עכשיו</button>
               </div>
             </div>
           </div>
         </section>
 
         {/* HOW */}
-        <section id="how" aria-label="איך זה עובד" style={{ padding:"80px 24px",background:"#0d1323" }}>
+        <section id="how" aria-label="איך זה עובד" style={{ padding:"68px 24px",background:"#0d1323" }}>
           <Reveal>
             <div style={{ maxWidth:1100,margin:"0 auto" }}>
               <div style={{ textAlign:"center",marginBottom:48 }}>
@@ -151,7 +150,7 @@ export default function App() {
         </section>
 
         {/* CALCULATOR */}
-        <section id="calc" aria-label="מחשבון פיצויים" style={{ padding:"80px 24px" }}>
+        <section id="calc" aria-label="מחשבון פיצויים" style={{ padding:"68px 24px" }}>
           <Reveal>
             <div style={{ maxWidth:680,margin:"0 auto",textAlign:"center" }}>
               <div className="div" aria-hidden="true"/>
@@ -175,7 +174,7 @@ export default function App() {
         </section>
 
         {/* REVIEWS */}
-        <section id="why" aria-label="ביקורות לקוחות" style={{ padding:"80px 24px",background:"#0d1323" }}>
+        <section id="why" aria-label="ביקורות לקוחות" style={{ padding:"68px 24px",background:"#0d1323" }}>
           <Reveal>
             <div style={{ maxWidth:1100,margin:"0 auto" }}>
               <div style={{ textAlign:"center",marginBottom:48 }}>
@@ -199,7 +198,7 @@ export default function App() {
         </section>
 
         {/* CONTACT */}
-        <section id="contact" aria-label="צור קשר" style={{ padding:"80px 24px" }}>
+        <section id="contact" aria-label="צור קשר" style={{ padding:"68px 24px" }}>
           <Reveal>
             <div style={{ maxWidth:500,margin:"0 auto",textAlign:"center" }}>
               <div className="div" aria-hidden="true"/>

@@ -1,9 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 
-const PHONE    = "0544338212";
 const WA       = "972544338212";
 const MY_NAME  = "דן אלון";
-const MY_TITLE = "עורך דין נזיקין";
 
 function parseCalc(t) {
   if (!t.includes("---חישוב---")) return null;
@@ -24,7 +22,15 @@ async function callClaude(messages, model = "claude-haiku-4-5-20251001") {
   return d.content?.[0]?.text || "";
 }
 
-const INITIAL_MSG = { role:"assistant", content:"שלום 👋\n\nספר/י לי — מה קרה בתאונה וממה אתה סובל/ת?\n\n🎙️ דבר/י, כתוב/י, או 📎 צרף/י מסמך רפואי לניתוח אוטומטי." };
+const INITIAL_MSG = { role:"assistant", content:`היי, אני בוט "נפגעתי" 👋
+
+אני יכול לתת לך הערכה מהירה ומדויקת של הפיצוי המגיע לך מתאונת דרכים, על בסיס חוק הפלת"ד.
+
+אתה יכול לכתוב, לדבר בעברית, או להעלות סיכום רפואי.
+
+🔒 הפרטיות שלך חשובה: המידע נמחק בסיום השיחה ואינו נשמר אצלנו. מדיניות פרטיות: nifgati.co.il/privacy` };
+
+const CTA_MSG = `ניתן לעבור בכל שלב להתייעצות עם עורך דין ${MY_NAME} לתכנון הצעדים הבאים ומיקסום הפיצוי.`;
 
 export default function Bot({ onClose }) {
   const [msgs, setMsgs] = useState([INITIAL_MSG]);
@@ -34,15 +40,18 @@ export default function Bot({ onClose }) {
   const [mic, setMic]   = useState(false);
   const [err, setErr]   = useState("");
   const [docName, setDocName] = useState("");
+  const [showFilePicker, setShowFilePicker] = useState(false);
+  const [ctaShown, setCtaShown] = useState(false);
   const fileRef = useRef(null);
+  const camRef  = useRef(null);
   const inpRef  = useRef(null);
   const end = useRef(null);
+  const micRef = useRef(null);
   useEffect(()=>{ end.current?.scrollIntoView({behavior:"smooth"}); },[msgs,load]);
 
-  // Auto-dismiss errors after 6 seconds
   useEffect(()=>{ if(!err) return; const t=setTimeout(()=>setErr(""),6000); return ()=>clearTimeout(t); },[err]);
 
-  function restart() { setMsgs([INITIAL_MSG]); setCalc(null); setInp(""); setErr(""); setDocName(""); }
+  function restart() { setMsgs([INITIAL_MSG]); setCalc(null); setInp(""); setErr(""); setDocName(""); setCtaShown(false); }
 
   async function send(txt) {
     if(!txt.trim()||load) return;
@@ -51,7 +60,13 @@ export default function Bot({ onClose }) {
     setMsgs(next); setLoad(true);
     try {
       const rep = await callClaude(next.map(m=>({role:m.role,content:m.content})));
-      setMsgs(p=>[...p,{role:"assistant",content:rep}]);
+      const updated = [...next, {role:"assistant",content:rep}];
+      // Add CTA after first bot response to user's first real message
+      if (!ctaShown && next.filter(m=>m.role==="user").length === 1) {
+        updated.push({role:"assistant",content:CTA_MSG});
+        setCtaShown(true);
+      }
+      setMsgs(updated);
       const c = parseCalc(rep); if(c) setCalc(c);
     } catch(e) { setErr(e.message||"שגיאת חיבור"); }
     setLoad(false);
@@ -107,10 +122,19 @@ export default function Bot({ onClose }) {
     setLoad(false); setDocName("");
   }
 
+  function toggleMic() {
+    if (mic) {
+      // Stop
+      if (micRef.current) { try { micRef.current.stop(); } catch(e){} }
+      setMic(false);
+      return;
+    }
+    startMic();
+  }
+
   async function startMic() {
     const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
     if (!SR) { setErr("זיהוי קול לא נתמך בדפדפן זה — כתוב/י ידנית."); return; }
-    if (mic) return;
 
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
@@ -125,6 +149,7 @@ export default function Bot({ onClose }) {
     }
 
     const r = new SR();
+    micRef.current = r;
     r.lang = "he-IL";
     r.continuous = false;
     r.interimResults = false;
@@ -158,6 +183,8 @@ export default function Bot({ onClose }) {
       ? `שלום, פניתי דרך האתר. תיאור קצר: ${chatSummary.slice(0,200)}. אשמח לייעוץ.`
       : "שלום, פניתי דרך האתר. אשמח לייעוץ בנושא תאונת דרכים.";
 
+  const btnSm = { background:"#141b2d",border:"1px solid #1e2d4a",borderRadius:10,color:"#7a8fa5",fontSize:16,width:40,height:40,cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0 };
+
   return (
     <div role="dialog" aria-modal="true" aria-label="בוט פיצויים" style={{ position:"fixed",inset:0,background:"#080d18ee",zIndex:200,display:"flex",alignItems:"center",justifyContent:"center",padding:16 }}>
       <div style={{ background:"#0a0f1e",border:"1px solid #1e2d4a",borderRadius:20,width:"100%",maxWidth:560,maxHeight:"90vh",display:"flex",flexDirection:"column",overflow:"hidden" }}>
@@ -179,7 +206,7 @@ export default function Bot({ onClose }) {
               <div style={{ background:m.role==="user"?"#c9a84c":"#141b2d",color:m.role==="user"?"#0a0f1e":"#e8eaf0",border:m.role==="user"?"none":"1px solid #1e2d4a",borderRadius:m.role==="user"?"18px 18px 4px 18px":"18px 18px 18px 4px",padding:"10px 14px",maxWidth:"85%",fontSize:14,lineHeight:1.75,fontWeight:m.role==="user"?600:400,whiteSpace:"pre-wrap" }}>{m.content}</div>
             </div>
           ))}
-          {load && <div style={{ display:"flex",justifyContent:"flex-end" }}><div role="status" aria-label="הבוט מקליד..." style={{ background:"#141b2d",border:"1px solid #1e2d4a",borderRadius:"18px 18px 18px 4px",padding:"14px 18px",display:"flex",gap:4 }}><span className="sr-only" style={{ position:"absolute",width:1,height:1,overflow:"hidden",clip:"rect(0,0,0,0)" }}>הבוט מקליד...</span>{[0,.2,.4].map(d=><span key={d} aria-hidden="true" style={{ display:"inline-block",width:7,height:7,background:"#c9a84c",borderRadius:"50%",animation:"bl 1.2s infinite",animationDelay:`${d}s` }}/>)}</div></div>}
+          {load && <div style={{ display:"flex",justifyContent:"flex-end" }}><div role="status" aria-label="הבוט מקליד..." style={{ background:"#141b2d",border:"1px solid #1e2d4a",borderRadius:"18px 18px 18px 4px",padding:"14px 18px",display:"flex",gap:4 }}><span style={{ position:"absolute",width:1,height:1,overflow:"hidden",clip:"rect(0,0,0,0)" }}>הבוט מקליד...</span>{[0,.2,.4].map(d=><span key={d} aria-hidden="true" style={{ display:"inline-block",width:7,height:7,background:"#c9a84c",borderRadius:"50%",animation:"bl 1.2s infinite",animationDelay:`${d}s` }}/>)}</div></div>}
           {calc && !load && (
             <div style={{ background:"linear-gradient(135deg,#1a2744,#0f1a30)",border:"1px solid #c9a84c55",borderRadius:16,padding:"18px 20px" }}>
               <div style={{ fontSize:11,color:"#c9a84c",letterSpacing:1,marginBottom:6,fontWeight:700 }}>הערכת פיצוי ראשונית</div>
@@ -192,19 +219,43 @@ export default function Bot({ onClose }) {
           <div ref={end}/>
         </div>
 
-        <div style={{ background:"#0a0f1e",borderTop:"1px solid #1e2d4a",padding:"12px 16px 14px" }}>
-          <div style={{ display:"flex",gap:8 }}>
-            <button onClick={startMic} aria-label={mic?"מקליד...":"הקלט קול בעברית"} style={{ background:mic?"#c9a84c22":"#141b2d",border:`1px solid ${mic?"#c9a84c":"#1e2d4a"}`,borderRadius:12,color:"#c9a84c",fontSize:20,width:48,height:48,cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0 }}>{mic?"🔴":"🎙️"}</button>
-            <button onClick={()=>fileRef.current?.click()} disabled={load} aria-label="צרף מסמך רפואי" title="צרף PDF או תמונה" style={{ background:"#141b2d",border:"1px solid #1e2d4a",borderRadius:12,color:"#7a8fa5",fontSize:20,width:48,height:48,cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0,opacity:load?.35:1 }}>📎</button>
+        {/* Custom file picker modal */}
+        {showFilePicker && (
+          <div style={{ position:"absolute",bottom:80,left:16,right:16,background:"#141b2d",border:"1px solid #1e2d4a",borderRadius:16,padding:16,zIndex:10,display:"flex",flexDirection:"column",gap:10 }}>
+            <div style={{ display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:4 }}>
+              <span style={{ fontSize:14,fontWeight:700,color:"#e8eaf0" }}>צירוף מסמך רפואי</span>
+              <button onClick={()=>setShowFilePicker(false)} style={{ background:"transparent",border:"none",color:"#7a8fa5",fontSize:18,cursor:"pointer" }}>✕</button>
+            </div>
+            <button onClick={()=>{ setShowFilePicker(false); camRef.current?.click(); }} style={{ background:"#1a2744",border:"1px solid #1e2d4a",borderRadius:12,color:"#e8eaf0",fontFamily:"inherit",fontSize:14,fontWeight:600,padding:"14px 16px",cursor:"pointer",display:"flex",alignItems:"center",gap:10,transition:"border-color .2s" }} onMouseOver={e=>e.currentTarget.style.borderColor="#c9a84c"} onMouseOut={e=>e.currentTarget.style.borderColor="#1e2d4a"}>
+              <span style={{ fontSize:20 }}>📷</span> צילום מסמך רפואי
+            </button>
+            <button onClick={()=>{ setShowFilePicker(false); fileRef.current?.click(); }} style={{ background:"#1a2744",border:"1px solid #1e2d4a",borderRadius:12,color:"#e8eaf0",fontFamily:"inherit",fontSize:14,fontWeight:600,padding:"14px 16px",cursor:"pointer",display:"flex",alignItems:"center",gap:10,transition:"border-color .2s" }} onMouseOver={e=>e.currentTarget.style.borderColor="#c9a84c"} onMouseOut={e=>e.currentTarget.style.borderColor="#1e2d4a"}>
+              <span style={{ fontSize:20 }}>📂</span> בחירת קובץ מהמכשיר
+            </button>
+          </div>
+        )}
+
+        <div style={{ background:"#0a0f1e",borderTop:"1px solid #1e2d4a",padding:"10px 12px 12px" }}>
+          {/* Layout: [Clip] [Input] [Mic] [Send] */}
+          <div style={{ display:"flex",gap:6,alignItems:"center" }}>
+            <button onClick={()=>setShowFilePicker(p=>!p)} disabled={load} aria-label="צרף מסמך רפואי" title="צרף מסמך" style={{ ...btnSm,opacity:load?.35:1 }}>📎</button>
+            <input ref={camRef} type="file" accept="image/*" capture="environment" style={{ display:"none" }} onChange={e=>{ const f=e.target.files?.[0]; if(f) sendDoc(f); e.target.value=""; }}/>
             <input ref={fileRef} type="file" accept="image/*,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document" style={{ display:"none" }} onChange={e=>{ const f=e.target.files?.[0]; if(f) sendDoc(f); e.target.value=""; }}/>
-            <input ref={inpRef} aria-label="הקלד הודעה" style={{ flex:1,background:"#141b2d",border:"1px solid #1e2d4a",borderRadius:12,color:"#fff",fontFamily:"inherit",fontSize:14,padding:"0 14px",outline:"none",height:48,direction:"rtl" }} placeholder="כתוב, דבר, או צרף מסמך רפואי..." value={inp} onChange={e=>setInp(e.target.value)} onKeyDown={e=>{ if(e.key==="Enter"){e.preventDefault();send(inp);} }} onFocus={()=>setTimeout(()=>inpRef.current?.scrollIntoView({behavior:"smooth",block:"nearest"}),300)}/>
-            <button onClick={()=>send(inp)} disabled={load||!inp.trim()} aria-label="שלח הודעה" style={{ background:"#c9a84c",color:"#0a0f1e",border:"none",borderRadius:12,fontFamily:"inherit",fontWeight:700,fontSize:14,padding:"0 20px",cursor:"pointer",height:48,opacity:(load||!inp.trim())?.35:1 }}>שלח</button>
+            <div style={{ flex:1,position:"relative",display:"flex",alignItems:"center" }}>
+              <input ref={inpRef} aria-label="הקלד הודעה" style={{ width:"100%",background:"#141b2d",border:"1px solid #1e2d4a",borderRadius:10,color:"#fff",fontFamily:"inherit",fontSize:14,padding:"0 14px",outline:"none",height:42,direction:"rtl" }} placeholder={mic?"🎙️ מקשיב...":"כתוב, דבר, או צרף מסמך..."} value={inp} onChange={e=>setInp(e.target.value)} onKeyDown={e=>{ if(e.key==="Enter"){e.preventDefault();send(inp);} }} onFocus={()=>setTimeout(()=>inpRef.current?.scrollIntoView({behavior:"smooth",block:"nearest"}),300)}/>
+              {mic && <div style={{ position:"absolute",left:14,top:"50%",transform:"translateY(-50%)",display:"flex",gap:3,alignItems:"center" }}>{[0,.15,.3,.45,.6].map(d=><span key={d} style={{ display:"inline-block",width:3,height:12,background:"#22c55e",borderRadius:2,animation:"wave 1s ease-in-out infinite",animationDelay:`${d}s` }}/>)}</div>}
+            </div>
+            <button onClick={toggleMic} aria-label={mic?"עצור הקלטה":"הקלט קול"} style={{ ...btnSm,background:mic?"#22c55e22":"#141b2d",borderColor:mic?"#22c55e":"#1e2d4a",color:mic?"#22c55e":"#c9a84c" }}>{mic?"⏹️":"🎙️"}</button>
+            <button onClick={()=>send(inp)} disabled={load||!inp.trim()} aria-label="שלח הודעה" style={{ background:"#c9a84c",color:"#0a0f1e",border:"none",borderRadius:10,fontWeight:700,fontSize:16,width:42,height:42,cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0,opacity:(load||!inp.trim())?.35:1 }}>➤</button>
           </div>
           {docName && <p style={{ textAlign:"center",fontSize:12,color:"#c9a84c",marginTop:6 }}>{load ? "📤 מעלה ומנתח" : "🔍 מנתח"}: {docName}...</p>}
-          <p style={{ textAlign:"center",fontSize:11,color:"#2a3545",marginTop:8 }}>הערכה ראשונית בלבד • אינה מהווה ייעוץ משפטי • המידע אינו נשמר ואינו מתועד בשום אופן</p>
+          <p style={{ textAlign:"center",fontSize:11,color:"#2a3545",marginTop:6 }}>הערכה ראשונית בלבד • אינה מהווה ייעוץ משפטי • המידע אינו נשמר</p>
         </div>
       </div>
-      <style>{`@keyframes bl{0%,80%,100%{opacity:.15}40%{opacity:1}}`}</style>
+      <style>{`
+        @keyframes bl{0%,80%,100%{opacity:.15}40%{opacity:1}}
+        @keyframes wave{0%,100%{height:4px;opacity:.4}50%{height:16px;opacity:1}}
+      `}</style>
     </div>
   );
 }
