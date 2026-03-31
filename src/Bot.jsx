@@ -303,7 +303,7 @@ export default function Bot({ onClose }) {
               <span style={{ width:6,height:6,background:"#22c55e",borderRadius:"50%",display:"inline-block" }}/>
               השיחה לא נשמרת ולא מתועדת
             </span>
-            <a href="tel:0544338212" aria-label="התקשר לעו״ד אלון" title="התקשר" style={{ background:"#c9a84c22",border:"1px solid #c9a84c55",color:"#c9a84c",fontSize:16,cursor:"pointer",borderRadius:8,width:32,height:32,display:"flex",alignItems:"center",justifyContent:"center",textDecoration:"none" }}>📞</a>
+            <a href="tel:0544338212" aria-label="התקשר לעו״ד אלון" title="התקשר" style={{ background:"#25d366",border:"none",color:"#fff",fontSize:15,cursor:"pointer",borderRadius:8,width:32,height:32,display:"flex",alignItems:"center",justifyContent:"center",textDecoration:"none",boxShadow:"0 2px 8px #25d36644" }}>📞</a>
             <button onClick={onClose} aria-label="סגור בוט" style={{ background:"transparent",border:"none",color:"#7a8fa5",fontSize:20,cursor:"pointer",lineHeight:1 }}>✕</button>
           </div>
         </div>
@@ -322,12 +322,12 @@ export default function Bot({ onClose }) {
               <div style={{ fontSize:28,fontWeight:900,color:"#fff",marginBottom:4 }}>₪{calc.min.toLocaleString("he-IL")} – ₪{calc.max.toLocaleString("he-IL")}</div>
               <div style={{ fontSize:12,color:"#556070",marginBottom:14 }}>לפני שכ"ט (8%–13%)</div>
               <div style={{ textAlign:"center",fontSize:22,animation:"bounce 1s ease-in-out infinite",marginBottom:6 }}>👇</div>
-              <button onClick={()=>window.open(`https://wa.me/${WA}?text=${encodeURIComponent(waMsg)}`,"_blank")} aria-label="שליחת הנתונים לעורך דין אלון בוואטסאפ" style={{ width:"100%",background:"#25d366",color:"#fff",border:"none",borderRadius:12,fontFamily:"inherit",fontWeight:700,fontSize:14,padding:13,cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",gap:8,lineHeight:1.4 }}>📱 שליחת הנתונים לעו"ד אלון ובדיקת זכאות בוואטסאפ</button>
+              <button onClick={()=>window.location.href=`https://wa.me/${WA}?text=${encodeURIComponent(waMsg)}`} aria-label="שליחת הנתונים לעורך דין אלון בוואטסאפ" style={{ width:"100%",background:"#25d366",color:"#fff",border:"none",borderRadius:12,fontFamily:"inherit",fontWeight:700,fontSize:14,padding:13,cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",gap:8,lineHeight:1.4 }}>📱 שליחת הנתונים לעו"ד אלון ובדיקת זכאות בוואטסאפ</button>
             </div>
           )}
           {showReferral && !calc && (
             <div style={{ padding:"0 4px" }}>
-              <button onClick={()=>window.open(`https://wa.me/${WA}?text=${encodeURIComponent(waMsg)}`,"_blank")} style={{ width:"100%",background:"#25d366",color:"#fff",border:"none",borderRadius:12,fontFamily:"inherit",fontWeight:700,fontSize:14,padding:14,cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",gap:8,lineHeight:1.4 }}>📱 שליחת הנתונים לעו"ד אלון ובדיקת זכאות בוואטסאפ</button>
+              <button onClick={()=>window.location.href=`https://wa.me/${WA}?text=${encodeURIComponent(waMsg)}`} style={{ width:"100%",background:"#25d366",color:"#fff",border:"none",borderRadius:12,fontFamily:"inherit",fontWeight:700,fontSize:14,padding:14,cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",gap:8,lineHeight:1.4 }}>📱 שליחת הנתונים לעו"ד אלון ובדיקת זכאות בוואטסאפ</button>
             </div>
           )}
           {err && <div role="alert" style={{ textAlign:"center",fontSize:13,color:"#ef4444",display:"flex",alignItems:"center",justifyContent:"center",gap:8 }}><span>{err}</span><button onClick={()=>setErr("")} aria-label="סגור הודעת שגיאה" style={{ background:"transparent",border:"none",color:"#ef4444",cursor:"pointer",fontSize:16,lineHeight:1,flexShrink:0 }}>✕</button></div>}
@@ -372,7 +372,7 @@ export default function Bot({ onClose }) {
           <p style={{ textAlign:"center",fontSize:11,color:"#2a3545",marginTop:6 }}>הערכה ראשונית בלבד • אינה מהווה ייעוץ משפטי • המידע אינו נשמר</p>
         </div>
         {/* Floating WhatsApp icon inside chat */}
-        <button onClick={()=>window.open(`https://wa.me/${WA}?text=${encodeURIComponent(waMsg)}`,"_blank")} aria-label="שיחת וואטסאפ עם עו״ד אלון" title="וואטסאפ" style={{ position:"absolute",bottom:76,left:12,background:"#25d366",color:"#fff",border:"none",borderRadius:"50%",width:38,height:38,fontSize:18,cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",boxShadow:"0 4px 12px #25d36644",zIndex:5,transition:"transform .2s" }} onMouseOver={e=>e.currentTarget.style.transform="scale(1.1)"} onMouseOut={e=>e.currentTarget.style.transform="scale(1)"}>💬</button>
+        <button onClick={()=>window.location.href=`https://wa.me/${WA}?text=${encodeURIComponent(waMsg)}`} aria-label="שיחת וואטסאפ עם עו״ד אלון" title="וואטסאפ" style={{ position:"absolute",bottom:76,left:12,background:"#25d366",color:"#fff",border:"none",borderRadius:"50%",width:38,height:38,fontSize:18,cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",boxShadow:"0 4px 12px #25d36644",zIndex:5,transition:"transform .2s" }} onMouseOver={e=>e.currentTarget.style.transform="scale(1.1)"} onMouseOut={e=>e.currentTarget.style.transform="scale(1)"}>💬</button>
       </div>
       <style>{`
         @keyframes bl{0%,80%,100%{opacity:.15}40%{opacity:1}}

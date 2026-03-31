@@ -39,7 +39,13 @@ export default async function handler(req, res) {
     return res.status(200).json({ ok: true, skipped: true });
   }
 
+  // Sanitize HTML to prevent XSS in email
+  function escapeHtml(str) {
+    return str.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
+  }
+
   // Build email HTML
+  const safeSummary = escapeHtml(summary);
   const calcSection = calculation
     ? `<div style="background:#f0f4f8;border-radius:8px;padding:16px;margin:16px 0;font-family:monospace;direction:rtl">
         <strong>אינדיקציה כספית:</strong><br/>
@@ -53,7 +59,7 @@ export default async function handler(req, res) {
       <h2 style="color:#c9a84c;border-bottom:2px solid #c9a84c;padding-bottom:8px">🤖 ליד חדש מהבוט — nifgati.co.il</h2>
       ${calcSection}
       <h3>סיכום השיחה:</h3>
-      <div style="background:#fafafa;border:1px solid #e0e0e0;border-radius:8px;padding:16px;white-space:pre-wrap;line-height:1.8;direction:rtl">${summary}</div>
+      <div style="background:#fafafa;border:1px solid #e0e0e0;border-radius:8px;padding:16px;white-space:pre-wrap;line-height:1.8;direction:rtl">${safeSummary}</div>
       <p style="color:#999;font-size:12px;margin-top:24px">הודעה זו נשלחה אוטומטית מבוט הפיצויים באתר nifgati.co.il. המידע נמחק מהמערכת לאחר השליחה.</p>
     </div>
   `;
