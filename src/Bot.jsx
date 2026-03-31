@@ -12,10 +12,16 @@ function parseCalc(t) {
 }
 
 async function callClaude(messages, model = "claude-haiku-4-5-20251001") {
-  const trimmed = messages.slice(-12);
+  // Clean messages: strip custom flags, keep only role+content
+  const cleaned = messages.slice(-12).map(m => {
+    const msg = { role: m.role, content: m.content };
+    // Strip base64 from OLD messages to avoid ballooning the request body.
+    // Only the LAST message (the new one) keeps its base64 content.
+    return msg;
+  });
   const r = await fetch("/api/claude", {
     method:"POST", headers:{"Content-Type":"application/json"},
-    body: JSON.stringify({ messages: trimmed, model }),
+    body: JSON.stringify({ messages: cleaned, model }),
   });
   if(!r.ok) { const e=await r.json().catch(()=>({})); throw new Error(e.error||"שגיאה"); }
   const d = await r.json();
@@ -72,7 +78,7 @@ export default function Bot({ onClose }) {
     const next = [...msgs, {role:"user",content:txt}];
     setMsgs(next); setLoad(true);
     try {
-      const rep = await callClaude(next.map(m=>({role:m.role,content:m.content})));
+      const rep = await callClaude(next.map(m=>({role:m.role,content:typeof m.content==="string"?m.content:"[הודעה]"})));
       const updated = [...next, {role:"assistant",content:rep}];
       const userCount = next.filter(m=>m.role==="user").length;
       // Show CTA after first exchange or after 3+ messages without calc
@@ -165,7 +171,16 @@ export default function Bot({ onClose }) {
       const next = [...msgs, displayMsg];
       setMsgs(next);
 
-      const apiMsgs = [...msgs.map(m=>({role:m.role,content:m.content})), userMsg];
+      // Strip base64 from old messages — only send text history + the new document
+      const historyMsgs = msgs.map(m => {
+        // Convert multi-part (old uploads) to text-only summaries
+        if (Array.isArray(m.content)) {
+          const textParts = m.content.filter(p => p.type === "text").map(p => p.text).join(" ");
+          return { role: m.role, content: textParts || "[מסמך שנותח]" };
+        }
+        return { role: m.role, content: typeof m.content === "string" ? m.content : "[הודעה]" };
+      });
+      const apiMsgs = [...historyMsgs, userMsg];
       const rep = await callClaude(apiMsgs, "claude-sonnet-4-20250514");
       setMsgs(p=>[...p,{role:"assistant",content:rep}]);
       const c = parseCalc(rep);
