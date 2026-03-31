@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-
+// v2 — mic permission fix + file upload: images & documents only
 // ╔══════════════════════════════════════╗
 // ║  שנה כאן את הפרטים שלך             ║
 const PHONE    = "0544338212";
