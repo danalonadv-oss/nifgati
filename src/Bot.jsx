@@ -102,6 +102,8 @@ export default function Bot({ onClose }) {
         setCtaShown(true);
       }
       setMsgs(updated);
+      // Send email after first user message + on every calculation
+      if (userCount === 1) notifyLead(updated, null);
       const c = parseCalc(rep);
       if (c) { setCalc(c); setShowReferral(true); notifyLead(updated, c); }
     } catch(e) { setErr(e.message||"שגיאת חיבור"); }
