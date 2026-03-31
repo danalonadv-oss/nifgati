@@ -362,7 +362,7 @@ export default function App() {
                 ייעוץ חינמי ✓ תשלום רק מהפיצוי ✓ מענה תוך 24h
               </div>
               <h1 className="ht" style={{ fontSize:54,fontWeight:900,lineHeight:1.2,marginBottom:20 }}>
-                נפגעת בתאונה?<br/>
+                נפגעת בתאונת דרכים?<br/>
                 <span style={{ color:G }}>מגיע לך פיצוי.</span><br/>
                 <span style={{ fontSize:"60%",fontWeight:500,color:"#7a8fa5" }}>בדוק כמה — עכשיו, בחינם.</span>
               </h1>
