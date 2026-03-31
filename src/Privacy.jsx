@@ -12,7 +12,7 @@ export default function Privacy() {
 
         <h2>1. מי אנחנו</h2>
         <p style={s}>nifgati.co.il הוא האתר של <strong>דן אלון, עורך דין נזיקין</strong>.<br />
-        לפניות בנושא פרטיות: <a href="mailto:info@nifgati.co.il">info@nifgati.co.il</a> | <a href="tel:0544338212">054-4338212</a></p>
+        לפניות בנושא פרטיות: <a href="mailto:Danalonadv@gmail.com">Danalonadv@gmail.com</a> | <a href="tel:0544338212">054-4338212</a></p>
 
         <h2>2. מדיניות אי-איסוף מידע</h2>
         <p style={s}><strong>האתר אינו אוסף, אינו שומר ואינו מתעד מידע אישי של משתמשים.</strong></p>
@@ -46,7 +46,7 @@ export default function Privacy() {
           <li><strong>מחיקה:</strong> זכות למחיקת מידע ("הזכות להישכח")</li>
           <li><strong>התנגדות:</strong> זכות להתנגד לשימוש לצרכי שיווק</li>
         </ul>
-        <p style={s}>לפנייה: <a href="mailto:info@nifgati.co.il">info@nifgati.co.il</a> — נענה תוך 30 יום.</p>
+        <p style={s}>לפנייה: <a href="mailto:Danalonadv@gmail.com">Danalonadv@gmail.com</a> — נענה תוך 30 יום.</p>
 
         <h2>6. אבטחת מידע</h2>
         <ul>
@@ -65,7 +65,7 @@ export default function Privacy() {
 
         <h2>9. יצירת קשר — ממונה פרטיות</h2>
         <p style={s}>דן אלון, עורך דין נזיקין<br />
-        דוא"ל: <a href="mailto:info@nifgati.co.il">info@nifgati.co.il</a><br />
+        דוא"ל: <a href="mailto:Danalonadv@gmail.com">Danalonadv@gmail.com</a><br />
         טלפון: <a href="tel:0544338212">054-4338212</a></p>
 
         <div style={{ marginTop:48, padding:"16px 20px", background:"#0d1323", border:"1px solid #1e2d4a", borderRadius:12, fontSize:13, color:"#7a8fa5" }}>

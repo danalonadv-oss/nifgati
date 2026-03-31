@@ -43,7 +43,7 @@ export default function Accessibility() {
         <h2>פניות נגישות</h2>
         <p style={s}>נתקלת בבעיית נגישות? אנחנו כאן לעזור:</p>
         <ul>
-          <li>דוא"ל: <a href="mailto:info@nifgati.co.il">info@nifgati.co.il</a></li>
+          <li>דוא"ל: <a href="mailto:Danalonadv@gmail.com">Danalonadv@gmail.com</a></li>
           <li>טלפון: 050-1234567</li>
           <li>נענה תוך <strong>5 ימי עסקים</strong></li>
         </ul>

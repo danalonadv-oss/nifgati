@@ -219,7 +219,7 @@ export default function App() {
                 <div>{MY_NAME} — {MY_TITLE}</div>
                 <div>חנה זמר 7, תל אביב</div>
                 <div>ימים א׳–ה׳ | 9:00–19:00</div>
-                <div><a href="mailto:info@nifgati.co.il" style={{ color:G }}>info@nifgati.co.il</a></div>
+                <div><a href="mailto:Danalonadv@gmail.com" style={{ color:G }}>Danalonadv@gmail.com</a></div>
               </address>
             </div>
           </Reveal>
