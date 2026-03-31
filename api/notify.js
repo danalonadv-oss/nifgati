@@ -66,7 +66,7 @@ export default async function handler(req, res) {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        from: "בוט נפגעתי <bot@nifgati.co.il>",
+        from: "nifgati Bot <onboarding@resend.dev>",
         to: [LEAD_EMAIL],
         subject: "ליד חדש מהבוט — סיכום בדיקת פיצויים",
         html,
