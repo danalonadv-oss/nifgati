@@ -224,10 +224,35 @@ export default async function handler(req, res) {
     return res.status(400).json({ error: "הודעה ארוכה מדי" });
   }
 
+  // ── Merge consecutive same-role messages (Anthropic requires alternating roles) ──
+  const merged = [];
+  for (const m of messages) {
+    if (merged.length > 0 && merged[merged.length - 1].role === m.role) {
+      const prev = merged[merged.length - 1];
+      // Merge content: both strings → join, otherwise keep last
+      if (typeof prev.content === "string" && typeof m.content === "string") {
+        prev.content = prev.content + "\n" + m.content;
+      } else {
+        // If new message has multi-part content (image/doc), replace
+        prev.content = m.content;
+      }
+    } else {
+      merged.push({ ...m });
+    }
+  }
+
+  // ── Ensure first message is user role (Anthropic requirement) ──
+  while (merged.length > 0 && merged[0].role !== "user") {
+    merged.shift();
+  }
+  if (merged.length === 0) {
+    return res.status(400).json({ error: "פרמטרים שגויים" });
+  }
+
   // ── File type validation (prevent malicious uploads) ──
   const ALLOWED_MEDIA = ["image/jpeg","image/png","image/gif","image/webp","application/pdf",
     "application/msword","application/vnd.openxmlformats-officedocument.wordprocessingml.document","text/plain"];
-  for (const m of messages) {
+  for (const m of merged) {
     if (!Array.isArray(m.content)) continue;
     for (const part of m.content) {
       if ((part.type === "image" || part.type === "document") && part.source?.media_type) {
@@ -241,7 +266,7 @@ export default async function handler(req, res) {
   // ── Prompt injection sanitization ──────
   // Strip sequences that could manipulate system prompt behavior
   const INJECTION_RE = /\b(system|SYSTEM|<\/?system>|<\/?instructions>|ignore previous|forget your|you are now|new instructions|override|disregard)\b/gi;
-  const sanitized = messages.map(m => {
+  const sanitized = merged.map(m => {
     if (m.role !== "user") return m;
     if (typeof m.content === "string") {
       return { ...m, content: m.content.replace(INJECTION_RE, "[filtered]") };
@@ -266,7 +291,7 @@ export default async function handler(req, res) {
 
   // ── Call Anthropic ────
   // Longer timeout for document/image analysis (Sonnet), shorter for text (Haiku)
-  const hasDocContent = Array.isArray(messages) && messages.some(m =>
+  const hasDocContent = merged.some(m =>
     Array.isArray(m.content) && m.content.some(p => p.type === "image" || p.type === "document")
   );
   const timeoutMs = hasDocContent ? 55000 : 25000;
@@ -299,7 +324,17 @@ export default async function handler(req, res) {
       const status = response.status;
       if (status === 429) return res.status(429).json({ error: "יותר מדי בקשות — נסה שוב בעוד דקה." });
       if (status === 413) return res.status(400).json({ error: "הקובץ גדול מדי לעיבוד." });
-      if (status === 400) return res.status(400).json({ error: "שגיאה בנתונים שנשלחו — נסה שוב." });
+      if (status === 400) {
+        // Parse Anthropic's error for a user-helpful hint
+        try {
+          const parsed = JSON.parse(errBody);
+          const msg = parsed?.error?.message || "";
+          if (msg.includes("role")) return res.status(400).json({ error: "שגיאה במבנה השיחה — נסה לפתוח שיחה חדשה." });
+          if (msg.includes("size") || msg.includes("too large")) return res.status(400).json({ error: "הקובץ גדול מדי — נסה קובץ קטן יותר." });
+          if (msg.includes("media_type") || msg.includes("type")) return res.status(400).json({ error: "סוג קובץ לא נתמך — נסה PDF או תמונה." });
+        } catch(_) {}
+        return res.status(400).json({ error: "שגיאה בנתונים — נסה לפתוח שיחה חדשה." });
+      }
       return res.status(502).json({ error: "שגיאת שרת — נסה שוב." });
     }
 
