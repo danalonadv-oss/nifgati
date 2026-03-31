@@ -24,12 +24,13 @@ async function callClaude(messages, model = "claude-haiku-4-5-20251001") {
   return text;
 }
 
-const GREETING_1 = { role:"assistant", content:`היי, אני בוט "נפגעתי" 👋
-הערכה מהירה לפי חוק הפלת"ד. שיחה ישירה, שכ"ט רק מהפיצוי.
-אפשר לכתוב, לדבר בעברית, או להעלות סיכום רפואי 📄.
-🔐 אין צורך לציין שם או מספר תעודת זהות — כל המידע אנונימי ונמחק בסיום.`, privacy: true };
+const GREETING_1 = { role:"assistant", content:`שלום, אני כאן כדי לעזור לך להבין את גובה הפיצוי שמגיע לך.
 
-const GREETING_2 = { role:"assistant", content:"בוא נתחיל: מה קרה, בן כמה את/ה ואיפה נפגעת בגוף?" };
+כדי לשמור על פרטיות מלאה, אין צורך לציין שם או מספר תעודת זהות.
+
+בוא נתחיל, זה ייקח פחות מ-2 דקות.`, privacy: true };
+
+const GREETING_2 = { role:"assistant", content:"ספר/י לי בקצרה: מה קרה, בן כמה את/ה, כמה את/ה משתכר/ת ואיפה נפגעת בגוף?" };
 
 const INITIAL_MSGS = [GREETING_1, GREETING_2];
 
@@ -206,8 +207,8 @@ export default function Bot({ onClose }) {
   const waMsg = calc
     ? `היי אלון, קיבלתי הערכה מהבוט עבור ${injuryWords} בתאונה ${isWork?"בדרך לעבודה":"פרטית"}.${age?` אני בן ${age}.`:""}${salary?` משתכר ${salary} ₪.`:""}\nהערכת פיצוי: ₪${calc.min.toLocaleString("he-IL")}–₪${calc.max.toLocaleString("he-IL")}.\nאשמח לבדיקה שלך.`
     : userMsgs.length
-      ? `שלום, פניתי דרך אתר nifgati.co.il. תיאור: ${userMsgs.slice(0,3).join(" | ").slice(0,200)}. אשמח לייעוץ.`
-      : "שלום, פניתי דרך האתר. אשמח לייעוץ בנושא תאונת דרכים.";
+      ? `היי דני, הגעתי מהבוט. תיאור: ${userMsgs.slice(0,3).join(" | ").slice(0,200)}. אשמח לפרטים.`
+      : "היי דני, הגעתי מהבוט ואשמח לפרטים.";
 
   const btnSm = { background:"#141b2d",border:"1px solid #1e2d4a",borderRadius:10,color:"#7a8fa5",fontSize:16,width:40,height:40,cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0 };
 

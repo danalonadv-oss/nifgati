@@ -95,7 +95,7 @@ export default function App() {
           </nav>
           <div style={{ display:"flex",alignItems:"center",gap:12 }}>
             <a href={`tel:${PHONE}`} aria-label={`התקשר אלינו: ${PHONE}`} style={{ display:"inline-flex",alignItems:"center",gap:8,background:"#c9a84c18",border:"1px solid #c9a84c44",borderRadius:100,padding:"8px 16px",fontSize:14,fontWeight:700,color:G }} className="hm">📞 {PHONE}</a>
-            <button style={gBtn} onClick={()=>setShowBot(true)} aria-label="פתח מחשבון פיצויים חינמי">בוט חישוב פיצויים</button>
+            <button style={gBtn} onClick={()=>setShowBot(true)} aria-label="בדיקת גובה הפיצוי">בדיקת פיצוי</button>
           </div>
         </div>
       </header>
@@ -108,20 +108,25 @@ export default function App() {
           <div style={{ position:"absolute",top:"20%",right:"-8%",width:500,height:500,background:"radial-gradient(circle, #c9a84c09 0%, transparent 70%)",pointerEvents:"none" }} aria-hidden="true"/>
           <div style={{ maxWidth:1100,margin:"0 auto",padding:"80px 24px",width:"100%" }}>
             <div style={{ maxWidth:700 }}>
-              <div style={{ display:"inline-flex",alignItems:"center",gap:8,background:"#c9a84c18",border:"1px solid #c9a84c44",borderRadius:100,padding:"6px 16px",fontSize:13,color:G,marginBottom:28,fontWeight:600 }}>
-                <span className="pulse" style={{ width:7,height:7,background:G,borderRadius:"50%",display:"inline-block" }} aria-hidden="true"/>
-                מענה מיידי ✓ תשלום רק מהפיצוי ✓ ייעוץ חינמי
-              </div>
-              <h1 className="ht" style={{ fontSize:54,fontWeight:900,lineHeight:1.2,marginBottom:20 }}>
-                נפגעת בתאונת דרכים?<br/>
-                <span style={{ color:G }}>מגיע לך פיצוי.</span><br/>
-                <span style={{ fontSize:"60%",fontWeight:500,color:"#7a8fa5" }}>בדוק כמה — עכשיו, בחינם.</span>
+              <h1 className="ht" style={{ fontSize:48,fontWeight:900,lineHeight:1.25,marginBottom:24 }}>
+                הזכויות שלך שוות כסף.<br/>
+                <span style={{ color:G }}>בוא נבדוק כמה מגיע לך.</span>
               </h1>
-              <p style={{ fontSize:17,color:"#7a8fa5",lineHeight:1.8,marginBottom:36,maxWidth:530 }}>
-                שיחה ישירה, שכ"ט רק מהפיצוי. המידע אינו נשמר ואינו מתועד.
-              </p>
+              <div style={{ display:"flex",flexDirection:"column",gap:10,marginBottom:32,maxWidth:480 }}>
+                {[
+                  {icon:"🔒",text:"בדיקה אנונימית: ללא צורך בשם או תעודת זהות."},
+                  {icon:"🤫",text:"דיסקרטיות מלאה: המידע אינו נשמר במערכת ואינו מתועד."},
+                  {icon:"✅",text:"ללא סיכון כלכלי: שכר הטרחה משולם רק על בסיס הצלחה מהפיצוי שתקבל."},
+                  {icon:"⚡",text:"תשובה מיידית: קבלת אינדיקציה ראשונית בתוך פחות מ-2 דקות."},
+                ].map(b=>(
+                  <div key={b.icon} style={{ display:"flex",gap:10,alignItems:"flex-start",fontSize:15,color:"#bcc8d4",lineHeight:1.6 }}>
+                    <span style={{ fontSize:18,flexShrink:0,marginTop:2 }}>{b.icon}</span>
+                    <span>{b.text}</span>
+                  </div>
+                ))}
+              </div>
               <div style={{ display:"flex",gap:14,flexWrap:"wrap",marginBottom:40 }}>
-                <button style={gBtn} onClick={()=>setShowBot(true)} aria-label="פתח מחשבון פיצויים">🤖 בוט חישוב פיצויים</button>
+                <button style={{ ...gBtn,fontSize:16,padding:"16px 32px" }} onClick={()=>setShowBot(true)} aria-label="בדיקת גובה הפיצוי">💬 לבדיקת גובה הפיצוי שלי</button>
               </div>
             </div>
           </div>
