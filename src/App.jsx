@@ -174,10 +174,23 @@ function Bot({ onClose }) {
     setLoad(false); setDocName("");
   }
 
-  function startMic() {
+  async function startMic() {
     const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
     if (!SR) { setErr("זיהוי קול לא נתמך בדפדפן זה — כתוב/י ידנית."); return; }
     if (mic) return;
+
+    // בקש הרשאת מיקרופון מפורשת לפני הפעלת זיהוי דיבור
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      stream.getTracks().forEach(t => t.stop());
+    } catch (permErr) {
+      const mob = /Android|iPhone|iPad/i.test(navigator.userAgent);
+      setErr(mob
+        ? "יש לאשר גישה למיקרופון: הגדרות הדפדפן ← הגדרות אתר ← מיקרופון ← nifgati.co.il ← אפשר"
+        : "לחץ 🔒 בשורת הכתובת ← מיקרופון ← אפשר ← רענן דף"
+      );
+      return;
+    }
 
     const r = new SR();
     r.lang = "he-IL";
@@ -190,18 +203,20 @@ function Bot({ onClose }) {
     r.onerror  = e  => {
       setMic(false);
       if (e.error === "no-speech") { setErr("לא זוהה דיבור — נסה שוב."); return; }
-      if (e.error === "not-allowed") {
+      if (e.error === "not-allowed" || e.error === "service-not-allowed") {
         const mob = /Android|iPhone|iPad/i.test(navigator.userAgent);
         setErr(mob
-          ? "Chrome ← ⋮ ← הגדרות ← הגדרות אתר ← מיקרופון ← nifgati.co.il ← אפשר"
-          : "לחץ 🔒 בכתובת ← מיקרופון ← אפשר ← רענן דף"
+          ? "יש לאשר גישה למיקרופון: הגדרות הדפדפן ← הגדרות אתר ← מיקרופון ← nifgati.co.il ← אפשר"
+          : "לחץ 🔒 בשורת הכתובת ← מיקרופון ← אפשר ← רענן דף"
         );
         return;
       }
-      setErr(`שגיאה: ${e.error}`);
+      if (e.error === "aborted") return;
+      if (e.error === "network") { setErr("שגיאת רשת — בדוק חיבור אינטרנט ונסה שוב."); return; }
+      setErr("זיהוי קול לא זמין כרגע — כתוב/י ידנית.");
     };
 
-    try { r.start(); } catch(e) { setMic(false); setErr("נסה שוב."); }
+    try { r.start(); } catch(e) { setMic(false); setErr("זיהוי קול לא זמין כרגע — נסה לרענן את הדף."); }
   }
 
   const waMsg = calc
@@ -245,7 +260,7 @@ function Bot({ onClose }) {
           <div style={{ display:"flex",gap:8 }}>
             <button onClick={startMic} aria-label={mic?"מקליד...":"הקלט קול בעברית"} style={{ background:mic?"#c9a84c22":"#141b2d",border:`1px solid ${mic?"#c9a84c":"#1e2d4a"}`,borderRadius:12,color:"#c9a84c",fontSize:20,width:48,height:48,cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0 }}>{mic?"🔴":"🎙️"}</button>
             <button onClick={()=>fileRef.current?.click()} disabled={load} aria-label="צרף מסמך רפואי" title="צרף PDF או תמונה" style={{ background:"#141b2d",border:"1px solid #1e2d4a",borderRadius:12,color:"#7a8fa5",fontSize:20,width:48,height:48,cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0,opacity:load?.35:1 }}>📎</button>
-            <input ref={fileRef} type="file" accept="*/*" style={{ display:"none" }} onChange={e=>{ const f=e.target.files?.[0]; if(f) sendDoc(f); e.target.value=""; }}/>
+            <input ref={fileRef} type="file" accept="image/*,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document" style={{ display:"none" }} onChange={e=>{ const f=e.target.files?.[0]; if(f) sendDoc(f); e.target.value=""; }}/>
             <input aria-label="הקלד הודעה" style={{ flex:1,background:"#141b2d",border:"1px solid #1e2d4a",borderRadius:12,color:"#fff",fontFamily:"inherit",fontSize:14,padding:"0 14px",outline:"none",height:48,direction:"rtl" }} placeholder="כתוב, דבר, או צרף מסמך רפואי..." value={inp} onChange={e=>setInp(e.target.value)} onKeyDown={e=>{ if(e.key==="Enter"){e.preventDefault();send(inp);} }}/>
             <button onClick={()=>send(inp)} disabled={load||!inp.trim()} aria-label="שלח הודעה" style={{ background:"#c9a84c",color:"#0a0f1e",border:"none",borderRadius:12,fontFamily:"inherit",fontWeight:700,fontSize:14,padding:"0 20px",cursor:"pointer",height:48,opacity:(load||!inp.trim())?.35:1 }}>שלח</button>
           </div>
