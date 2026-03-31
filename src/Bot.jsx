@@ -177,11 +177,19 @@ export default function Bot({ onClose }) {
   }
 
   const userMsgs = msgs.filter(m=>m.role==="user").map(m=>typeof m.content==="string"?m.content:"").filter(Boolean);
-  const chatSummary = userMsgs.slice(0,4).join(" | ");
+  const allText = userMsgs.join(" ");
+  // Extract structured data from conversation
+  const ageMatch = allText.match(/בן\s*(\d+)|בת\s*(\d+)|(\d+)\s*שנ/);
+  const age = ageMatch ? (ageMatch[1]||ageMatch[2]||ageMatch[3]) : "";
+  const salaryMatch = allText.match(/([\d,]+)\s*(?:₪|שקל|ש"ח|שכר|ברוטו)/);
+  const salary = salaryMatch ? salaryMatch[1] : "";
+  const isWork = /עבודה|בדרך ל/.test(allText);
+  const injuryWords = userMsgs[0] ? userMsgs[0].slice(0,100) : "";
+
   const waMsg = calc
-    ? `שלום, השתמשתי במחשבון הפיצויים באתר nifgati.co.il.\nסיכום: ${chatSummary.slice(0,300)}\nהערכת פיצוי: ₪${calc.min.toLocaleString("he-IL")}–₪${calc.max.toLocaleString("he-IL")}.\nאשמח לבדיקת זכאות וייעוץ.`
-    : chatSummary
-      ? `שלום, פניתי דרך האתר. תיאור קצר: ${chatSummary.slice(0,200)}. אשמח לייעוץ.`
+    ? `היי אלון, קיבלתי הערכה מהבוט עבור ${injuryWords} בתאונה ${isWork?"בדרך לעבודה":"פרטית"}.${age?` אני בן ${age}.`:""}${salary?` משתכר ${salary} ₪.`:""}\nהערכת פיצוי: ₪${calc.min.toLocaleString("he-IL")}–₪${calc.max.toLocaleString("he-IL")}.\nאשמח לבדיקה שלך.`
+    : userMsgs.length
+      ? `שלום, פניתי דרך אתר nifgati.co.il. תיאור: ${userMsgs.slice(0,3).join(" | ").slice(0,200)}. אשמח לייעוץ.`
       : "שלום, פניתי דרך האתר. אשמח לייעוץ בנושא תאונת דרכים.";
 
   const btnSm = { background:"#141b2d",border:"1px solid #1e2d4a",borderRadius:10,color:"#7a8fa5",fontSize:16,width:40,height:40,cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0 };
