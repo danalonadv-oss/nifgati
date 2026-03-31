@@ -209,11 +209,32 @@ export default async function handler(req, res) {
   if (!messages || !Array.isArray(messages) || messages.length === 0) {
     return res.status(400).json({ error: "פרמטרים שגויים" });
   }
-  // מגבלת גודל — מניעת עלויות חריגות (use Content-Length to avoid serializing base64)
+  // מגבלת מספר הודעות — מניעת ניצול לרעה
+  if (messages.length > 30) {
+    return res.status(400).json({ error: "יותר מדי הודעות בשיחה." });
+  }
+  // מגבלת גודל (use Content-Length to avoid serializing base64)
   const contentLen = parseInt(req.headers["content-length"] || "0", 10);
   if (contentLen > 15_000_000) {
     return res.status(400).json({ error: "הודעה ארוכה מדי" });
   }
+
+  // ── Prompt injection sanitization ──────
+  // Strip sequences that could manipulate system prompt behavior
+  const INJECTION_RE = /\b(system|SYSTEM|<\/?system>|<\/?instructions>|ignore previous|forget your|you are now|new instructions|override|disregard)\b/gi;
+  const sanitized = messages.map(m => {
+    if (m.role !== "user") return m;
+    if (typeof m.content === "string") {
+      return { ...m, content: m.content.replace(INJECTION_RE, "[filtered]") };
+    }
+    // For multi-part content (images/documents), only sanitize text parts
+    if (Array.isArray(m.content)) {
+      return { ...m, content: m.content.map(part =>
+        part.type === "text" ? { ...part, text: part.text.replace(INJECTION_RE, "[filtered]") } : part
+      )};
+    }
+    return m;
+  });
 
   // מודלים מורשים בלבד
   const ALLOWED_MODELS = [
@@ -241,15 +262,18 @@ export default async function handler(req, res) {
         model:      selectedModel,
         max_tokens: 2000,
         system:     SYSTEM,
-        messages,
+        messages:   sanitized,
       }),
     });
 
     clearTimeout(timeout);
 
     if (!response.ok) {
-      const err = await response.json().catch(() => ({}));
-      return res.status(response.status).json({ error: err?.error?.message || "שגיאת API" });
+      // Don't leak internal API error details to client
+      const status = response.status;
+      if (status === 429) return res.status(429).json({ error: "יותר מדי בקשות — נסה שוב בעוד דקה." });
+      if (status === 413) return res.status(400).json({ error: "הודעה ארוכה מדי." });
+      return res.status(502).json({ error: "שגיאת שרת — נסה שוב." });
     }
 
     const data = await response.json();
