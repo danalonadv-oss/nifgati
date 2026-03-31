@@ -11,6 +11,21 @@ function parseCalc(t) {
   return { min: parseInt(mn[1].replace(/,/g,"")), max: parseInt(mx[1].replace(/,/g,"")) };
 }
 
+// Send lead notification email in background — never blocks UI
+function notifyLead(msgs, calc) {
+  try {
+    const summary = msgs
+      .filter(m => typeof m.content === "string")
+      .map(m => `${m.role === "user" ? "👤 משתמש" : "🤖 בוט"}: ${m.content}`)
+      .join("\n\n");
+    fetch("/api/notify", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ summary, calculation: calc }),
+    }).catch(() => {}); // Silent — never affects user experience
+  } catch (_) {}
+}
+
 async function callClaude(messages, model = "claude-haiku-4-5-20251001") {
   // Clean messages: strip custom flags, keep only role+content
   const cleaned = messages.slice(-12).map(m => {
@@ -88,7 +103,7 @@ export default function Bot({ onClose }) {
       }
       setMsgs(updated);
       const c = parseCalc(rep);
-      if (c) { setCalc(c); setShowReferral(true); }
+      if (c) { setCalc(c); setShowReferral(true); notifyLead(updated, c); }
     } catch(e) { setErr(e.message||"שגיאת חיבור"); }
     setLoad(false);
   }
@@ -194,7 +209,7 @@ export default function Bot({ onClose }) {
       const rep = await callClaude(apiMsgs, "claude-sonnet-4-20250514");
       setMsgs(p=>[...p,{role:"assistant",content:rep}]);
       const c = parseCalc(rep);
-      if (c) { setCalc(c); setShowReferral(true); }
+      if (c) { setCalc(c); setShowReferral(true); notifyLead([...historyMsgs,{role:"assistant",content:rep}], c); }
       // Always show CTA after document analysis
       if (!ctaShown) { setMsgs(p=>[...p,{role:"assistant",content:CTA_MSG}]); setCtaShown(true); }
 

@@ -1,6 +1,7 @@
 {
   "rewrites": [
     { "source": "/api/claude",    "destination": "/api/claude.js" },
+    { "source": "/api/notify",    "destination": "/api/notify.js" },
     { "source": "/privacy",       "destination": "/index.html" },
     { "source": "/accessibility", "destination": "/index.html" }
   ],
