@@ -11,8 +11,6 @@
 const ALLOWED_ORIGINS = [
   "https://nifgati.co.il",
   "https://www.nifgati.co.il",
-  "https://danalonadv.com",
-  "https://www.danalonadv.com",
 ];
 
 // Rate limiting (זיכרון תהליך — מתאפס עם כל deploy)

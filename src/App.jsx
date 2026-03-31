@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from "react";
-// v2 — mic permission fix + file upload: images & documents only
+import Bot from "./Bot.jsx";
+
 // ╔══════════════════════════════════════╗
 // ║  שנה כאן את הפרטים שלך             ║
 const PHONE    = "0544338212";
@@ -7,15 +8,6 @@ const WA       = "972544338212";
 const MY_NAME  = "דן אלון";
 const MY_TITLE = "עורך דין נזיקין";
 // ╚══════════════════════════════════════╝
-
-// helpers
-function parseCalc(t) {
-  if (!t.includes("---חישוב---")) return null;
-  const mn = t.match(/סה"כ מינימום:\s*₪([\d,]+)/);
-  const mx = t.match(/סה"כ מקסימום:\s*₪([\d,]+)/);
-  if (!mn || !mx) return null;
-  return { min: parseInt(mn[1].replace(/,/g,"")), max: parseInt(mx[1].replace(/,/g,"")) };
-}
 
 function useInView() {
   const ref = useRef(null);
@@ -33,208 +25,6 @@ function Reveal({ children }) {
   return <div ref={ref} style={{ opacity:v?1:0, transform:v?"none":"translateY(28px)", transition:"all .7s cubic-bezier(.22,1,.36,1)" }}>{children}</div>;
 }
 
-async function callClaude(messages, model = "claude-haiku-4-5-20251001") {
-  const trimmed = messages.slice(-12);
-  const r = await fetch("/api/claude", {
-    method:"POST", headers:{"Content-Type":"application/json"},
-    body: JSON.stringify({ messages: trimmed, model }),
-  });
-  if(!r.ok) { const e=await r.json().catch(()=>({})); throw new Error(e.error||"שגיאה"); }
-  const d = await r.json();
-  return d.content?.[0]?.text || "";
-}
-
-// ── Bot overlay ─────────────────────────────────────────
-const INITIAL_MSG = { role:"assistant", content:"שלום 👋\n\nספר/י לי — מה קרה בתאונה וממה אתה סובל/ת?\n\n🎙️ דבר/י, כתוב/י, או 📎 צרף/י מסמך רפואי לניתוח אוטומטי." };
-
-function Bot({ onClose }) {
-  const [msgs, setMsgs] = useState([INITIAL_MSG]);
-  const [inp, setInp]   = useState("");
-  const [load, setLoad] = useState(false);
-  const [calc, setCalc] = useState(null);
-  const [mic, setMic]   = useState(false);
-  const [err, setErr]   = useState("");
-  const [docName, setDocName] = useState("");
-  const fileRef = useRef(null);
-  const inpRef  = useRef(null);
-  const end = useRef(null);
-  useEffect(()=>{ end.current?.scrollIntoView({behavior:"smooth"}); },[msgs,load]);
-
-  // Auto-dismiss errors after 6 seconds
-  useEffect(()=>{ if(!err) return; const t=setTimeout(()=>setErr(""),6000); return ()=>clearTimeout(t); },[err]);
-
-  function restart() { setMsgs([INITIAL_MSG]); setCalc(null); setInp(""); setErr(""); setDocName(""); }
-
-  async function send(txt) {
-    if(!txt.trim()||load) return;
-    setErr(""); setInp("");
-    const next = [...msgs, {role:"user",content:txt}];
-    setMsgs(next); setLoad(true);
-    try {
-      const rep = await callClaude(next.map(m=>({role:m.role,content:m.content})));
-      setMsgs(p=>[...p,{role:"assistant",content:rep}]);
-      const c = parseCalc(rep); if(c) setCalc(c);
-    } catch(e) { setErr(e.message||"שגיאת חיבור"); }
-    setLoad(false);
-  }
-
-  async function sendDoc(file) {
-    if(load) return;
-    if (file.size > 10 * 1024 * 1024) {
-      setErr("הקובץ גדול מדי — עד 10MB בלבד.");
-      return;
-    }
-    setErr(""); setLoad(true);
-    setDocName(file.name);
-
-    try {
-      // המר לBase64
-      const base64 = await new Promise((res, rej) => {
-        const reader = new FileReader();
-        reader.onload = () => res(reader.result.split(",")[1]);
-        reader.onerror = () => rej(new Error("שגיאה בקריאת הקובץ"));
-        reader.readAsDataURL(file);
-      });
-
-      const isImage = file.type.startsWith("image/");
-      const isPDF   = file.type === "application/pdf";
-      const isDoc   = ["application/msword","application/vnd.openxmlformats-officedocument.wordprocessingml.document","application/vnd.ms-excel","application/vnd.openxmlformats-officedocument.spreadsheetml.sheet","text/plain"].includes(file.type);
-
-      if (!isImage && !isPDF && !isDoc) {
-        setErr("ניתן לצרף PDF, תמונה, Word, Excel או טקסט.");
-        setLoad(false); setDocName("");
-        return;
-      }
-
-      // הודעת משתמש עם המסמך
-      const userContent = [
-        isImage
-          ? { type:"image", source:{ type:"base64", media_type:file.type, data:base64 } }
-          : { type:"document", source:{ type:"base64", media_type: file.type, data:base64 } },
-        { type:"text", text:`צירפתי מסמך רפואי (${file.name}). אנא נתח אותו ומצא: אחוזי נכות, אבחנות רפואיות, תאריך פגיעה, וכל מידע רלוונטי לחישוב פיצויים.` }
-      ];
-
-      const userMsg = { role:"user", content: userContent };
-      const displayMsg = { role:"user", content:`📎 צורף מסמך: ${file.name}` };
-      const next = [...msgs, displayMsg];
-      setMsgs(next);
-
-      // שלח ל-Sonnet (קורא מסמכים)
-      const apiMsgs = [...msgs.map(m=>({role:m.role,content:m.content})), userMsg];
-      const rep = await callClaude(apiMsgs, "claude-sonnet-4-20250514");
-      setMsgs(p=>[...p,{role:"assistant",content:rep}]);
-      const c = parseCalc(rep); if(c) setCalc(c);
-
-    } catch(e) {
-      setErr(e.message||"שגיאה בניתוח המסמך");
-    }
-    setLoad(false); setDocName("");
-  }
-
-  async function startMic() {
-    const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
-    if (!SR) { setErr("זיהוי קול לא נתמך בדפדפן זה — כתוב/י ידנית."); return; }
-    if (mic) return;
-
-    // בקש הרשאת מיקרופון מפורשת לפני הפעלת זיהוי דיבור
-    try {
-      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-      stream.getTracks().forEach(t => t.stop());
-    } catch (permErr) {
-      const mob = /Android|iPhone|iPad/i.test(navigator.userAgent);
-      setErr(mob
-        ? "יש לאשר גישה למיקרופון: הגדרות הדפדפן ← הגדרות אתר ← מיקרופון ← nifgati.co.il ← אפשר"
-        : "לחץ 🔒 בשורת הכתובת ← מיקרופון ← אפשר ← רענן דף"
-      );
-      return;
-    }
-
-    const r = new SR();
-    r.lang = "he-IL";
-    r.continuous = false;
-    r.interimResults = false;
-
-    r.onstart  = () => { setMic(true); setErr(""); };
-    r.onresult = e  => { setInp(e.results[0][0].transcript); setMic(false); };
-    r.onend    = ()  => setMic(false);
-    r.onerror  = e  => {
-      setMic(false);
-      if (e.error === "no-speech") { setErr("לא זוהה דיבור — נסה שוב."); return; }
-      if (e.error === "not-allowed" || e.error === "service-not-allowed") {
-        const mob = /Android|iPhone|iPad/i.test(navigator.userAgent);
-        setErr(mob
-          ? "יש לאשר גישה למיקרופון: הגדרות הדפדפן ← הגדרות אתר ← מיקרופון ← nifgati.co.il ← אפשר"
-          : "לחץ 🔒 בשורת הכתובת ← מיקרופון ← אפשר ← רענן דף"
-        );
-        return;
-      }
-      if (e.error === "aborted") return;
-      if (e.error === "network") { setErr("שגיאת רשת — בדוק חיבור אינטרנט ונסה שוב."); return; }
-      setErr("זיהוי קול לא זמין כרגע — כתוב/י ידנית.");
-    };
-
-    try { r.start(); } catch(e) { setMic(false); setErr("זיהוי קול לא זמין כרגע — נסה לרענן את הדף."); }
-  }
-
-  const chatSummary = msgs.filter(m=>m.role==="user").map(m=>typeof m.content==="string"?m.content:"").filter(Boolean).slice(0,3).join(" | ");
-  const waMsg = calc
-    ? `שלום, השתמשתי במחשבון הפיצויים. הסכום המשוער: ₪${calc.min.toLocaleString("he-IL")}–₪${calc.max.toLocaleString("he-IL")}. אשמח לייעוץ.`
-    : chatSummary
-      ? `שלום, פניתי דרך האתר. תיאור קצר: ${chatSummary.slice(0,200)}. אשמח לייעוץ.`
-      : "שלום, פניתי דרך האתר. אשמח לייעוץ בנושא תאונת דרכים.";
-
-  return (
-    <div role="dialog" aria-modal="true" aria-label="בוט פיצויים" style={{ position:"fixed",inset:0,background:"#080d18ee",zIndex:200,display:"flex",alignItems:"center",justifyContent:"center",padding:16 }}>
-      <div style={{ background:"#0a0f1e",border:"1px solid #1e2d4a",borderRadius:20,width:"100%",maxWidth:560,maxHeight:"90vh",display:"flex",flexDirection:"column",overflow:"hidden" }}>
-        <div style={{ background:"#070c18",borderBottom:"1px solid #1e2d4a",padding:"12px 16px",display:"flex",justifyContent:"space-between",alignItems:"center" }}>
-          <div style={{ fontWeight:900,fontSize:15,color:"#c9a84c" }}>🤖 בוט הפיצויים</div>
-          <div style={{ display:"flex",alignItems:"center",gap:12 }}>
-            <span style={{ fontSize:12,color:"#445566",display:"flex",alignItems:"center",gap:5 }}>
-              <span style={{ width:6,height:6,background:"#22c55e",borderRadius:"50%",display:"inline-block" }}/>
-              השיחה לא נשמרת ולא מתועדת
-            </span>
-            <button onClick={restart} aria-label="שיחה חדשה" title="שיחה חדשה" style={{ background:"transparent",border:"1px solid #1e2d4a",color:"#7a8fa5",fontSize:12,cursor:"pointer",borderRadius:8,padding:"4px 10px",fontFamily:"inherit",fontWeight:600 }}>שיחה חדשה</button>
-            <button onClick={onClose} aria-label="סגור בוט" style={{ background:"transparent",border:"none",color:"#7a8fa5",fontSize:20,cursor:"pointer",lineHeight:1 }}>✕</button>
-          </div>
-        </div>
-
-        <div style={{ flex:1,overflowY:"auto",padding:16,display:"flex",flexDirection:"column",gap:12 }}>
-          {msgs.map((m,i)=>(
-            <div key={i} style={{ display:"flex",justifyContent:m.role==="user"?"flex-start":"flex-end" }}>
-              <div style={{ background:m.role==="user"?"#c9a84c":"#141b2d",color:m.role==="user"?"#0a0f1e":"#e8eaf0",border:m.role==="user"?"none":"1px solid #1e2d4a",borderRadius:m.role==="user"?"18px 18px 4px 18px":"18px 18px 18px 4px",padding:"10px 14px",maxWidth:"85%",fontSize:14,lineHeight:1.75,fontWeight:m.role==="user"?600:400,whiteSpace:"pre-wrap" }}>{m.content}</div>
-            </div>
-          ))}
-          {load && <div style={{ display:"flex",justifyContent:"flex-end" }}><div role="status" aria-label="הבוט מקליד..." style={{ background:"#141b2d",border:"1px solid #1e2d4a",borderRadius:"18px 18px 18px 4px",padding:"14px 18px",display:"flex",gap:4 }}><span className="sr-only" style={{ position:"absolute",width:1,height:1,overflow:"hidden",clip:"rect(0,0,0,0)" }}>הבוט מקליד...</span>{[0,.2,.4].map(d=><span key={d} aria-hidden="true" style={{ display:"inline-block",width:7,height:7,background:"#c9a84c",borderRadius:"50%",animation:"bl 1.2s infinite",animationDelay:`${d}s` }}/>)}</div></div>}
-          {calc && !load && (
-            <div style={{ background:"linear-gradient(135deg,#1a2744,#0f1a30)",border:"1px solid #c9a84c55",borderRadius:16,padding:"18px 20px" }}>
-              <div style={{ fontSize:11,color:"#c9a84c",letterSpacing:1,marginBottom:6,fontWeight:700 }}>הערכת פיצוי ראשונית</div>
-              <div style={{ fontSize:28,fontWeight:900,color:"#fff",marginBottom:4 }}>₪{calc.min.toLocaleString("he-IL")} – ₪{calc.max.toLocaleString("he-IL")}</div>
-              <div style={{ fontSize:12,color:"#556070",marginBottom:14 }}>לפני שכ"ט (8%–13%)</div>
-              <button onClick={()=>window.open(`https://wa.me/${WA}?text=${encodeURIComponent(waMsg)}`,"_blank")} aria-label="שלח לוואטסאפ לייעוץ" style={{ width:"100%",background:"#25d366",color:"#fff",border:"none",borderRadius:12,fontFamily:"inherit",fontWeight:700,fontSize:15,padding:13,cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",gap:8 }}>📱 שלח לוואטסאפ לייעוץ חינמי</button>
-            </div>
-          )}
-          {err && <div role="alert" style={{ textAlign:"center",fontSize:13,color:"#ef4444",display:"flex",alignItems:"center",justifyContent:"center",gap:8 }}><span>{err}</span><button onClick={()=>setErr("")} aria-label="סגור הודעת שגיאה" style={{ background:"transparent",border:"none",color:"#ef4444",cursor:"pointer",fontSize:16,lineHeight:1,flexShrink:0 }}>✕</button></div>}
-          <div ref={end}/>
-        </div>
-
-        <div style={{ background:"#0a0f1e",borderTop:"1px solid #1e2d4a",padding:"12px 16px 14px" }}>
-          <div style={{ display:"flex",gap:8 }}>
-            <button onClick={startMic} aria-label={mic?"מקליד...":"הקלט קול בעברית"} style={{ background:mic?"#c9a84c22":"#141b2d",border:`1px solid ${mic?"#c9a84c":"#1e2d4a"}`,borderRadius:12,color:"#c9a84c",fontSize:20,width:48,height:48,cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0 }}>{mic?"🔴":"🎙️"}</button>
-            <button onClick={()=>fileRef.current?.click()} disabled={load} aria-label="צרף מסמך רפואי" title="צרף PDF או תמונה" style={{ background:"#141b2d",border:"1px solid #1e2d4a",borderRadius:12,color:"#7a8fa5",fontSize:20,width:48,height:48,cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0,opacity:load?.35:1 }}>📎</button>
-            <input ref={fileRef} type="file" accept="image/*,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document" style={{ display:"none" }} onChange={e=>{ const f=e.target.files?.[0]; if(f) sendDoc(f); e.target.value=""; }}/>
-            <input ref={inpRef} aria-label="הקלד הודעה" style={{ flex:1,background:"#141b2d",border:"1px solid #1e2d4a",borderRadius:12,color:"#fff",fontFamily:"inherit",fontSize:14,padding:"0 14px",outline:"none",height:48,direction:"rtl" }} placeholder="כתוב, דבר, או צרף מסמך רפואי..." value={inp} onChange={e=>setInp(e.target.value)} onKeyDown={e=>{ if(e.key==="Enter"){e.preventDefault();send(inp);} }} onFocus={()=>setTimeout(()=>inpRef.current?.scrollIntoView({behavior:"smooth",block:"nearest"}),300)}/>
-            <button onClick={()=>send(inp)} disabled={load||!inp.trim()} aria-label="שלח הודעה" style={{ background:"#c9a84c",color:"#0a0f1e",border:"none",borderRadius:12,fontFamily:"inherit",fontWeight:700,fontSize:14,padding:"0 20px",cursor:"pointer",height:48,opacity:(load||!inp.trim())?.35:1 }}>שלח</button>
-          </div>
-          {docName && <p style={{ textAlign:"center",fontSize:12,color:"#c9a84c",marginTop:6 }}>{load ? "📤 מעלה ומנתח" : "🔍 מנתח"}: {docName}...</p>}
-          <p style={{ textAlign:"center",fontSize:11,color:"#2a3545",marginTop:8 }}>הערכה ראשונית בלבד • אינה מהווה ייעוץ משפטי • המידע אינו נשמר ואינו מתועד בשום אופן</p>
-        </div>
-      </div>
-      <style>{`@keyframes bl{0%,80%,100%{opacity:.15}40%{opacity:1}}`}</style>
-    </div>
-  );
-}
-
-// ── Main App ─────────────────────────────────────────────
 export default function App() {
   const [scrolled, setScrolled] = useState(false);
   const [showBot,  setShowBot]  = useState(false);
@@ -290,7 +80,7 @@ export default function App() {
         @media(max-width:480px){.g4{grid-template-columns:1fr 1fr}}
       `}</style>
 
-      {/* SKIP NAV — נגישות */}
+      {/* SKIP NAV */}
       <a href="#main-content" style={{ position:"absolute",top:-40,right:0,background:G,color:"#000",padding:"8px 16px",borderRadius:"0 0 8px 0",fontSize:14,fontWeight:700,zIndex:999,transition:"top .2s" }} onFocus={e=>e.target.style.top="0"} onBlur={e=>e.target.style.top="-40px"}>דלג לתוכן הראשי</a>
 
       {/* HEADER */}
