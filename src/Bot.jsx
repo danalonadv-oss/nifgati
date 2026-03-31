@@ -22,18 +22,18 @@ async function callClaude(messages, model = "claude-haiku-4-5-20251001") {
   return d.content?.[0]?.text || "";
 }
 
-const INITIAL_MSG = { role:"assistant", content:`היי, אני בוט "נפגעתי" 👋
+const GREETING_1 = { role:"assistant", content:`היי, אני בוט "נפגעתי" 👋
 
-אני יכול לתת לך הערכה מהירה ומדויקת של הפיצוי המגיע לך מתאונת דרכים, על בסיס חוק הפלת"ד.
+אני כאן כדי לתת לך הערכה מהירה של הפיצוי המגיע לך לפי חוק הפלת"ד. אפשר לכתוב לי, לדבר בעברית, או להעלות סיכום רפואי לניתוח אוטומטי 📄.`, privacy: true };
 
-אתה יכול לכתוב, לדבר בעברית, או להעלות סיכום רפואי.
+const GREETING_2 = { role:"assistant", content:"בוא נתחיל: ספר/י לי בקצרה מה קרה בתאונה (האם זה היה בדרך לעבודה?) ואיפה נפגעת בגוף?" };
 
-🔒 הפרטיות שלך חשובה: המידע נמחק בסיום השיחה ואינו נשמר אצלנו. מדיניות פרטיות: nifgati.co.il/privacy` };
+const INITIAL_MSGS = [GREETING_1, GREETING_2];
 
 const CTA_MSG = `ניתן לעבור בכל שלב להתייעצות עם עורך דין ${MY_NAME} לתכנון הצעדים הבאים ומיקסום הפיצוי.`;
 
 export default function Bot({ onClose }) {
-  const [msgs, setMsgs] = useState([INITIAL_MSG]);
+  const [msgs, setMsgs] = useState([...INITIAL_MSGS]);
   const [inp, setInp]   = useState("");
   const [load, setLoad] = useState(false);
   const [calc, setCalc] = useState(null);
@@ -51,7 +51,7 @@ export default function Bot({ onClose }) {
 
   useEffect(()=>{ if(!err) return; const t=setTimeout(()=>setErr(""),6000); return ()=>clearTimeout(t); },[err]);
 
-  function restart() { setMsgs([INITIAL_MSG]); setCalc(null); setInp(""); setErr(""); setDocName(""); setCtaShown(false); }
+  function restart() { setMsgs([...INITIAL_MSGS]); setCalc(null); setInp(""); setErr(""); setDocName(""); setCtaShown(false); }
 
   async function send(txt) {
     if(!txt.trim()||load) return;
@@ -202,8 +202,9 @@ export default function Bot({ onClose }) {
 
         <div style={{ flex:1,overflowY:"auto",padding:16,display:"flex",flexDirection:"column",gap:12 }}>
           {msgs.map((m,i)=>(
-            <div key={i} style={{ display:"flex",justifyContent:m.role==="user"?"flex-start":"flex-end" }}>
+            <div key={i} style={{ display:"flex",flexDirection:"column",alignItems:m.role==="user"?"flex-start":"flex-end" }}>
               <div style={{ background:m.role==="user"?"#c9a84c":"#141b2d",color:m.role==="user"?"#0a0f1e":"#e8eaf0",border:m.role==="user"?"none":"1px solid #1e2d4a",borderRadius:m.role==="user"?"18px 18px 4px 18px":"18px 18px 18px 4px",padding:"10px 14px",maxWidth:"85%",fontSize:14,lineHeight:1.75,fontWeight:m.role==="user"?600:400,whiteSpace:"pre-wrap" }}>{m.content}</div>
+              {m.privacy && <div style={{ maxWidth:"85%",textAlign:"right",marginTop:4,fontSize:12 }}>🔒 הפרטיות שלך חשובה: המידע נמחק בסיום השיחה ואינו נשמר אצלנו. <a href="/privacy" target="_blank" rel="noopener" style={{ color:"#3b82f6",textDecoration:"underline" }}>מדיניות פרטיות</a></div>}
             </div>
           ))}
           {load && <div style={{ display:"flex",justifyContent:"flex-end" }}><div role="status" aria-label="הבוט מקליד..." style={{ background:"#141b2d",border:"1px solid #1e2d4a",borderRadius:"18px 18px 18px 4px",padding:"14px 18px",display:"flex",gap:4 }}><span style={{ position:"absolute",width:1,height:1,overflow:"hidden",clip:"rect(0,0,0,0)" }}>הבוט מקליד...</span>{[0,.2,.4].map(d=><span key={d} aria-hidden="true" style={{ display:"inline-block",width:7,height:7,background:"#c9a84c",borderRadius:"50%",animation:"bl 1.2s infinite",animationDelay:`${d}s` }}/>)}</div></div>}
@@ -245,7 +246,7 @@ export default function Bot({ onClose }) {
               <input ref={inpRef} aria-label="הקלד הודעה" style={{ width:"100%",background:"#141b2d",border:"1px solid #1e2d4a",borderRadius:10,color:"#fff",fontFamily:"inherit",fontSize:14,padding:"0 14px",outline:"none",height:42,direction:"rtl" }} placeholder={mic?"🎙️ מקשיב...":"כתוב, דבר, או צרף מסמך..."} value={inp} onChange={e=>setInp(e.target.value)} onKeyDown={e=>{ if(e.key==="Enter"){e.preventDefault();send(inp);} }} onFocus={()=>setTimeout(()=>inpRef.current?.scrollIntoView({behavior:"smooth",block:"nearest"}),300)}/>
               {mic && <div style={{ position:"absolute",left:14,top:"50%",transform:"translateY(-50%)",display:"flex",gap:3,alignItems:"center" }}>{[0,.15,.3,.45,.6].map(d=><span key={d} style={{ display:"inline-block",width:3,height:12,background:"#22c55e",borderRadius:2,animation:"wave 1s ease-in-out infinite",animationDelay:`${d}s` }}/>)}</div>}
             </div>
-            <button onClick={toggleMic} aria-label={mic?"עצור הקלטה":"הקלט קול"} style={{ ...btnSm,background:mic?"#22c55e22":"#141b2d",borderColor:mic?"#22c55e":"#1e2d4a",color:mic?"#22c55e":"#c9a84c" }}>{mic?"⏹️":"🎙️"}</button>
+            <button onClick={toggleMic} aria-label={mic?"עצור הקלטה":"הקלט קול"} style={{ ...btnSm,background:mic?"#22c55e22":"#141b2d",borderColor:mic?"#22c55e":"#1e2d4a",color:mic?"#22c55e":"#c9a84c",animation:mic?"micPulse 1.5s ease-in-out infinite":"none" }}>{mic?"⏹️":"🎙️"}</button>
             <button onClick={()=>send(inp)} disabled={load||!inp.trim()} aria-label="שלח הודעה" style={{ background:"#c9a84c",color:"#0a0f1e",border:"none",borderRadius:10,fontWeight:700,fontSize:16,width:42,height:42,cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0,opacity:(load||!inp.trim())?.35:1 }}>➤</button>
           </div>
           {docName && <p style={{ textAlign:"center",fontSize:12,color:"#c9a84c",marginTop:6 }}>{load ? "📤 מעלה ומנתח" : "🔍 מנתח"}: {docName}...</p>}
@@ -255,6 +256,7 @@ export default function Bot({ onClose }) {
       <style>{`
         @keyframes bl{0%,80%,100%{opacity:.15}40%{opacity:1}}
         @keyframes wave{0%,100%{height:4px;opacity:.4}50%{height:16px;opacity:1}}
+        @keyframes micPulse{0%,100%{box-shadow:0 0 0 0 #22c55e44}50%{box-shadow:0 0 0 8px #22c55e00}}
       `}</style>
     </div>
   );
