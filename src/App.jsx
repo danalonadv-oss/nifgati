@@ -69,13 +69,15 @@ export default function App() {
     if (sessionStorage.getItem("botAutoOpened")) return;
 
     const handleScroll = () => {
-      const scrolled = window.scrollY;
       const total = document.documentElement.scrollHeight - window.innerHeight;
-      const pct = (scrolled / total) * 100;
+      if (total <= 0) return;
+      const pct = (window.scrollY / total) * 100;
 
       if (pct >= 30) {
         setShowBot(true);
+        botOpenedRef.current = true;
         sessionStorage.setItem("botAutoOpened", "1");
+        window.dataLayer = window.dataLayer || []; window.dataLayer.push({event: 'bot_opened'});
         window.removeEventListener("scroll", handleScroll);
       }
     };
