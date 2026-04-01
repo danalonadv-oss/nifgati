@@ -123,6 +123,7 @@ export default function App() {
     setShowBot(true);
     botOpenedRef.current = true;
     sessionStorage.setItem("nifgati_bot_opened", "1");
+    window.dataLayer = window.dataLayer || []; window.dataLayer.push({event: 'bot_opened'});
   }
 
   useEffect(() => {
@@ -264,7 +265,7 @@ export default function App() {
             {nav.map(n => <a key={n.l} href={n.h} className="nl">{n.l}</a>)}
           </nav>
           <div style={{ display:"flex", alignItems:"center", gap:12 }}>
-            <a href="tel:0544338212" aria-label="התקשר אלינו" style={{ display:"inline-flex", alignItems:"center", justifyContent:"center", width:48, height:48, background:"#22c55e", borderRadius:14, color:"#fff", fontSize:22, textDecoration:"none", flexShrink:0, boxShadow:"0 2px 8px #22c55e55" }}>📞</a>
+            <a href="tel:0544338212" aria-label="התקשר אלינו" onClick={() => { window.dataLayer = window.dataLayer || []; window.dataLayer.push({event: 'phone_click'}); }} style={{ display:"inline-flex", alignItems:"center", justifyContent:"center", width:48, height:48, background:"#22c55e", borderRadius:14, color:"#fff", fontSize:22, textDecoration:"none", flexShrink:0, boxShadow:"0 2px 8px #22c55e55" }}>📞</a>
             <button style={gBtn} onClick={openBot} aria-label="בדיקת גובה הפיצוי">בדיקת פיצוי</button>
           </div>
         </div>
@@ -490,7 +491,7 @@ export default function App() {
       </footer>
 
       {/* WhatsApp float */}
-      <button className="wa-btn" onClick={() => window.open(`https://wa.me/${WA}`, "_blank")} aria-label="פתח שיחת וואטסאפ">💬</button>
+      <button className="wa-btn" onClick={() => { window.dataLayer = window.dataLayer || []; window.dataLayer.push({event: 'whatsapp_click'}); window.open(`https://wa.me/${WA}`, "_blank"); }} aria-label="פתח שיחת וואטסאפ">💬</button>
 
       {/* Cookie Banner */}
       {!cookie && (

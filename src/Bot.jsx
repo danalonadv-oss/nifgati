@@ -105,7 +105,7 @@ export default function Bot({ onClose }) {
       // Send email after first user message + on every calculation
       if (userCount === 1) notifyLead(updated, null);
       const c = parseCalc(rep);
-      if (c) { setCalc(c); setShowReferral(true); notifyLead(updated, c); }
+      if (c) { setCalc(c); setShowReferral(true); notifyLead(updated, c); window.dataLayer = window.dataLayer || []; window.dataLayer.push({event: 'calculation_complete', value_min: c.min, value_max: c.max}); }
     } catch(e) { setErr(e.message||"שגיאת חיבור"); }
     setLoad(false);
   }
@@ -211,7 +211,7 @@ export default function Bot({ onClose }) {
       const rep = await callClaude(apiMsgs, "claude-sonnet-4-20250514");
       setMsgs(p=>[...p,{role:"assistant",content:rep}]);
       const c = parseCalc(rep);
-      if (c) { setCalc(c); setShowReferral(true); notifyLead([...historyMsgs,{role:"assistant",content:rep}], c); }
+      if (c) { setCalc(c); setShowReferral(true); notifyLead([...historyMsgs,{role:"assistant",content:rep}], c); window.dataLayer = window.dataLayer || []; window.dataLayer.push({event: 'calculation_complete', value_min: c.min, value_max: c.max}); }
       // Always show CTA after document analysis
       if (!ctaShown) { setMsgs(p=>[...p,{role:"assistant",content:CTA_MSG}]); setCtaShown(true); }
 
