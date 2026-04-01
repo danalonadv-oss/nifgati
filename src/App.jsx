@@ -45,21 +45,86 @@ function FAQItem({ q, a }) {
   );
 }
 
+/* ── Fire-and-forget notify helper ── */
+function notifyEvent(subject, body) {
+  fetch("/api/notify", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ summary: body, subject }),
+  }).catch(() => {});
+}
+
 export default function App() {
   const [scrolled, setScrolled]       = useState(false);
   const [showBot, setShowBot]         = useState(false);
   const [cookie, setCookie]           = useState(false);
   const [showBanner, setShowBanner]   = useState(true);
+  const [showExit, setShowExit]       = useState(false);
+  const botOpenedRef = useRef(false);
+  const dwellSentRef = useRef(false);
+  const exitSentRef  = useRef(false);
 
   /* ── Auto-open bot after 2.5s, once per session ── */
   useEffect(() => {
     if (sessionStorage.getItem("nifgati_bot_opened")) return;
     const t = setTimeout(() => {
       setShowBot(true);
+      botOpenedRef.current = true;
       sessionStorage.setItem("nifgati_bot_opened", "1");
     }, 2500);
     return () => clearTimeout(t);
   }, []);
+
+  /* ── TRIGGER 1: 30s dwell time passive lead ── */
+  useEffect(() => {
+    const t = setTimeout(() => {
+      if (!botOpenedRef.current && !dwellSentRef.current) {
+        dwellSentRef.current = true;
+        const ts = new Date().toLocaleString("he-IL", { timeZone: "Asia/Jerusalem" });
+        notifyEvent(
+          "גולש פסיבי — שהייה 30 שניות | nifgati.co.il",
+          `גולש שהה באתר למעלה מ-30 שניות מבלי לפתוח את הבוט. תאריך ושעה: ${ts}`
+        );
+      }
+    }, 30000);
+    return () => clearTimeout(t);
+  }, []);
+
+  /* ── TRIGGER 2: Exit intent (desktop: mouseY<50, mobile: 45s inactivity) ── */
+  useEffect(() => {
+    const isMobile = "ontouchstart" in window || navigator.maxTouchPoints > 0;
+
+    function fireExitIntent() {
+      if (exitSentRef.current || sessionStorage.getItem("exitShown")) return;
+      exitSentRef.current = true;
+      sessionStorage.setItem("exitShown", "1");
+      setShowExit(true);
+      const ts = new Date().toLocaleString("he-IL", { timeZone: "Asia/Jerusalem" });
+      notifyEvent(
+        "exit intent — nifgati.co.il",
+        `גולש ניסה לעזוב את האתר. תאריך ושעה: ${ts}`
+      );
+    }
+
+    if (isMobile) {
+      let timer = setTimeout(fireExitIntent, 45000);
+      const reset = () => { clearTimeout(timer); timer = setTimeout(fireExitIntent, 45000); };
+      window.addEventListener("touchstart", reset);
+      window.addEventListener("scroll", reset);
+      return () => { clearTimeout(timer); window.removeEventListener("touchstart", reset); window.removeEventListener("scroll", reset); };
+    } else {
+      const onMouse = (e) => { if (e.clientY < 50) fireExitIntent(); };
+      document.addEventListener("mouseleave", onMouse);
+      return () => document.removeEventListener("mouseleave", onMouse);
+    }
+  }, []);
+
+  /* ── Helper: open bot and mark as opened ── */
+  function openBot() {
+    setShowBot(true);
+    botOpenedRef.current = true;
+    sessionStorage.setItem("nifgati_bot_opened", "1");
+  }
 
   useEffect(() => {
     const fn = () => setScrolled(window.scrollY > 50);
@@ -201,7 +266,7 @@ export default function App() {
           </nav>
           <div style={{ display:"flex", alignItems:"center", gap:12 }}>
             <a href={`tel:${PHONE}`} aria-label={`התקשר אלינו: ${PHONE}`} style={{ display:"inline-flex", alignItems:"center", gap:8, background:"#c9a84c18", border:"1px solid #c9a84c44", borderRadius:100, padding:"8px 16px", fontSize:14, fontWeight:700, color:G }} className="hm">📞 {PHONE}</a>
-            <button style={gBtn} onClick={() => setShowBot(true)} aria-label="בדיקת גובה הפיצוי">בדיקת פיצוי</button>
+            <button style={gBtn} onClick={openBot} aria-label="בדיקת גובה הפיצוי">בדיקת פיצוי</button>
           </div>
         </div>
       </header>
@@ -240,7 +305,7 @@ export default function App() {
                 ))}
               </div>
               <div style={{ display:"flex", gap:14, flexWrap:"wrap", marginBottom:40 }}>
-                <button style={{ ...gBtn, fontSize:16, padding:"16px 32px" }} onClick={() => setShowBot(true)} aria-label="בדיקת גובה הפיצוי">💬 לבדיקת גובה הפיצוי שלי</button>
+                <button style={{ ...gBtn, fontSize:16, padding:"16px 32px" }} onClick={openBot} aria-label="בדיקת גובה הפיצוי">💬 לבדיקת גובה הפיצוי שלי</button>
               </div>
             </div>
           </div>
@@ -294,7 +359,7 @@ export default function App() {
                 <p style={{ fontSize:14, color:"#7a8fa5", marginBottom:24, lineHeight:1.7 }}>
                   ספר לנו מה קרה ← שאלות חכמות ← חישוב מלא ← ניתוב לוואטסאפ
                 </p>
-                <button style={{ ...gBtn, fontSize:16, padding:"16px 36px" }} onClick={() => setShowBot(true)} aria-label="פתח את בוט הפיצויים">
+                <button style={{ ...gBtn, fontSize:16, padding:"16px 36px" }} onClick={openBot} aria-label="פתח את בוט הפיצויים">
                   🚀 התחל חישוב עכשיו
                 </button>
               </div>
@@ -364,7 +429,7 @@ export default function App() {
                     </div>
                   ))}
                 </div>
-                <button style={{ ...gBtn, marginTop:24 }} onClick={() => setShowBot(true)} aria-label="בדיקת פיצוי">💬 בדיקת פיצוי חינם</button>
+                <button style={{ ...gBtn, marginTop:24 }} onClick={openBot} aria-label="בדיקת פיצוי">💬 בדיקת פיצוי חינם</button>
               </div>
             </div>
           </Reveal>
@@ -393,7 +458,7 @@ export default function App() {
               <h2 style={{ fontSize:32, fontWeight:900, marginBottom:12 }}>דברו איתנו עכשיו</h2>
               <p style={{ color:"#7a8fa5", fontSize:15, marginBottom:36 }}>ייעוץ ראשוני חינמי, ללא התחייבות</p>
               <div style={{ display:"flex", flexDirection:"column", gap:12 }}>
-                <button style={{ ...gBtn, width:"100%", justifyContent:"center", fontSize:16, padding:16 }} onClick={() => setShowBot(true)} aria-label="פתח מחשבון פיצויים">🤖 חשב כמה מגיע לך — חינם</button>
+                <button style={{ ...gBtn, width:"100%", justifyContent:"center", fontSize:16, padding:16 }} onClick={openBot} aria-label="פתח מחשבון פיצויים">🤖 חשב כמה מגיע לך — חינם</button>
                 <a href={`tel:${PHONE}`}>
                   <button style={{ ...oBtn, width:"100%", justifyContent:"center", fontSize:16, padding:16 }} aria-label={`התקשר: ${PHONE}`}>📞 {PHONE} — התקשר עכשיו</button>
                 </a>
@@ -433,6 +498,23 @@ export default function App() {
         <div style={{ position:"fixed", bottom:0, right:0, left:0, background:"#0a0f1eee", borderTop:"1px solid #1e2d4a22", padding:"8px 16px", display:"flex", alignItems:"center", justifyContent:"space-between", gap:12, zIndex:98, fontSize:11, color:"#445566" }}>
           <span>האתר משתמש בעוגיות Remarketing בלבד. שיחות הבוט אינן נשמרות. <a href="/privacy" style={{ color:"#c9a84c88" }}>פרטיות</a></span>
           <button style={{ background:"#c9a84c22", color:"#c9a84c", border:"1px solid #c9a84c44", borderRadius:8, fontFamily:"inherit", fontSize:11, padding:"4px 10px", cursor:"pointer", flexShrink:0 }} onClick={() => setCookie(true)}>אישור ✓</button>
+        </div>
+      )}
+
+      {/* EXIT INTENT POPUP */}
+      {showExit && (
+        <div role="dialog" aria-modal="true" aria-label="לפני שאתה עוזב" style={{ position:"fixed", inset:0, background:"#080d18ee", zIndex:200, display:"flex", alignItems:"center", justifyContent:"center", padding:16 }}>
+          <div style={{ background:"#0d1323", border:`2px solid ${G}`, borderRadius:20, padding:"36px 32px", maxWidth:420, width:"100%", textAlign:"center", position:"relative" }}>
+            <button onClick={() => setShowExit(false)} aria-label="סגור" style={{ position:"absolute", top:12, left:12, background:"transparent", border:"none", color:"#7a8fa5", fontSize:20, cursor:"pointer", lineHeight:1 }}>✕</button>
+            <h2 style={{ fontSize:24, fontWeight:900, marginBottom:10, color:"#e8edf2" }}>רגע לפני שאתה עוזב... 👋</h2>
+            <p style={{ fontSize:15, color:"#7a8fa5", marginBottom:28, lineHeight:1.6 }}>גלה כמה פיצוי מגיע לך — לוקח 60 שניות</p>
+            <div style={{ display:"flex", flexDirection:"column", gap:12 }}>
+              <button onClick={() => { setShowExit(false); openBot(); }} style={{ ...gBtn, width:"100%", justifyContent:"center", fontSize:16, padding:16 }} aria-label="פתח מחשבון פיצויים">⚡ פתח מחשבון פיצויים</button>
+              <a href={`https://wa.me/${WA}`} target="_blank" rel="noopener noreferrer" style={{ width:"100%" }}>
+                <button style={{ ...oBtn, width:"100%", justifyContent:"center", fontSize:16, padding:16, background:"#25d36615", borderColor:"#25d36688", color:"#25d366" }} aria-label="וואטסאפ עכשיו">💬 וואטסאפ עכשיו</button>
+              </a>
+            </div>
+          </div>
         </div>
       )}
 

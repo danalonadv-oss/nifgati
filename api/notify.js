@@ -28,10 +28,13 @@ export default async function handler(req, res) {
   if (req.method !== "POST") return res.status(405).json({ error: "Method not allowed" });
 
   // Validate
-  const { summary, calculation } = req.body || {};
+  const { summary, calculation, subject } = req.body || {};
   if (!summary || typeof summary !== "string") {
     return res.status(400).json({ error: "missing summary" });
   }
+  const emailSubject = (typeof subject === "string" && subject.trim())
+    ? subject.trim().slice(0, 200)
+    : "ליד חדש מהבוט — סיכום בדיקת פיצויים";
 
   // Check for Resend API key
   if (!process.env.RESEND_API_KEY) {
@@ -72,9 +75,9 @@ export default async function handler(req, res) {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        from: "nifgati Bot <onboarding@resend.dev>",
+        from: "nifgati Bot <nifgati@nifgati.co.il>",
         to: [LEAD_EMAIL],
-        subject: "ליד חדש מהבוט — סיכום בדיקת פיצויים",
+        subject: emailSubject,
         html,
       }),
     });
