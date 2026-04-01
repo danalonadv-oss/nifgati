@@ -66,13 +66,12 @@ export default function App() {
 
   /* ── Auto-open bot after 2.5s, once per session ── */
   useEffect(() => {
-    if (sessionStorage.getItem("nifgati_bot_opened")) return;
-    const t = setTimeout(() => {
+    if (sessionStorage.getItem("botAutoOpened")) return;
+    const timer = setTimeout(() => {
       setShowBot(true);
-      botOpenedRef.current = true;
-      sessionStorage.setItem("nifgati_bot_opened", "1");
+      sessionStorage.setItem("botAutoOpened", "1");
     }, 2500);
-    return () => clearTimeout(t);
+    return () => clearTimeout(timer);
   }, []);
 
   /* ── TRIGGER 1: 30s dwell time passive lead ── */
@@ -265,7 +264,7 @@ export default function App() {
             {nav.map(n => <a key={n.l} href={n.h} className="nl">{n.l}</a>)}
           </nav>
           <div style={{ display:"flex", alignItems:"center", gap:12 }}>
-            <a href={`tel:${PHONE}`} aria-label={`התקשר אלינו: ${PHONE}`} style={{ display:"inline-flex", alignItems:"center", gap:8, background:"#c9a84c18", border:"1px solid #c9a84c44", borderRadius:100, padding:"8px 16px", fontSize:14, fontWeight:700, color:G }} className="hm">📞 {PHONE}</a>
+            <a href="tel:0544338212" aria-label="התקשר אלינו" style={{ display:"inline-flex", alignItems:"center", justifyContent:"center", width:38, height:38, background:"#c9a84c18", border:"1px solid #c9a84c44", borderRadius:"50%", color:"#c9a84c", fontSize:18, textDecoration:"none" }}>📞</a>
             <button style={gBtn} onClick={openBot} aria-label="בדיקת גובה הפיצוי">בדיקת פיצוי</button>
           </div>
         </div>
