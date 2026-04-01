@@ -64,14 +64,24 @@ export default function App() {
   const dwellSentRef = useRef(false);
   const exitSentRef  = useRef(false);
 
-  /* ── Auto-open bot after 2.5s, once per session ── */
+  /* ── Auto-open bot on 30% scroll, once per session ── */
   useEffect(() => {
     if (sessionStorage.getItem("botAutoOpened")) return;
-    const timer = setTimeout(() => {
-      setShowBot(true);
-      sessionStorage.setItem("botAutoOpened", "1");
-    }, 2500);
-    return () => clearTimeout(timer);
+
+    const handleScroll = () => {
+      const scrolled = window.scrollY;
+      const total = document.documentElement.scrollHeight - window.innerHeight;
+      const pct = (scrolled / total) * 100;
+
+      if (pct >= 30) {
+        setShowBot(true);
+        sessionStorage.setItem("botAutoOpened", "1");
+        window.removeEventListener("scroll", handleScroll);
+      }
+    };
+
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
   /* ── TRIGGER 1: 30s dwell time passive lead ── */
