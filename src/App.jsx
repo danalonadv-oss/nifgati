@@ -215,13 +215,9 @@ export default function App() {
           <div style={{ maxWidth:1100, margin:"0 auto", padding:"80px 24px", width:"100%" }}>
             <div style={{ maxWidth:700 }}>
 
-              {/* Avatar */}
-              <div style={{ display:"flex", alignItems:"center", gap:14, marginBottom:28 }}>
-                <div style={{ width:56, height:56, borderRadius:"50%", background:`linear-gradient(135deg, ${G}, #a8882e)`, display:"flex", alignItems:"center", justifyContent:"center", fontSize:20, fontWeight:900, color:"#060a12", flexShrink:0 }}>ד.א</div>
-                <div>
-                  <div style={{ fontSize:15, fontWeight:700, color:"#e8edf2" }}>דן אלון, עו״ד נזיקין</div>
-                  <div style={{ fontSize:13, color:"#7a8fa5" }}>25 שנות ניסיון</div>
-                </div>
+              <div style={{ marginBottom:28 }}>
+                <div style={{ fontSize:15, fontWeight:700, color:"#e8edf2" }}>דן אלון, עו״ד נזיקין</div>
+                <div style={{ fontSize:13, color:"#7a8fa5" }}>25 שנות ניסיון</div>
               </div>
 
               <h1 className="ht" style={{ fontSize:48, fontWeight:900, lineHeight:1.25, marginBottom:14 }}>
@@ -357,9 +353,8 @@ export default function App() {
         {/* ATTORNEY SECTION */}
         <section aria-label="אודות עורך הדין" style={{ padding:"68px 24px", background:"#0d1323" }}>
           <Reveal>
-            <div style={{ maxWidth:700, margin:"0 auto", display:"flex", gap:32, alignItems:"flex-start", flexWrap:"wrap", justifyContent:"center" }}>
-              <div style={{ width:100, height:100, borderRadius:"50%", background:`linear-gradient(135deg, ${G}, #a8882e)`, display:"flex", alignItems:"center", justifyContent:"center", fontSize:36, fontWeight:900, color:"#060a12", flexShrink:0 }}>ד.א</div>
-              <div style={{ flex:1, minWidth:260 }}>
+            <div style={{ maxWidth:700, margin:"0 auto" }}>
+              <div>
                 <h2 style={{ fontSize:26, fontWeight:900, marginBottom:18 }}>עו״ד דן אלון</h2>
                 <div style={{ display:"flex", flexDirection:"column", gap:12 }}>
                   {attorneyBullets.map(b => (
