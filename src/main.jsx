@@ -1,8 +1,20 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
 import App from "./App.jsx";
 import Privacy from "./Privacy.jsx";
 import Accessibility from "./Accessibility.jsx";
+import TaonatDrakhim from "./pages/TaonatDrakhim.jsx";
+import Ofanoa from "./pages/Ofanoa.jsx";
+import Avoda from "./pages/Avoda.jsx";
+import Korkinet from "./pages/Korkinet.jsx";
+import HolehRegel from "./pages/HolehRegel.jsx";
+import TzlipatShot from "./pages/TzlipatShot.jsx";
+import PritzatDisc from "./pages/PritzatDisc.jsx";
+import Shever from "./pages/Shever.jsx";
+import PTSD from "./pages/PTSD.jsx";
+import Machshevon from "./pages/Machshevon.jsx";
+import Nechut from "./pages/Nechut.jsx";
 
 class ErrorBoundary extends React.Component {
   constructor(props) { super(props); this.state = { hasError: false }; }
@@ -24,13 +36,27 @@ class ErrorBoundary extends React.Component {
   }
 }
 
-function Router() {
-  const path = window.location.pathname;
-  if (path === "/privacy")       return <Privacy />;
-  if (path === "/accessibility") return <Accessibility />;
-  return <App />;
-}
-
 ReactDOM.createRoot(document.getElementById("root")).render(
-  <React.StrictMode><ErrorBoundary><Router /></ErrorBoundary></React.StrictMode>
+  <React.StrictMode>
+    <ErrorBoundary>
+      <BrowserRouter>
+        <Routes>
+          <Route path="/" element={<App />} />
+          <Route path="/privacy" element={<Privacy />} />
+          <Route path="/accessibility" element={<Accessibility />} />
+          <Route path="/taonat-drakhim" element={<TaonatDrakhim />} />
+          <Route path="/ofanoa" element={<Ofanoa />} />
+          <Route path="/avoda" element={<Avoda />} />
+          <Route path="/korkinet" element={<Korkinet />} />
+          <Route path="/holeh-regel" element={<HolehRegel />} />
+          <Route path="/tzlipat-shot" element={<TzlipatShot />} />
+          <Route path="/pritzat-disc" element={<PritzatDisc />} />
+          <Route path="/shever" element={<Shever />} />
+          <Route path="/ptsd" element={<PTSD />} />
+          <Route path="/machshevon" element={<Machshevon />} />
+          <Route path="/nechut" element={<Nechut />} />
+        </Routes>
+      </BrowserRouter>
+    </ErrorBoundary>
+  </React.StrictMode>
 );

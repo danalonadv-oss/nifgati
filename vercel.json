@@ -3,7 +3,18 @@
     { "source": "/api/claude",    "destination": "/api/claude.js" },
     { "source": "/api/notify",    "destination": "/api/notify.js" },
     { "source": "/privacy",       "destination": "/index.html" },
-    { "source": "/accessibility", "destination": "/index.html" }
+    { "source": "/accessibility", "destination": "/index.html" },
+    { "source": "/taonat-drakhim","destination": "/index.html" },
+    { "source": "/ofanoa",        "destination": "/index.html" },
+    { "source": "/avoda",         "destination": "/index.html" },
+    { "source": "/korkinet",      "destination": "/index.html" },
+    { "source": "/holeh-regel",   "destination": "/index.html" },
+    { "source": "/tzlipat-shot",  "destination": "/index.html" },
+    { "source": "/pritzat-disc",  "destination": "/index.html" },
+    { "source": "/shever",        "destination": "/index.html" },
+    { "source": "/ptsd",          "destination": "/index.html" },
+    { "source": "/machshevon",    "destination": "/index.html" },
+    { "source": "/nechut",        "destination": "/index.html" }
   ],
   "headers": [
     {
