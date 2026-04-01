@@ -25,36 +25,131 @@ function Reveal({ children }) {
   return <div ref={ref} style={{ opacity:v?1:0, transform:v?"none":"translateY(28px)", transition:"all .7s cubic-bezier(.22,1,.36,1)" }}>{children}</div>;
 }
 
+/* ── FAQ Accordion Item ── */
+function FAQItem({ q, a }) {
+  const [open, setOpen] = useState(false);
+  return (
+    <div style={{ borderBottom:"1px solid #1e2d4a" }}>
+      <button
+        onClick={() => setOpen(p => !p)}
+        aria-expanded={open}
+        style={{ width:"100%",background:"transparent",border:"none",color:"#e8edf2",fontFamily:"inherit",fontSize:16,fontWeight:700,padding:"18px 0",cursor:"pointer",display:"flex",justifyContent:"space-between",alignItems:"center",textAlign:"right",direction:"rtl",gap:12 }}
+      >
+        <span>{q}</span>
+        <span style={{ color:"#c9a84c",fontSize:20,flexShrink:0,transition:"transform .3s",transform:open?"rotate(45deg)":"rotate(0)" }}>+</span>
+      </button>
+      <div style={{ maxHeight:open?300:0,overflow:"hidden",transition:"max-height .4s ease",paddingInlineStart:0 }}>
+        <p style={{ fontSize:14,color:"#7a8fa5",lineHeight:1.85,paddingBottom:18 }}>{a}</p>
+      </div>
+    </div>
+  );
+}
+
 export default function App() {
-  const [scrolled, setScrolled] = useState(false);
-  const [showBot,  setShowBot]  = useState(false);
-  const [cookie,   setCookie]   = useState(false);
+  const [scrolled, setScrolled]       = useState(false);
+  const [showBot, setShowBot]         = useState(false);
+  const [cookie, setCookie]           = useState(false);
+  const [showBanner, setShowBanner]   = useState(true);
 
-  useEffect(()=>{
-    const fn=()=>setScrolled(window.scrollY>50);
-    window.addEventListener("scroll",fn);
-    return ()=>window.removeEventListener("scroll",fn);
-  },[]);
+  /* ── Auto-open bot after 2.5s, once per session ── */
+  useEffect(() => {
+    if (sessionStorage.getItem("nifgati_bot_opened")) return;
+    const t = setTimeout(() => {
+      setShowBot(true);
+      sessionStorage.setItem("nifgati_bot_opened", "1");
+    }, 2500);
+    return () => clearTimeout(t);
+  }, []);
 
-  const G="#c9a84c";
-  const gBtn={ background:G,color:"#060a12",border:"none",borderRadius:12,fontFamily:"inherit",fontWeight:800,fontSize:15,padding:"14px 28px",cursor:"pointer",display:"inline-flex",alignItems:"center",gap:8,transition:"all .2s" };
-  const oBtn={ background:"transparent",color:G,border:`1.5px solid ${G}88`,borderRadius:12,fontFamily:"inherit",fontWeight:700,fontSize:14,padding:"12px 24px",cursor:"pointer",display:"inline-flex",alignItems:"center",gap:8 };
+  useEffect(() => {
+    const fn = () => setScrolled(window.scrollY > 50);
+    window.addEventListener("scroll", fn);
+    return () => window.removeEventListener("scroll", fn);
+  }, []);
 
-  const nav=[{l:"איך עובד",h:"#how"},{l:"לקוחות",h:"#why"},{l:"מחשבון",h:"#calc"},{l:"צור קשר",h:"#contact"}];
-  const steps=[
-    {n:"01",t:"חשב בחינם",d:"התחל כעת וקבל מייד את הסכום המוערך תוך דקת שיחה."},
-    {n:"02",t:"ייעוץ אישי",d:`שיחה ישירה עם ${MY_NAME}. מעריכים את התיק ומסבירים את הדרך.`},
-    {n:"03",t:"אנחנו לוחמים",d:"אנחנו מול חברות הביטוח. אתה מתרכז בהחלמה."},
-    {n:"04",t:"פיצוי בחשבון",d:"שכ\"ט רק מהפיצוי — 8%–13% בפלת\"ד. ללא תשלום מראש."},
+  /* ── Inject JSON-LD Schema ── */
+  useEffect(() => {
+    const faqSchema = {
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      "mainEntity": [
+        { "@type": "Question", "name": "כמה זמן לוקח לקבל פיצוי?", "acceptedAnswer": { "@type": "Answer", "text": "בדרך כלל 12–24 חודשים. במקרים דחופים ניתן לקבל מקדמות תוך 60 יום." } },
+        { "@type": "Question", "name": "כמה עולה הייצוג?", "acceptedAnswer": { "@type": "Answer", "text": "₪0 מראש. שכר הטרחה הוא אחוזים קבועים בחוק (8%–13%) ומשולם רק מתוך הפיצוי שתקבל." } },
+        { "@type": "Question", "name": "תאונה קלה ללא שברים — מגיע לי פיצוי?", "acceptedAnswer": { "@type": "Answer", "text": "כן. גם צליפת שוט (Whiplash) מזכה באלפי שקלים פיצוי. כל פגיעה גופנית מזכה בבדיקה." } },
+      ]
+    };
+    const localBiz = {
+      "@context": "https://schema.org",
+      "@type": "Attorney",
+      "name": "דן אלון — עורך דין נזיקין",
+      "url": "https://nifgati.co.il",
+      "telephone": "+972-54-4338212",
+      "email": "Danalonadv@gmail.com",
+      "address": { "@type": "PostalAddress", "streetAddress": "חנה זמר 7", "addressLocality": "תל אביב", "addressCountry": "IL" },
+      "openingHours": "Mo-Th 09:00-19:00",
+      "priceRange": "8%-13% מהפיצוי בלבד"
+    };
+    const ids = ["nifgati-faq-schema", "nifgati-local-schema"];
+    [faqSchema, localBiz].forEach((schema, i) => {
+      if (!document.getElementById(ids[i])) {
+        const s = document.createElement("script");
+        s.type = "application/ld+json";
+        s.id = ids[i];
+        s.textContent = JSON.stringify(schema);
+        document.head.appendChild(s);
+      }
+    });
+  }, []);
+
+  const G = "#c9a84c";
+  const gBtn = { background:G, color:"#060a12", border:"none", borderRadius:12, fontFamily:"inherit", fontWeight:800, fontSize:15, padding:"14px 28px", cursor:"pointer", display:"inline-flex", alignItems:"center", gap:8, transition:"all .2s" };
+  const oBtn = { background:"transparent", color:G, border:`1.5px solid ${G}88`, borderRadius:12, fontFamily:"inherit", fontWeight:700, fontSize:14, padding:"12px 24px", cursor:"pointer", display:"inline-flex", alignItems:"center", gap:8 };
+
+  const nav = [{ l:"איך עובד", h:"#how" }, { l:"תוצאות", h:"#results" }, { l:"שאלות", h:"#faq" }, { l:"צור קשר", h:"#contact" }];
+
+  const steps = [
+    { n:"01", t:"חשב בחינם", d:"התחל כעת וקבל מייד את הסכום המוערך תוך דקת שיחה." },
+    { n:"02", t:"ייעוץ אישי", d:`שיחה ישירה עם ${MY_NAME}. מעריכים את התיק ומסבירים את הדרך.` },
+    { n:"03", t:"אנחנו לוחמים", d:"אנחנו מול חברות הביטוח. אתה מתרכז בהחלמה." },
+    { n:"04", t:"פיצוי בחשבון", d:"שכ\"ט רק מהפיצוי — 8%–13% בפלת\"ד. ללא תשלום מראש." },
   ];
-  const reviews=[
-    {n:"מיכל ר.",c:"תל אביב",t:"קיבלתי ₪220,000 אחרי שהביטוח הציע ₪40,000. דן לחם עבורי כל הדרך."},
-    {n:"אלון מ.",c:"רמת גן",t:"נפלתי מקורקינט בגלל בור. לא ידעתי שמגיע לי פיצוי. דן פתח תיק תוך יום."},
-    {n:"שירה כ.",c:"הרצליה",t:"תאונה בדרך לעבודה. קיבלתי פיצוי מלא מביטוח לאומי ומחברת הביטוח."},
+
+  const results = [
+    { icon:"🚗", type:"תאונת דרכים", disability:"נכות 15%", amount:"₪320,000" },
+    { icon:"🏍️", type:"תאונת אופנוע", disability:"נכות 25%", amount:"₪680,000" },
+    { icon:"🏗️", type:"תאונת עבודה", disability:"נכות 10%", amount:"₪185,000" },
+  ];
+
+  const reviews = [
+    { n:"מיכל ר.", c:"תל אביב", t:"קיבלתי ₪220,000 אחרי שהביטוח הציע ₪40,000. דן לחם עבורי כל הדרך." },
+    { n:"אלון מ.", c:"רמת גן", t:"נפלתי מקורקינט בגלל בור. לא ידעתי שמגיע לי פיצוי. דן פתח תיק תוך יום." },
+    { n:"שירה כ.", c:"הרצליה", t:"תאונה בדרך לעבודה. קיבלתי פיצוי מלא מביטוח לאומי ומחברת הביטוח." },
+  ];
+
+  const faqItems = [
+    { q:"כמה זמן לוקח לקבל פיצוי?", a:"בדרך כלל 12–24 חודשים. במקרים דחופים ניתן לקבל מקדמות תוך 60 יום מרגע הגשת התביעה." },
+    { q:"כמה עולה הייצוג?", a:"₪0 מראש. שכר הטרחה הוא אחוזים קבועים בחוק (8%–13% בפלת\"ד) ומשולם רק מתוך הפיצוי שתקבל. אם אין פיצוי — אין תשלום." },
+    { q:"תאונה קלה ללא שברים — מגיע לי פיצוי?", a:"בהחלט. גם צליפת שוט (Whiplash) מזכה באלפי שקלים. כל פגיעה גופנית בתאונה מזכה בבדיקת זכאות לפיצוי." },
+  ];
+
+  const marqueeItems = [
+    "✓ ₪0 עד קבלת פיצוי",
+    "✓ שכ״ט רק מהפיצוי (8-13% לפי חוק)",
+    "✓ 25 שנות ניסיון",
+    "✓ 200+ תיקים שטופלו",
+    "✓ מענה תוך שעה",
+    "✓ ניסיון מול כל חברות הביטוח",
+  ];
+
+  const attorneyBullets = [
+    "25 שנות ניסיון בפלת״ד ונזקי גוף",
+    "מומחה לניהול תביעות מול כל חברות הביטוח",
+    "שכר טרחה על בסיס הצלחה בלבד",
+    "זמינות אישית ישירה לכל לקוח",
   ];
 
   return (
-    <div style={{ fontFamily:"'Heebo',sans-serif",direction:"rtl",background:"#080d18",color:"#e8edf2",overflowX:"hidden" }}>
+    <div style={{ fontFamily:"'Heebo',sans-serif", direction:"rtl", background:"#080d18", color:"#e8edf2", overflowX:"hidden" }}>
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;500;700;900&display=swap');
         *{box-sizing:border-box;margin:0;padding:0}
@@ -76,26 +171,37 @@ export default function App() {
         .pulse{animation:p 2s ease-in-out infinite}
         @keyframes p{0%,100%{opacity:1}50%{opacity:.5}}
         .ck{position:fixed;bottom:0;right:0;left:0;background:#0d1323;border-top:1px solid #1e2d4a;padding:14px 20px;display:flex;align-items:center;justify-content:space-between;gap:16px;z-index:98;font-size:13px;color:#7a8fa5}
-        @media(max-width:768px){.g2,.g3{grid-template-columns:1fr}.g4{grid-template-columns:1fr 1fr}.hm{display:none!important}.ht{font-size:34px!important}}
+        @media(max-width:768px){.g2,.g3{grid-template-columns:1fr}.g4{grid-template-columns:1fr 1fr}.hm{display:none!important}.ht{font-size:34px!important}.marquee-track{animation-duration:12s!important}}
         @media(max-width:480px){.g4{grid-template-columns:1fr 1fr}}
+        @keyframes marquee{0%{transform:translateX(0)}100%{transform:translateX(100%)}}
+        .marquee-wrap{overflow:hidden;width:100%;position:relative}
+        .marquee-track{display:flex;gap:48px;width:max-content;animation:marquee 20s linear infinite;direction:ltr}
       `}</style>
 
       {/* SKIP NAV */}
-      <a href="#main-content" style={{ position:"absolute",top:-40,right:0,background:G,color:"#000",padding:"8px 16px",borderRadius:"0 0 8px 0",fontSize:14,fontWeight:700,zIndex:999,transition:"top .2s" }} onFocus={e=>e.target.style.top="0"} onBlur={e=>e.target.style.top="-40px"}>דלג לתוכן הראשי</a>
+      <a href="#main-content" style={{ position:"absolute", top:-40, right:0, background:G, color:"#000", padding:"8px 16px", borderRadius:"0 0 8px 0", fontSize:14, fontWeight:700, zIndex:999, transition:"top .2s" }} onFocus={e => e.target.style.top = "0"} onBlur={e => e.target.style.top = "-40px"}>דלג לתוכן הראשי</a>
+
+      {/* URGENCY BANNER */}
+      {showBanner && (
+        <div style={{ position:"fixed", top:0, right:0, left:0, zIndex:110, background:G, color:"#060a12", height:40, display:"flex", alignItems:"center", justifyContent:"center", fontSize:14, fontWeight:700, gap:8, paddingInlineStart:16, paddingInlineEnd:16 }}>
+          <span>⚖️ תביעות פלת״ד — התיישנות לאחר 7 שנים. פעל עכשיו לשמירה על זכויותיך.</span>
+          <button onClick={() => setShowBanner(false)} aria-label="סגור באנר" style={{ background:"transparent", border:"none", color:"#060a12", fontSize:18, cursor:"pointer", lineHeight:1, marginInlineStart:8, fontWeight:900 }}>✕</button>
+        </div>
+      )}
 
       {/* HEADER */}
-      <header role="banner" style={{ position:"fixed",top:0,right:0,left:0,zIndex:100,background:scrolled?"#080d18f0":"transparent",backdropFilter:scrolled?"blur(12px)":"none",borderBottom:scrolled?"1px solid #1e2d4a":"1px solid transparent",transition:"all .3s",padding:"0 24px" }}>
-        <div style={{ maxWidth:1100,margin:"0 auto",height:64,display:"flex",alignItems:"center",justifyContent:"space-between" }}>
-          <a href="/" aria-label="nifgati — עמוד בית" style={{ display:"flex",alignItems:"center",gap:10 }}>
-            <div style={{ background:G,color:"#060a12",fontWeight:900,fontSize:18,width:38,height:38,borderRadius:10,display:"flex",alignItems:"center",justifyContent:"center" }} aria-hidden="true">נ</div>
-            <div><div style={{ fontWeight:900,fontSize:16,color:"#fff",lineHeight:1.1 }}>nifgati</div><div style={{ fontSize:10,color:"#7a8fa5",letterSpacing:1 }}>נפגעתי</div></div>
+      <header role="banner" style={{ position:"fixed", top:showBanner ? 40 : 0, right:0, left:0, zIndex:100, background:scrolled ? "#080d18f0" : "transparent", backdropFilter:scrolled ? "blur(12px)" : "none", borderBottom:scrolled ? "1px solid #1e2d4a" : "1px solid transparent", transition:"all .3s", padding:"0 24px" }}>
+        <div style={{ maxWidth:1100, margin:"0 auto", height:64, display:"flex", alignItems:"center", justifyContent:"space-between" }}>
+          <a href="/" aria-label="nifgati — עמוד בית" style={{ display:"flex", alignItems:"center", gap:10 }}>
+            <div style={{ background:G, color:"#060a12", fontWeight:900, fontSize:18, width:38, height:38, borderRadius:10, display:"flex", alignItems:"center", justifyContent:"center" }} aria-hidden="true">נ</div>
+            <div><div style={{ fontWeight:900, fontSize:16, color:"#fff", lineHeight:1.1 }}>nifgati</div><div style={{ fontSize:10, color:"#7a8fa5", letterSpacing:1 }}>נפגעתי</div></div>
           </a>
-          <nav role="navigation" aria-label="ניווט ראשי" style={{ display:"flex",gap:28,alignItems:"center" }} className="hm">
-            {nav.map(n=><a key={n.l} href={n.h} className="nl">{n.l}</a>)}
+          <nav role="navigation" aria-label="ניווט ראשי" style={{ display:"flex", gap:28, alignItems:"center" }} className="hm">
+            {nav.map(n => <a key={n.l} href={n.h} className="nl">{n.l}</a>)}
           </nav>
-          <div style={{ display:"flex",alignItems:"center",gap:12 }}>
-            <a href={`tel:${PHONE}`} aria-label={`התקשר אלינו: ${PHONE}`} style={{ display:"inline-flex",alignItems:"center",gap:8,background:"#c9a84c18",border:"1px solid #c9a84c44",borderRadius:100,padding:"8px 16px",fontSize:14,fontWeight:700,color:G }} className="hm">📞 {PHONE}</a>
-            <button style={gBtn} onClick={()=>setShowBot(true)} aria-label="בדיקת גובה הפיצוי">בדיקת פיצוי</button>
+          <div style={{ display:"flex", alignItems:"center", gap:12 }}>
+            <a href={`tel:${PHONE}`} aria-label={`התקשר אלינו: ${PHONE}`} style={{ display:"inline-flex", alignItems:"center", gap:8, background:"#c9a84c18", border:"1px solid #c9a84c44", borderRadius:100, padding:"8px 16px", fontSize:14, fontWeight:700, color:G }} className="hm">📞 {PHONE}</a>
+            <button style={gBtn} onClick={() => setShowBot(true)} aria-label="בדיקת גובה הפיצוי">בדיקת פיצוי</button>
           </div>
         </div>
       </header>
@@ -104,49 +210,72 @@ export default function App() {
       <main id="main-content" role="main">
 
         {/* HERO */}
-        <section id="hero" aria-label="עמוד ראשי" style={{ minHeight:"100vh",display:"flex",alignItems:"center",position:"relative",overflow:"hidden",paddingTop:80 }}>
-          <div style={{ position:"absolute",top:"20%",right:"-8%",width:500,height:500,background:"radial-gradient(circle, #c9a84c09 0%, transparent 70%)",pointerEvents:"none" }} aria-hidden="true"/>
-          <div style={{ maxWidth:1100,margin:"0 auto",padding:"80px 24px",width:"100%" }}>
+        <section id="hero" aria-label="עמוד ראשי" style={{ minHeight:"100vh", display:"flex", alignItems:"center", position:"relative", overflow:"hidden", paddingTop:showBanner ? 120 : 80 }}>
+          <div style={{ position:"absolute", top:"20%", right:"-8%", width:500, height:500, background:"radial-gradient(circle, #c9a84c09 0%, transparent 70%)", pointerEvents:"none" }} aria-hidden="true" />
+          <div style={{ maxWidth:1100, margin:"0 auto", padding:"80px 24px", width:"100%" }}>
             <div style={{ maxWidth:700 }}>
-              <h1 className="ht" style={{ fontSize:48,fontWeight:900,lineHeight:1.25,marginBottom:24 }}>
-                הזכויות שלך שוות כסף.<br/>
-                <span style={{ color:G }}>בוא נבדוק כמה מגיע לך.</span>
+
+              {/* Avatar */}
+              <div style={{ display:"flex", alignItems:"center", gap:14, marginBottom:28 }}>
+                <div style={{ width:56, height:56, borderRadius:"50%", background:`linear-gradient(135deg, ${G}, #a8882e)`, display:"flex", alignItems:"center", justifyContent:"center", fontSize:20, fontWeight:900, color:"#060a12", flexShrink:0 }}>ד.א</div>
+                <div>
+                  <div style={{ fontSize:15, fontWeight:700, color:"#e8edf2" }}>דן אלון, עו״ד נזיקין</div>
+                  <div style={{ fontSize:13, color:"#7a8fa5" }}>25 שנות ניסיון</div>
+                </div>
+              </div>
+
+              <h1 className="ht" style={{ fontSize:48, fontWeight:900, lineHeight:1.25, marginBottom:14 }}>
+                נפגעת בתאונה?<br />
+                <span style={{ color:G }}>מגיע לך פיצוי.</span>
               </h1>
-              <div style={{ display:"flex",flexDirection:"column",gap:10,marginBottom:32,maxWidth:480 }}>
+              <p style={{ fontSize:18, color:"#7a8fa5", marginBottom:32, lineHeight:1.6 }}>גלה כמה — תוך 60 שניות, בחינם.</p>
+
+              <div style={{ display:"flex", flexDirection:"column", gap:10, marginBottom:32, maxWidth:480 }}>
                 {[
-                  {icon:"🔒",text:"בדיקה אנונימית: ללא צורך בשם או תעודת זהות."},
-                  {icon:"🤫",text:"דיסקרטיות מלאה: המידע אינו נשמר במערכת ואינו מתועד."},
-                  {icon:"✅",text:"ללא סיכון כלכלי: שכר הטרחה משולם רק על בסיס הצלחה מהפיצוי שתקבל."},
-                  {icon:"⚡",text:"תשובה מיידית: קבלת אינדיקציה ראשונית בתוך פחות מ-2 דקות."},
-                ].map(b=>(
-                  <div key={b.icon} style={{ display:"flex",gap:10,alignItems:"flex-start",fontSize:15,color:"#bcc8d4",lineHeight:1.6 }}>
-                    <span style={{ fontSize:18,flexShrink:0,marginTop:2 }}>{b.icon}</span>
+                  { icon:"🔒", text:"בדיקה אנונימית: ללא צורך בשם או תעודת זהות." },
+                  { icon:"🤫", text:"דיסקרטיות מלאה: המידע אינו נשמר במערכת ואינו מתועד." },
+                  { icon:"✅", text:"ללא סיכון כלכלי: שכר הטרחה משולם רק על בסיס הצלחה מהפיצוי שתקבל." },
+                  { icon:"⚡", text:"תשובה מיידית: קבלת אינדיקציה ראשונית בתוך פחות מ-2 דקות." },
+                ].map(b => (
+                  <div key={b.icon} style={{ display:"flex", gap:10, alignItems:"flex-start", fontSize:15, color:"#bcc8d4", lineHeight:1.6 }}>
+                    <span style={{ fontSize:18, flexShrink:0, marginTop:2 }}>{b.icon}</span>
                     <span>{b.text}</span>
                   </div>
                 ))}
               </div>
-              <div style={{ display:"flex",gap:14,flexWrap:"wrap",marginBottom:40 }}>
-                <button style={{ ...gBtn,fontSize:16,padding:"16px 32px" }} onClick={()=>setShowBot(true)} aria-label="בדיקת גובה הפיצוי">💬 לבדיקת גובה הפיצוי שלי</button>
+              <div style={{ display:"flex", gap:14, flexWrap:"wrap", marginBottom:40 }}>
+                <button style={{ ...gBtn, fontSize:16, padding:"16px 32px" }} onClick={() => setShowBot(true)} aria-label="בדיקת גובה הפיצוי">💬 לבדיקת גובה הפיצוי שלי</button>
               </div>
             </div>
           </div>
         </section>
 
+        {/* TRUST MARQUEE */}
+        <div style={{ background:"#0d1323", borderTop:"1px solid #1e2d4a", borderBottom:"1px solid #1e2d4a", padding:"14px 0" }}>
+          <div className="marquee-wrap" aria-label="יתרונות השירות">
+            <div className="marquee-track">
+              {[...marqueeItems, ...marqueeItems].map((item, i) => (
+                <span key={i} style={{ color:G, fontSize:14, fontWeight:700, whiteSpace:"nowrap" }}>{item}</span>
+              ))}
+            </div>
+          </div>
+        </div>
+
         {/* HOW */}
-        <section id="how" aria-label="איך זה עובד" style={{ padding:"68px 24px",background:"#0d1323" }}>
+        <section id="how" aria-label="איך זה עובד" style={{ padding:"68px 24px", background:"#0d1323" }}>
           <Reveal>
-            <div style={{ maxWidth:1100,margin:"0 auto" }}>
-              <div style={{ textAlign:"center",marginBottom:48 }}>
-                <div className="div" aria-hidden="true"/>
-                <h2 style={{ fontSize:32,fontWeight:900,marginBottom:10 }}>איך זה עובד</h2>
-                <p style={{ color:"#7a8fa5",fontSize:15 }}>מהרגע שפנית ועד שהפיצוי בחשבון</p>
+            <div style={{ maxWidth:1100, margin:"0 auto" }}>
+              <div style={{ textAlign:"center", marginBottom:48 }}>
+                <div className="div" aria-hidden="true" />
+                <h2 style={{ fontSize:32, fontWeight:900, marginBottom:10 }}>איך זה עובד</h2>
+                <p style={{ color:"#7a8fa5", fontSize:15 }}>מהרגע שפנית ועד שהפיצוי בחשבון</p>
               </div>
               <div className="g2" role="list">
-                {steps.map(s=>(
+                {steps.map(s => (
                   <div key={s.n} className="step" role="listitem">
-                    <div style={{ fontSize:40,fontWeight:900,color:G,opacity:.15,lineHeight:1,marginBottom:8 }} aria-hidden="true">{s.n}</div>
-                    <h3 style={{ fontSize:18,fontWeight:800,marginBottom:8 }}>{s.t}</h3>
-                    <p style={{ fontSize:14,color:"#7a8fa5",lineHeight:1.75 }}>{s.d}</p>
+                    <div style={{ fontSize:40, fontWeight:900, color:G, opacity:.15, lineHeight:1, marginBottom:8 }} aria-hidden="true">{s.n}</div>
+                    <h3 style={{ fontSize:18, fontWeight:800, marginBottom:8 }}>{s.t}</h3>
+                    <p style={{ fontSize:14, color:"#7a8fa5", lineHeight:1.75 }}>{s.d}</p>
                   </div>
                 ))}
               </div>
@@ -157,43 +286,66 @@ export default function App() {
         {/* CALCULATOR */}
         <section id="calc" aria-label="מחשבון פיצויים" style={{ padding:"68px 24px" }}>
           <Reveal>
-            <div style={{ maxWidth:680,margin:"0 auto",textAlign:"center" }}>
-              <div className="div" aria-hidden="true"/>
-              <h2 style={{ fontSize:32,fontWeight:900,marginBottom:12 }}>מחשבון פיצויים חינמי</h2>
-              <p style={{ color:"#7a8fa5",fontSize:15,marginBottom:36,lineHeight:1.75 }}>
+            <div style={{ maxWidth:680, margin:"0 auto", textAlign:"center" }}>
+              <div className="div" aria-hidden="true" />
+              <h2 style={{ fontSize:32, fontWeight:900, marginBottom:12 }}>מחשבון פיצויים חינמי</h2>
+              <p style={{ color:"#7a8fa5", fontSize:15, marginBottom:36, lineHeight:1.75 }}>
                 הבוט מחשב 4 ראשי נזק לפי חוק הפלת"ד — כאב וסבל, הפסדי שכר, אובדן כושר עתידי והוצאות רפואיות.
               </p>
-              <div style={{ background:"#111a2c",border:"1px solid #c9a84c44",borderRadius:20,padding:"36px 32px",marginBottom:20 }}>
-                <div style={{ fontSize:48,marginBottom:16 }} aria-hidden="true">🤖</div>
-                <h3 style={{ fontSize:18,fontWeight:700,marginBottom:8 }}>בוט הפיצויים של nifgati</h3>
-                <p style={{ fontSize:14,color:"#7a8fa5",marginBottom:24,lineHeight:1.7 }}>
+              <div style={{ background:"#111a2c", border:"1px solid #c9a84c44", borderRadius:20, padding:"36px 32px", marginBottom:20 }}>
+                <div style={{ fontSize:48, marginBottom:16 }} aria-hidden="true">🤖</div>
+                <h3 style={{ fontSize:18, fontWeight:700, marginBottom:8 }}>בוט הפיצויים של nifgati</h3>
+                <p style={{ fontSize:14, color:"#7a8fa5", marginBottom:24, lineHeight:1.7 }}>
                   ספר לנו מה קרה ← שאלות חכמות ← חישוב מלא ← ניתוב לוואטסאפ
                 </p>
-                <button style={{ ...gBtn,fontSize:16,padding:"16px 36px" }} onClick={()=>setShowBot(true)} aria-label="פתח את בוט הפיצויים">
+                <button style={{ ...gBtn, fontSize:16, padding:"16px 36px" }} onClick={() => setShowBot(true)} aria-label="פתח את בוט הפיצויים">
                   🚀 התחל חישוב עכשיו
                 </button>
               </div>
-              <p style={{ fontSize:12,color:"#7a8fa5" }}>✓ חינמי &nbsp;|&nbsp; ✓ השיחה לא נשמרת בשרתינו &nbsp;|&nbsp; ✓ ללא התחייבות</p>
+              <p style={{ fontSize:12, color:"#7a8fa5" }}>✓ חינמי &nbsp;|&nbsp; ✓ השיחה לא נשמרת בשרתינו &nbsp;|&nbsp; ✓ ללא התחייבות</p>
+            </div>
+          </Reveal>
+        </section>
+
+        {/* RESULTS STRIP */}
+        <section id="results" aria-label="תוצאות אמיתיות" style={{ padding:"68px 24px", background:"#0d1323" }}>
+          <Reveal>
+            <div style={{ maxWidth:1100, margin:"0 auto" }}>
+              <div style={{ textAlign:"center", marginBottom:48 }}>
+                <div className="div" aria-hidden="true" />
+                <h2 style={{ fontSize:32, fontWeight:900, marginBottom:10 }}>תוצאות אמיתיות של לקוחותינו</h2>
+              </div>
+              <div className="g3" role="list">
+                {results.map(r => (
+                  <div key={r.type} className="card" role="listitem" style={{ textAlign:"center" }}>
+                    <div style={{ fontSize:40, marginBottom:12 }}>{r.icon}</div>
+                    <h3 style={{ fontSize:17, fontWeight:800, marginBottom:6 }}>{r.type}</h3>
+                    <div style={{ fontSize:14, color:"#7a8fa5", marginBottom:8 }}>{r.disability}</div>
+                    <div style={{ fontSize:26, fontWeight:900, color:G }}>{r.amount}</div>
+                    <div style={{ fontSize:12, color:"#556070", marginTop:4 }}>פיצוי</div>
+                  </div>
+                ))}
+              </div>
             </div>
           </Reveal>
         </section>
 
         {/* REVIEWS */}
-        <section id="why" aria-label="ביקורות לקוחות" style={{ padding:"68px 24px",background:"#0d1323" }}>
+        <section id="why" aria-label="ביקורות לקוחות" style={{ padding:"68px 24px" }}>
           <Reveal>
-            <div style={{ maxWidth:1100,margin:"0 auto" }}>
-              <div style={{ textAlign:"center",marginBottom:48 }}>
-                <div className="div" aria-hidden="true"/>
-                <h2 style={{ fontSize:32,fontWeight:900,marginBottom:10 }}>לקוחות מספרים</h2>
+            <div style={{ maxWidth:1100, margin:"0 auto" }}>
+              <div style={{ textAlign:"center", marginBottom:48 }}>
+                <div className="div" aria-hidden="true" />
+                <h2 style={{ fontSize:32, fontWeight:900, marginBottom:10 }}>לקוחות מספרים</h2>
               </div>
               <div className="g3" role="list">
-                {reviews.map(r=>(
+                {reviews.map(r => (
                   <article key={r.n} className="card" role="listitem" aria-label={`ביקורת מאת ${r.n}`}>
-                    <div style={{ color:G,fontSize:14,letterSpacing:2,marginBottom:10 }} aria-label="5 כוכבים">★★★★★</div>
-                    <blockquote style={{ fontSize:14,color:"#bcc8d4",lineHeight:1.75,marginBottom:16,fontStyle:"italic" }}>"{r.t}"</blockquote>
-                    <footer style={{ display:"flex",justifyContent:"space-between" }}>
-                      <cite style={{ fontSize:13,fontWeight:700,fontStyle:"normal" }}>{r.n}</cite>
-                      <span style={{ fontSize:12,color:"#7a8fa5" }}>{r.c}</span>
+                    <div style={{ color:G, fontSize:14, letterSpacing:2, marginBottom:10 }} aria-label="5 כוכבים">★★★★★</div>
+                    <blockquote style={{ fontSize:14, color:"#bcc8d4", lineHeight:1.75, marginBottom:16, fontStyle:"italic" }}>"{r.t}"</blockquote>
+                    <footer style={{ display:"flex", justifyContent:"space-between" }}>
+                      <cite style={{ fontSize:13, fontWeight:700, fontStyle:"normal" }}>{r.n}</cite>
+                      <span style={{ fontSize:12, color:"#7a8fa5" }}>{r.c}</span>
                     </footer>
                   </article>
                 ))}
@@ -202,21 +354,57 @@ export default function App() {
           </Reveal>
         </section>
 
-        {/* CONTACT */}
-        <section id="contact" aria-label="צור קשר" style={{ padding:"68px 24px" }}>
+        {/* ATTORNEY SECTION */}
+        <section aria-label="אודות עורך הדין" style={{ padding:"68px 24px", background:"#0d1323" }}>
           <Reveal>
-            <div style={{ maxWidth:500,margin:"0 auto",textAlign:"center" }}>
-              <div className="div" aria-hidden="true"/>
-              <h2 style={{ fontSize:32,fontWeight:900,marginBottom:12 }}>דברו איתנו עכשיו</h2>
-              <p style={{ color:"#7a8fa5",fontSize:15,marginBottom:36 }}>ייעוץ ראשוני חינמי, ללא התחייבות</p>
-              <div style={{ display:"flex",flexDirection:"column",gap:12 }}>
-                <button style={{ ...gBtn,width:"100%",justifyContent:"center",fontSize:16,padding:16 }} onClick={()=>setShowBot(true)} aria-label="פתח מחשבון פיצויים">🤖 חשב כמה מגיע לך — חינם</button>
+            <div style={{ maxWidth:700, margin:"0 auto", display:"flex", gap:32, alignItems:"flex-start", flexWrap:"wrap", justifyContent:"center" }}>
+              <div style={{ width:100, height:100, borderRadius:"50%", background:`linear-gradient(135deg, ${G}, #a8882e)`, display:"flex", alignItems:"center", justifyContent:"center", fontSize:36, fontWeight:900, color:"#060a12", flexShrink:0 }}>ד.א</div>
+              <div style={{ flex:1, minWidth:260 }}>
+                <h2 style={{ fontSize:26, fontWeight:900, marginBottom:18 }}>עו״ד דן אלון</h2>
+                <div style={{ display:"flex", flexDirection:"column", gap:12 }}>
+                  {attorneyBullets.map(b => (
+                    <div key={b} style={{ display:"flex", gap:10, alignItems:"flex-start", fontSize:15, color:"#bcc8d4", lineHeight:1.6 }}>
+                      <span style={{ color:G, fontWeight:700, flexShrink:0, fontSize:16 }}>✓</span>
+                      <span>{b}</span>
+                    </div>
+                  ))}
+                </div>
+                <button style={{ ...gBtn, marginTop:24 }} onClick={() => setShowBot(true)} aria-label="בדיקת פיצוי">💬 בדיקת פיצוי חינם</button>
+              </div>
+            </div>
+          </Reveal>
+        </section>
+
+        {/* FAQ */}
+        <section id="faq" aria-label="שאלות נפוצות" style={{ padding:"68px 24px" }}>
+          <Reveal>
+            <div style={{ maxWidth:700, margin:"0 auto" }}>
+              <div style={{ textAlign:"center", marginBottom:48 }}>
+                <div className="div" aria-hidden="true" />
+                <h2 style={{ fontSize:32, fontWeight:900, marginBottom:10 }}>שאלות נפוצות</h2>
+              </div>
+              <div style={{ borderTop:"1px solid #1e2d4a" }}>
+                {faqItems.map(f => <FAQItem key={f.q} q={f.q} a={f.a} />)}
+              </div>
+            </div>
+          </Reveal>
+        </section>
+
+        {/* CONTACT */}
+        <section id="contact" aria-label="צור קשר" style={{ padding:"68px 24px", background:"#0d1323" }}>
+          <Reveal>
+            <div style={{ maxWidth:500, margin:"0 auto", textAlign:"center" }}>
+              <div className="div" aria-hidden="true" />
+              <h2 style={{ fontSize:32, fontWeight:900, marginBottom:12 }}>דברו איתנו עכשיו</h2>
+              <p style={{ color:"#7a8fa5", fontSize:15, marginBottom:36 }}>ייעוץ ראשוני חינמי, ללא התחייבות</p>
+              <div style={{ display:"flex", flexDirection:"column", gap:12 }}>
+                <button style={{ ...gBtn, width:"100%", justifyContent:"center", fontSize:16, padding:16 }} onClick={() => setShowBot(true)} aria-label="פתח מחשבון פיצויים">🤖 חשב כמה מגיע לך — חינם</button>
                 <a href={`tel:${PHONE}`}>
-                  <button style={{ ...oBtn,width:"100%",justifyContent:"center",fontSize:16,padding:16 }} aria-label={`התקשר: ${PHONE}`}>📞 {PHONE} — התקשר עכשיו</button>
+                  <button style={{ ...oBtn, width:"100%", justifyContent:"center", fontSize:16, padding:16 }} aria-label={`התקשר: ${PHONE}`}>📞 {PHONE} — התקשר עכשיו</button>
                 </a>
               </div>
-              <address style={{ marginTop:36,fontSize:13,color:"#7a8fa5",lineHeight:2,fontStyle:"normal" }}>
-                <div>{MY_NAME} — {MY_TITLE}</div>
+              <address style={{ marginTop:36, fontSize:13, color:"#7a8fa5", lineHeight:2, fontStyle:"normal" }}>
+                <div>{MY_NAME} — {MY_TITLE} | 25 שנות ניסיון</div>
                 <div>חנה זמר 7, תל אביב</div>
                 <div>ימים א׳–ה׳ | 9:00–19:00</div>
                 <div><a href="mailto:Danalonadv@gmail.com" style={{ color:G }}>Danalonadv@gmail.com</a></div>
@@ -228,33 +416,33 @@ export default function App() {
       </main>
 
       {/* FOOTER */}
-      <footer role="contentinfo" style={{ background:"#060a12",borderTop:"1px solid #1e2d4a",padding:"24px" }}>
-        <div style={{ maxWidth:1100,margin:"0 auto",display:"flex",justifyContent:"space-between",alignItems:"center",flexWrap:"wrap",gap:12 }}>
-          <div style={{ fontSize:13,color:"#7a8fa5" }}>© 2025 nifgati.co.il | {MY_NAME}, {MY_TITLE}</div>
-          <nav aria-label="קישורי מדיניות" style={{ display:"flex",gap:20 }}>
-            <a href="/privacy"       style={{ fontSize:12,color:"#7a8fa5" }}>מדיניות פרטיות</a>
-            <a href="/accessibility" style={{ fontSize:12,color:"#7a8fa5" }}>נגישות</a>
-            <a href="#"              style={{ fontSize:12,color:"#7a8fa5" }}>תנאי שימוש</a>
+      <footer role="contentinfo" style={{ background:"#060a12", borderTop:"1px solid #1e2d4a", padding:"24px" }}>
+        <div style={{ maxWidth:1100, margin:"0 auto", display:"flex", justifyContent:"space-between", alignItems:"center", flexWrap:"wrap", gap:12 }}>
+          <div style={{ fontSize:13, color:"#7a8fa5" }}>© 2025 nifgati.co.il | {MY_NAME}, עו״ד נזיקין (25 שנות ניסיון)</div>
+          <nav aria-label="קישורי מדיניות" style={{ display:"flex", gap:20 }}>
+            <a href="/privacy" style={{ fontSize:12, color:"#7a8fa5" }}>מדיניות פרטיות</a>
+            <a href="/accessibility" style={{ fontSize:12, color:"#7a8fa5" }}>נגישות</a>
+            <a href="#" style={{ fontSize:12, color:"#7a8fa5" }}>תנאי שימוש</a>
           </nav>
         </div>
-        <p style={{ textAlign:"center",fontSize:11,color:"#2a3545",marginTop:12 }}>
+        <p style={{ textAlign:"center", fontSize:11, color:"#2a3545", marginTop:12 }}>
           האתר אינו מהווה ייעוץ משפטי. כל מקרה נבחן באופן אישי. | שיחות הבוט אינן נשמרות ואינן מתועדות בשום אופן.
         </p>
       </footer>
 
       {/* WhatsApp float */}
-      <button className="wa-btn" onClick={()=>window.open(`https://wa.me/${WA}`,"_blank")} aria-label="פתח שיחת וואטסאפ">💬</button>
+      <button className="wa-btn" onClick={() => window.open(`https://wa.me/${WA}`, "_blank")} aria-label="פתח שיחת וואטסאפ">💬</button>
 
       {/* Cookie Banner */}
       {!cookie && (
-        <div style={{ position:"fixed",bottom:0,right:0,left:0,background:"#0a0f1eee",borderTop:"1px solid #1e2d4a22",padding:"8px 16px",display:"flex",alignItems:"center",justifyContent:"space-between",gap:12,zIndex:98,fontSize:11,color:"#445566" }}>
+        <div style={{ position:"fixed", bottom:0, right:0, left:0, background:"#0a0f1eee", borderTop:"1px solid #1e2d4a22", padding:"8px 16px", display:"flex", alignItems:"center", justifyContent:"space-between", gap:12, zIndex:98, fontSize:11, color:"#445566" }}>
           <span>האתר משתמש בעוגיות Remarketing בלבד. שיחות הבוט אינן נשמרות. <a href="/privacy" style={{ color:"#c9a84c88" }}>פרטיות</a></span>
-          <button style={{ background:"#c9a84c22",color:"#c9a84c",border:"1px solid #c9a84c44",borderRadius:8,fontFamily:"inherit",fontSize:11,padding:"4px 10px",cursor:"pointer",flexShrink:0 }} onClick={()=>setCookie(true)}>אישור ✓</button>
+          <button style={{ background:"#c9a84c22", color:"#c9a84c", border:"1px solid #c9a84c44", borderRadius:8, fontFamily:"inherit", fontSize:11, padding:"4px 10px", cursor:"pointer", flexShrink:0 }} onClick={() => setCookie(true)}>אישור ✓</button>
         </div>
       )}
 
       {/* Bot */}
-      {showBot && <Bot onClose={()=>setShowBot(false)}/>}
+      {showBot && <Bot onClose={() => setShowBot(false)} />}
     </div>
   );
 }

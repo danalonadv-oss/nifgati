@@ -45,11 +45,11 @@ async function callClaude(messages, model = "claude-haiku-4-5-20251001") {
   return text;
 }
 
-const GREETING_1 = { role:"assistant", content:`שלום, אני כאן כדי לעזור לך להבין את גובה הפיצוי שמגיע לך.
+const GREETING_1 = { role:"assistant", content:`שלום 👋
 
-כדי לשמור על פרטיות מלאה, אין צורך לציין שם או מספר תעודת זהות.
+נפגעת בתאונה? בוא נבדוק ב-60 שניות כמה פיצוי מגיע לך.
 
-בוא נתחיל, זה ייקח פחות מ-2 דקות.`, privacy: true };
+🎙️ דבר/י, כתוב/י, או 📎 צרף/י מסמך רפואי.`, privacy: true };
 
 const GREETING_2 = { role:"assistant", content:"ספר/י לי בקצרה: מה קרה, בן כמה את/ה, כמה את/ה משתכר/ת ואיפה נפגעת בגוף?" };
 
@@ -322,7 +322,7 @@ export default function Bot({ onClose }) {
               <div style={{ fontSize:28,fontWeight:900,color:"#fff",marginBottom:4 }}>₪{calc.min.toLocaleString("he-IL")} – ₪{calc.max.toLocaleString("he-IL")}</div>
               <div style={{ fontSize:12,color:"#556070",marginBottom:14 }}>לפני שכ"ט (8%–13%)</div>
               <div style={{ textAlign:"center",fontSize:22,animation:"bounce 1s ease-in-out infinite",marginBottom:6 }}>👇</div>
-              <button onClick={()=>window.location.href=`https://wa.me/${WA}?text=${encodeURIComponent(waMsg)}`} aria-label="שליחת הנתונים לעורך דין אלון בוואטסאפ" style={{ width:"100%",background:"#25d366",color:"#fff",border:"none",borderRadius:12,fontFamily:"inherit",fontWeight:700,fontSize:14,padding:13,cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",gap:8,lineHeight:1.4 }}>📱 שליחת הנתונים לעו"ד אלון ובדיקת זכאות בוואטסאפ</button>
+              <button onClick={()=>window.location.href=`https://wa.me/${WA}?text=${encodeURIComponent(waMsg)}`} aria-label="שלח את החישוב לעורך דין בוואטסאפ" style={{ width:"100%",background:"#25d366",color:"#fff",border:"none",borderRadius:12,fontFamily:"inherit",fontWeight:700,fontSize:14,padding:13,cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",gap:8,lineHeight:1.4 }}>💬 שלח את החישוב לעו"ד בוואטסאפ</button>
             </div>
           )}
           {showReferral && !calc && (
