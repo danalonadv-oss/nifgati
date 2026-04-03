@@ -1,6 +1,19 @@
 <!DOCTYPE html>
 <html lang="he" dir="rtl">
   <head>
+    <!-- Consent Mode v2 — MUST be first, before any Google tag -->
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      var consent = localStorage.getItem('nifgati_consent') === 'granted' ? 'granted' : 'denied';
+      gtag('consent', 'default', {
+        analytics_storage: consent,
+        ad_storage: consent,
+        ad_user_data: consent,
+        ad_personalization: consent,
+        wait_for_update: 500
+      });
+    </script>
     <!-- Google Tag Manager -->
     <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
     new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
@@ -11,8 +24,6 @@
     <!-- Google tag (gtag.js) -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-NPHZ1VS3LY"></script>
     <script>
-      window.dataLayer = window.dataLayer || [];
-      function gtag(){dataLayer.push(arguments);}
       gtag('js', new Date());
       gtag('config', 'G-NPHZ1VS3LY');
       gtag('config', 'AW-18043747793');

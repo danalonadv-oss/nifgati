@@ -57,7 +57,7 @@ function notifyEvent(subject, body) {
 export default function App() {
   const [scrolled, setScrolled]       = useState(false);
   const [showBot, setShowBot]         = useState(false);
-  const [cookie, setCookie]           = useState(false);
+  const [cookie, setCookie]           = useState(() => localStorage.getItem("nifgati_consent") === "granted");
   const [showBanner, setShowBanner]   = useState(true);
   const [showExit, setShowExit]       = useState(false);
   const botOpenedRef = useRef(false);
@@ -509,7 +509,7 @@ export default function App() {
       {!cookie && (
         <div style={{ position:"fixed", bottom:0, right:0, left:0, background:"#0a0f1eee", borderTop:"1px solid #1e2d4a22", padding:"8px 16px", display:"flex", alignItems:"center", justifyContent:"space-between", gap:12, zIndex:98, fontSize:11, color:"#445566" }}>
           <span>האתר משתמש בעוגיות Remarketing בלבד. שיחות הבוט אינן נשמרות. <a href="/privacy" style={{ color:"#c9a84c88" }}>פרטיות</a></span>
-          <button style={{ background:"#c9a84c22", color:"#c9a84c", border:"1px solid #c9a84c44", borderRadius:8, fontFamily:"inherit", fontSize:11, padding:"4px 10px", cursor:"pointer", flexShrink:0 }} onClick={() => setCookie(true)}>אישור ✓</button>
+          <button style={{ background:"#c9a84c22", color:"#c9a84c", border:"1px solid #c9a84c44", borderRadius:8, fontFamily:"inherit", fontSize:11, padding:"4px 10px", cursor:"pointer", flexShrink:0 }} onClick={() => { setCookie(true); localStorage.setItem("nifgati_consent","granted"); window.gtag && window.gtag("consent","update",{analytics_storage:"granted",ad_storage:"granted",ad_user_data:"granted",ad_personalization:"granted"}); }}>אישור ✓</button>
         </div>
       )}
 
