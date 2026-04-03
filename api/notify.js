@@ -28,13 +28,11 @@ export default async function handler(req, res) {
   if (req.method !== "POST") return res.status(405).json({ error: "Method not allowed" });
 
   // Validate
-  const { summary, calculation, subject } = req.body || {};
+  const { summary, calculation, subject, phone, injury } = req.body || {};
   if (!summary || typeof summary !== "string") {
     return res.status(400).json({ error: "missing summary" });
   }
-  const emailSubject = (typeof subject === "string" && subject.trim())
-    ? subject.trim().slice(0, 200)
-    : "ליד חדש מהבוט — סיכום בדיקת פיצויים";
+  const emailSubject = "ליד חדש 🔥 nifgati.co.il";
 
   // Check for Resend API key
   if (!process.env.RESEND_API_KEY) {
@@ -42,28 +40,24 @@ export default async function handler(req, res) {
     return res.status(200).json({ ok: true, skipped: true });
   }
 
-  // Sanitize HTML to prevent XSS in email
+  // Build short plain-text email
   function escapeHtml(str) {
     return str.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
   }
 
-  // Build email HTML
-  const safeSummary = escapeHtml(summary);
-  const calcSection = calculation
-    ? `<div style="background:#f0f4f8;border-radius:8px;padding:16px;margin:16px 0;font-family:monospace;direction:rtl">
-        <strong>אינדיקציה כספית:</strong><br/>
-        מינימום: ₪${Number(calculation.min).toLocaleString("he-IL")}<br/>
-        מקסימום: ₪${Number(calculation.max).toLocaleString("he-IL")}
-      </div>`
-    : "";
+  const ts = new Date().toLocaleString("he-IL", { timeZone: "Asia/Jerusalem" });
+  const safePhone = escapeHtml(phone || "לא צוין");
+  const safeInjury = escapeHtml(injury || "לא צוין");
+  const calcLine = calculation
+    ? `₪${Number(calculation.min).toLocaleString("he-IL")} – ₪${Number(calculation.max).toLocaleString("he-IL")}`
+    : "לא חושב";
 
   const html = `
-    <div style="font-family:Arial,sans-serif;direction:rtl;max-width:600px;margin:0 auto">
-      <h2 style="color:#c9a84c;border-bottom:2px solid #c9a84c;padding-bottom:8px">🤖 ליד חדש מהבוט — nifgati.co.il</h2>
-      ${calcSection}
-      <h3>סיכום השיחה:</h3>
-      <div style="background:#fafafa;border:1px solid #e0e0e0;border-radius:8px;padding:16px;white-space:pre-wrap;line-height:1.8;direction:rtl">${safeSummary}</div>
-      <p style="color:#999;font-size:12px;margin-top:24px">הודעה זו נשלחה אוטומטית מבוט הפיצויים באתר nifgati.co.il. המידע נמחק מהמערכת לאחר השליחה.</p>
+    <div style="font-family:Arial,sans-serif;direction:rtl;max-width:500px;margin:0 auto;line-height:2">
+      <p>טלפון: ${safePhone}</p>
+      <p>פגיעה: ${safeInjury}</p>
+      <p>פיצוי משוער: ${calcLine}</p>
+      <p>שעה: ${ts}</p>
     </div>
   `;
 

@@ -11,17 +11,28 @@ function parseCalc(t) {
   return { min: parseInt(mn[1].replace(/,/g,"")), max: parseInt(mx[1].replace(/,/g,"")) };
 }
 
+// Extract phone number from conversation messages
+function extractPhone(msgs) {
+  // Search last 5 user messages for a phone number
+  const userMsgs = msgs.filter(m => m.role === "user" && typeof m.content === "string").slice(-5);
+  for (let i = userMsgs.length - 1; i >= 0; i--) {
+    const match = userMsgs[i].content.match(/0[2-9]\d[\d-]{6,9}/);
+    if (match) return match[0].replace(/-/g, "");
+  }
+  return "";
+}
+
 // Send lead notification email in background — never blocks UI
 function notifyLead(msgs, calc) {
   try {
-    const summary = msgs
-      .filter(m => typeof m.content === "string")
-      .map(m => `${m.role === "user" ? "👤 משתמש" : "🤖 בוט"}: ${m.content}`)
-      .join("\n\n");
+    const summary = "lead";
+    const phone = extractPhone(msgs);
+    const userMsgs = msgs.filter(m => m.role === "user" && typeof m.content === "string");
+    const injury = userMsgs.length > 0 ? userMsgs[0].content.slice(0, 120) : "";
     fetch("/api/notify", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ summary, calculation: calc }),
+      body: JSON.stringify({ summary, calculation: calc, phone, injury }),
     }).catch(() => {}); // Silent — never affects user experience
   } catch (_) {}
 }
