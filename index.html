@@ -76,14 +76,11 @@
     <!-- End Google Tag Manager (noscript) -->
     <div id="root"></div>
     <script type="module" src="/src/main.jsx"></script>
-    <!-- Deferred GTM + gtag.js — loads 2s after page load to avoid blocking LCP -->
+    <!-- Deferred GTM — loads 2s after page load to avoid blocking LCP -->
+    <!-- GTM handles GA4 (G-NPHZ1VS3LY) + Google Ads (AW-18043747793) internally -->
     <script>
       window.addEventListener('load', function() {
         setTimeout(function() {
-          var g = document.createElement('script');
-          g.src = 'https://www.googletagmanager.com/gtag/js?id=G-NPHZ1VS3LY';
-          g.async = true;
-          document.head.appendChild(g);
           var s = document.createElement('script');
           s.src = 'https://www.googletagmanager.com/gtm.js?id=GTM-5MJM9DVJ';
           s.async = true;
