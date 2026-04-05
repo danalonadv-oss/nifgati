@@ -9,6 +9,14 @@
         'ad_storage': 'denied',
         'analytics_storage': 'denied'
       });
+      if (localStorage.getItem('nifgati_consent') === 'granted') {
+        gtag('consent', 'update', {
+          'ad_storage': 'granted',
+          'analytics_storage': 'granted',
+          'ad_user_data': 'granted',
+          'ad_personalization': 'granted'
+        });
+      }
     </script>
     <!-- Google Tag Manager -->
     <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
