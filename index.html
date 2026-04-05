@@ -1,11 +1,11 @@
 <!DOCTYPE html>
 <html lang="he" dir="rtl">
   <head>
-    <!-- GA4 direct + Consent (external — no inline scripts for CSP compliance) -->
-    <script src="/analytics.js"></script>
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-NPHZ1VS3LY"></script>
-    <!-- Google Tag Manager (external loader — CSP compliant) -->
-    <script src="/gtm-loader.js"></script>
+    <!-- GA4 direct + Consent (external — CSP compliant with SRI) -->
+    <script src="/analytics.js" fetchpriority="low" integrity="sha256-KFxDseCC6HRB1CXWVV1nF3lsekoEcUYlPxNe353a5qY="></script>
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-NPHZ1VS3LY" fetchpriority="low"></script>
+    <!-- Google Tag Manager (external loader — CSP + SRI) -->
+    <script src="/gtm-loader.js" fetchpriority="low" integrity="sha256-5cJ4BrFrqhvwAT/QCjQOckc8s6M6fn7e84nPHKi2lxI="></script>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="description" content="נפגעת בתאונה? בדוק כמה פיצוי מגיע לך — חינם, תוך דקות. דן אלון, עורך דין נזיקין." />
