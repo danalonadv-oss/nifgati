@@ -22,7 +22,7 @@ class ErrorBoundary extends React.Component {
   render() {
     if (this.state.hasError) {
       return (
-        <div style={{ fontFamily:"'Heebo',sans-serif",direction:"rtl",background:"#080d18",color:"#e8edf2",minHeight:"100vh",display:"flex",alignItems:"center",justifyContent:"center",textAlign:"center",padding:24 }}>
+        <div style={{ fontFamily:"'Heebo',Arial,sans-serif",direction:"rtl",background:"#080d18",color:"#e8edf2",minHeight:"100vh",display:"flex",alignItems:"center",justifyContent:"center",textAlign:"center",padding:24 }}>
           <div>
             <div style={{ fontSize:48,marginBottom:16 }}>⚠️</div>
             <h1 style={{ fontSize:24,fontWeight:700,marginBottom:12 }}>שגיאה זמנית</h1>

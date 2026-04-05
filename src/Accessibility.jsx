@@ -2,7 +2,7 @@ export default function Accessibility() {
   const G = "#c9a84c";
   const s = { fontSize:15, lineHeight:"1.8", color:"#b0bec5", marginBottom:8 };
   return (
-    <div style={{ fontFamily:"'Heebo',sans-serif", direction:"rtl", background:"#080d18", color:"#e8edf2", minHeight:"100vh", padding:"80px 24px 60px" }}>
+    <div style={{ fontFamily:"'Heebo',Arial,sans-serif", direction:"rtl", background:"#080d18", color:"#e8edf2", minHeight:"100vh", padding:"80px 24px 60px" }}>
       <style>{`*{box-sizing:border-box;margin:0;padding:0}h2{color:${G};font-size:20px;margin:36px 0 12px;border-bottom:1px solid #1e2d4a;padding-bottom:8px}ul{padding-right:24px;margin-bottom:12px}li{font-size:15px;line-height:1.8;color:#b0bec5;margin-bottom:4px}a{color:${G}}`}</style>
       <div style={{ maxWidth:760, margin:"0 auto" }}>
         <a href="/" style={{ color:G, fontSize:14, textDecoration:"none" }}>← חזרה לעמוד הבית</a>

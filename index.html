@@ -26,13 +26,14 @@
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚖️</text></svg>" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="preload" as="font" type="font/woff2" href="https://fonts.gstatic.com/s/heebo/v28/NGS6v5_NC0k9P9H2QbE.woff2" crossorigin="anonymous" />
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;700;900&display=swap" media="print" onload="this.media='all'" />
     <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;700;900&display=swap" /></noscript>
     <!-- Critical above-the-fold CSS — renders before JS loads -->
     <style>
       *{box-sizing:border-box;margin:0;padding:0}
       html{scroll-behavior:smooth}
-      body{font-family:'Heebo',sans-serif;background:#080d18;color:#e8edf2;direction:rtl}
+      body{font-family:'Heebo',Arial,sans-serif;background:#080d18;color:#e8edf2;direction:rtl}
       #root{min-height:100vh}
       .shell-banner{position:fixed;top:0;right:0;left:0;z-index:110;background:#c9a84c;color:#060a12;height:40px;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700}
       .shell-header{position:fixed;top:40px;right:0;left:0;z-index:100;padding:0 24px;height:64px;display:flex;align-items:center}
@@ -40,7 +41,7 @@
       .shell-logo{background:#c9a84c;color:#060a12;font-weight:900;font-size:18px;width:38px;height:38px;border-radius:10px;display:flex;align-items:center;justify-content:center}
       .shell-hero{min-height:100vh;display:flex;align-items:center;padding-top:120px}
       .shell-hero-inner{max-width:1100px;margin:0 auto;padding:80px 24px;width:100%}
-      .shell-h1{font-size:48px;font-weight:900;line-height:1.25;margin-bottom:14px}
+      .shell-h1{font-size:48px;font-weight:900;line-height:1.25;margin-bottom:14px;color:#e8edf2}
       .shell-h1 span{color:#c9a84c}
       .shell-sub{font-size:18px;color:#7a8fa5;margin-bottom:32px;line-height:1.6}
       .shell-cta{background:#c9a84c;color:#060a12;border:none;border-radius:12px;font-family:inherit;font-weight:800;font-size:16px;padding:16px 32px;cursor:pointer;display:inline-flex;align-items:center;gap:8px}
@@ -105,7 +106,7 @@
         </div>
       </section>
     </div>
-    <script type="module" src="/src/main.jsx"></script>
+    <script type="module" src="/src/main.jsx" fetchpriority="high"></script>
     <!-- Single gtag.js replaces GTM — 1 script instead of 3 (saves ~252 KiB) -->
     <!-- Loads on first user interaction OR after 4s -->
     <script>

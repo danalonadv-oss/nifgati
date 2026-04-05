@@ -39,7 +39,7 @@ export default function LandingPage({ pageTitle, pageSubtitle, heroEmoji, bullet
   const oBtn = { background:"transparent", color:G, border:`1.5px solid ${G}88`, borderRadius:12, fontFamily:"inherit", fontWeight:700, fontSize:14, padding:"12px 24px", cursor:"pointer", display:"inline-flex", alignItems:"center", gap:8 };
 
   return (
-    <div style={{ fontFamily:"'Heebo',sans-serif", direction:"rtl", background:"#080d18", color:"#e8edf2", overflowX:"hidden", minHeight:"100vh", display:"flex", flexDirection:"column" }}>
+    <div style={{ fontFamily:"'Heebo',Arial,sans-serif", direction:"rtl", background:"#080d18", color:"#e8edf2", overflowX:"hidden", minHeight:"100vh", display:"flex", flexDirection:"column" }}>
       <style>{`
         *{box-sizing:border-box;margin:0;padding:0}
         html{scroll-behavior:smooth}
