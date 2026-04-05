@@ -9,6 +9,10 @@ export default defineConfig({
   build: {
     target: "es2015",
     minify: "esbuild",
+    modulePreload: {
+      polyfill: false,
+      resolveDependencies: () => [],
+    },
     rollupOptions: {
       output: {
         manualChunks(id) {
