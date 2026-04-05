@@ -34,6 +34,16 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;700;900&display=swap" media="print" onload="this.media='all'" />
     <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;700;900&display=swap" /></noscript>
+    <!-- Critical above-the-fold CSS — renders before JS loads -->
+    <style>
+      *{box-sizing:border-box;margin:0;padding:0}
+      html{scroll-behavior:smooth}
+      body{font-family:'Heebo',sans-serif;background:#080d18;color:#e8edf2;direction:rtl}
+      #root{min-height:100vh}
+      h1{font-size:48px;font-weight:900;line-height:1.25;color:#e8edf2}
+      @media(max-width:768px){h1{font-size:34px!important}}
+    </style>
+    <link rel="modulepreload" href="/src/main.jsx" />
     <link rel="dns-prefetch" href="https://www.googletagmanager.com" />
     <link rel="dns-prefetch" href="https://fonts.gstatic.com" />
     <link rel="dns-prefetch" href="https://api.anthropic.com" />
