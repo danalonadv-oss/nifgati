@@ -197,7 +197,7 @@ export default async function handler(req, res) {
   const origin = req.headers.origin || "";
   if (ALLOWED_ORIGINS.includes(origin)) {
     res.setHeader("Access-Control-Allow-Origin", origin);
-  } else if (process.env.NODE_ENV === "development") {
+  } else if (process.env.NODE_ENV === "development" && !process.env.VERCEL) {
     res.setHeader("Access-Control-Allow-Origin", "*");
   }
   res.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
