@@ -14,15 +14,7 @@
         wait_for_update: 500
       });
     </script>
-    <!-- Google Tag Manager -->
-    <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
-    new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
-    j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
-    'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
-    })(window,document,'script','dataLayer','GTM-5MJM9DVJ');</script>
-    <!-- End Google Tag Manager -->
-    <!-- Google tag (gtag.js) -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-NPHZ1VS3LY"></script>
+    <!-- gtag config (deferred load below) -->
     <script>
       gtag('js', new Date());
       gtag('config', 'G-NPHZ1VS3LY');
@@ -40,7 +32,11 @@
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚖️</text></svg>" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;500;700;900&display=swap" />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;700;900&display=swap" media="print" onload="this.media='all'" />
+    <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;700;900&display=swap" /></noscript>
+    <link rel="dns-prefetch" href="https://www.googletagmanager.com" />
+    <link rel="dns-prefetch" href="https://fonts.gstatic.com" />
+    <link rel="dns-prefetch" href="https://api.anthropic.com" />
 
     <!-- Schema.org — GEO + Google AI -->
     <script type="application/ld+json">
@@ -80,5 +76,20 @@
     <!-- End Google Tag Manager (noscript) -->
     <div id="root"></div>
     <script type="module" src="/src/main.jsx"></script>
+    <!-- Deferred GTM + gtag.js — loads 2s after page load to avoid blocking LCP -->
+    <script>
+      window.addEventListener('load', function() {
+        setTimeout(function() {
+          var g = document.createElement('script');
+          g.src = 'https://www.googletagmanager.com/gtag/js?id=G-NPHZ1VS3LY';
+          g.async = true;
+          document.head.appendChild(g);
+          var s = document.createElement('script');
+          s.src = 'https://www.googletagmanager.com/gtm.js?id=GTM-5MJM9DVJ';
+          s.async = true;
+          document.head.appendChild(s);
+        }, 2000);
+      });
+    </script>
   </body>
 </html>

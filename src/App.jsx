@@ -506,9 +506,9 @@ export default function App() {
 
       {/* Cookie Banner */}
       {!cookie && (
-        <div style={{ position:"fixed", bottom:0, right:0, left:0, background:"#0a0f1eee", borderTop:"1px solid #1e2d4a22", padding:"8px 16px", display:"flex", alignItems:"center", justifyContent:"space-between", gap:12, zIndex:98, fontSize:11, color:"#445566" }}>
-          <span>האתר משתמש בעוגיות Remarketing בלבד. שיחות הבוט אינן נשמרות. <a href="/privacy" style={{ color:"#c9a84c", textDecoration:"underline" }}>פרטיות</a></span>
-          <button style={{ background:"#c9a84c22", color:"#c9a84c", border:"1px solid #c9a84c44", borderRadius:8, fontFamily:"inherit", fontSize:13, padding:"10px 18px", cursor:"pointer", flexShrink:0, minHeight:44, minWidth:44 }} onClick={() => { setCookie(true); localStorage.setItem("nifgati_consent","granted"); window.gtag && window.gtag("consent","update",{analytics_storage:"granted",ad_storage:"granted",ad_user_data:"granted",ad_personalization:"granted"}); }}>אישור ✓</button>
+        <div style={{ position:"fixed", bottom:0, right:0, left:0, background:"#0a0f1eee", borderTop:"1px solid #1e2d4a22", padding:"8px 16px", display:"flex", alignItems:"center", justifyContent:"space-between", gap:12, zIndex:98, fontSize:11, color:"#ffffff" }}>
+          <span>האתר משתמש בעוגיות Remarketing בלבד. שיחות הבוט אינן נשמרות. <a href="/privacy" style={{ color:"#ffffff", textDecoration:"underline" }}>פרטיות</a></span>
+          <button style={{ background:"#c9a84c22", color:"#c9a84c", border:"1px solid #c9a84c44", borderRadius:8, fontFamily:"inherit", fontSize:13, padding:"12px 24px", cursor:"pointer", flexShrink:0, minHeight:44, minWidth:44 }} onClick={() => { setCookie(true); localStorage.setItem("nifgati_consent","granted"); window.gtag && window.gtag("consent","update",{analytics_storage:"granted",ad_storage:"granted",ad_user_data:"granted",ad_personalization:"granted"}); }}>אישור ✓</button>
         </div>
       )}
 
@@ -530,7 +530,7 @@ export default function App() {
       )}
 
       {/* Bot */}
-      {showBot && <Suspense fallback={null}><Bot onClose={() => setShowBot(false)} /></Suspense>}
+      {showBot && <Suspense fallback={<div style={{position:"fixed",inset:0,background:"#080d18ee",zIndex:200,display:"flex",alignItems:"center",justifyContent:"center",color:"#c9a84c",fontSize:18,fontWeight:700}}>טוען...</div>}><Bot onClose={() => setShowBot(false)} /></Suspense>}
     </div>
   );
 }
