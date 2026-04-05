@@ -14,12 +14,6 @@
         wait_for_update: 500
       });
     </script>
-    <!-- gtag config (deferred load below) -->
-    <script>
-      gtag('js', new Date());
-      gtag('config', 'G-NPHZ1VS3LY');
-      gtag('config', 'AW-18043747793');
-    </script>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="description" content="נפגעת בתאונה? בדוק כמה פיצוי מגיע לך — חינם, תוך דקות. דן אלון, עורך דין נזיקין." />
@@ -80,22 +74,35 @@
     </script>
   </head>
   <body>
-    <!-- Google Tag Manager (noscript) -->
-    <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-5MJM9DVJ"
-    height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
-    <!-- End Google Tag Manager (noscript) -->
+    <noscript>
+      <iframe src="https://www.googletagmanager.com/ns.html?id=GTM-5MJM9DVJ"
+        height="0" width="0" style="display:none;visibility:hidden">
+      </iframe>
+    </noscript>
     <div id="root"></div>
     <script type="module" src="/src/main.jsx"></script>
-    <!-- Deferred GTM — loads 2s after page load to avoid blocking LCP -->
-    <!-- GTM handles GA4 (G-NPHZ1VS3LY) + Google Ads (AW-18043747793) internally -->
+    <!-- GTM: loads on first user interaction OR after 4s — out of critical path -->
     <script>
-      window.addEventListener('load', function() {
-        setTimeout(function() {
-          var s = document.createElement('script');
-          s.src = 'https://www.googletagmanager.com/gtm.js?id=GTM-5MJM9DVJ';
-          s.async = true;
-          document.head.appendChild(s);
-        }, 2000);
+      function loadGTM() {
+        if (window._gtmLoaded) return;
+        window._gtmLoaded = true;
+        (function(w,d,s,l,i){
+          w[l]=w[l]||[];
+          w[l].push({'gtm.start': new Date().getTime(), event:'gtm.js'});
+          var f=d.getElementsByTagName(s)[0],
+          j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';
+          j.async=true;
+          j.src='https://www.googletagmanager.com/gtm.js?id='+i+dl;
+          f.parentNode.insertBefore(j,f);
+        })(window,document,'script','dataLayer','GTM-5MJM9DVJ');
+      }
+      var gtmTimer = setTimeout(loadGTM, 4000);
+      ['mousedown','mousemove','keydown','touchstart','scroll','click'].forEach(function(event) {
+        document.addEventListener(event, function handler() {
+          clearTimeout(gtmTimer);
+          loadGTM();
+          document.removeEventListener(event, handler);
+        }, { once: true, passive: true });
       });
     </script>
   </body>
