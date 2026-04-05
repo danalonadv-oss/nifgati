@@ -238,7 +238,7 @@ export default function App() {
         .card{background:#111a2c;border:1px solid #1e2d4a;border-radius:18px;padding:28px 24px;transition:all .3s}
         .card:hover{border-color:#c9a84c55;transform:translateY(-4px)}
         .step{background:#0d1323;border:1px solid #1e2d4a;border-radius:18px;padding:28px 24px}
-        .wa-btn{position:fixed;bottom:24px;left:24px;background:#25d366;color:#fff;border:none;border-radius:50%;width:56px;height:56px;font-size:24px;cursor:pointer;box-shadow:0 8px 24px #25d36655;z-index:99;display:flex;align-items:center;justify-content:center;transition:transform .2s}
+        .wa-btn{position:fixed;bottom:24px;left:24px;background:#25d366;color:#fff;border:none;border-radius:50%;width:60px;height:60px;min-width:48px;min-height:48px;font-size:26px;cursor:pointer;box-shadow:0 8px 24px #25d36655;z-index:99;display:flex;align-items:center;justify-content:center;transition:transform .2s}
         .wa-btn:hover{transform:scale(1.1)}
         .g2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
         .g3{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
@@ -506,9 +506,9 @@ export default function App() {
 
       {/* Cookie Banner */}
       {!cookie && (
-        <div style={{ position:"fixed", bottom:0, right:0, left:0, background:"#0a0f1eee", borderTop:"1px solid #1e2d4a22", padding:"8px 16px", display:"flex", alignItems:"center", justifyContent:"space-between", gap:12, zIndex:98, fontSize:11, color:"#ffffff" }}>
+        <div style={{ position:"fixed", bottom:0, right:0, left:0, background:"#0a0f1eee", borderTop:"1px solid #1e2d4a22", padding:"12px 16px", display:"flex", alignItems:"center", justifyContent:"space-between", gap:16, zIndex:98, fontSize:12, color:"#ffffff" }}>
           <span>האתר משתמש בעוגיות Remarketing בלבד. שיחות הבוט אינן נשמרות. <a href="/privacy" style={{ color:"#ffffff", textDecoration:"underline" }}>פרטיות</a></span>
-          <button style={{ background:"#c9a84c22", color:"#c9a84c", border:"1px solid #c9a84c44", borderRadius:8, fontFamily:"inherit", fontSize:13, padding:"12px 24px", cursor:"pointer", flexShrink:0, minHeight:44, minWidth:44 }} onClick={() => { setCookie(true); localStorage.setItem("nifgati_consent","granted"); window.gtag && window.gtag("consent","update",{analytics_storage:"granted",ad_storage:"granted",ad_user_data:"granted",ad_personalization:"granted"}); }}>אישור ✓</button>
+          <button style={{ background:"#c9a84c22", color:"#c9a84c", border:"1px solid #c9a84c44", borderRadius:10, fontFamily:"inherit", fontSize:14, padding:"14px 28px", cursor:"pointer", flexShrink:0, minHeight:48, minWidth:48 }} onClick={() => { setCookie(true); localStorage.setItem("nifgati_consent","granted"); window.gtag && window.gtag("consent","update",{analytics_storage:"granted",ad_storage:"granted",ad_user_data:"granted",ad_personalization:"granted"}); }}>אישור ✓</button>
         </div>
       )}
 
