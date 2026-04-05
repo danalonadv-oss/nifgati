@@ -1,5 +1,5 @@
-import { useState, useEffect, useRef } from "react";
-import Bot from "./Bot.jsx";
+import { useState, useEffect, useRef, lazy, Suspense } from "react";
+const Bot = lazy(() => import("./Bot.jsx"));
 
 // ╔══════════════════════════════════════╗
 // ║  שנה כאן את הפרטים שלך             ║
@@ -228,7 +228,6 @@ export default function App() {
   return (
     <div style={{ fontFamily:"'Heebo',sans-serif", direction:"rtl", background:"#080d18", color:"#e8edf2", overflowX:"hidden" }}>
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;500;700;900&display=swap');
         *{box-sizing:border-box;margin:0;padding:0}
         html{scroll-behavior:smooth}
         a{text-decoration:none;color:inherit}
@@ -411,9 +410,9 @@ export default function App() {
                 <div className="div" aria-hidden="true" />
                 <h2 style={{ fontSize:32, fontWeight:900, marginBottom:10 }}>לקוחות מספרים</h2>
               </div>
-              <div className="g3" role="list">
+              <div className="g3">
                 {reviews.map(r => (
-                  <article key={r.n} className="card" role="listitem" aria-label={`ביקורת מאת ${r.n}`}>
+                  <article key={r.n} className="card" aria-label={`ביקורת מאת ${r.n}`}>
                     <div style={{ color:G, fontSize:14, letterSpacing:2, marginBottom:10 }} aria-label="5 כוכבים">★★★★★</div>
                     <blockquote style={{ fontSize:14, color:"#bcc8d4", lineHeight:1.75, marginBottom:16, fontStyle:"italic" }}>"{r.t}"</blockquote>
                     <footer style={{ display:"flex", justifyContent:"space-between" }}>
@@ -492,12 +491,12 @@ export default function App() {
         <div style={{ maxWidth:1100, margin:"0 auto", display:"flex", justifyContent:"space-between", alignItems:"center", flexWrap:"wrap", gap:12 }}>
           <div style={{ fontSize:13, color:"#7a8fa5" }}>© 2025 nifgati.co.il | {MY_NAME}, עו״ד נזיקין (25 שנות ניסיון)</div>
           <nav aria-label="קישורי מדיניות" style={{ display:"flex", gap:20 }}>
-            <a href="/privacy" style={{ fontSize:12, color:"#7a8fa5" }}>מדיניות פרטיות</a>
-            <a href="/accessibility" style={{ fontSize:12, color:"#7a8fa5" }}>נגישות</a>
-            <a href="#" style={{ fontSize:12, color:"#7a8fa5" }}>תנאי שימוש</a>
+            <a href="/privacy" style={{ fontSize:12, color:"#7a8fa5", textDecoration:"underline" }}>מדיניות פרטיות</a>
+            <a href="/accessibility" style={{ fontSize:12, color:"#7a8fa5", textDecoration:"underline" }}>נגישות</a>
+            <a href="#" style={{ fontSize:12, color:"#7a8fa5", textDecoration:"underline" }}>תנאי שימוש</a>
           </nav>
         </div>
-        <p style={{ textAlign:"center", fontSize:11, color:"#2a3545", marginTop:12 }}>
+        <p style={{ textAlign:"center", fontSize:11, color:"#7a8fa5", marginTop:12 }}>
           האתר אינו מהווה ייעוץ משפטי. כל מקרה נבחן באופן אישי. | שיחות הבוט אינן נשמרות ואינן מתועדות בשום אופן.
         </p>
       </footer>
@@ -508,8 +507,8 @@ export default function App() {
       {/* Cookie Banner */}
       {!cookie && (
         <div style={{ position:"fixed", bottom:0, right:0, left:0, background:"#0a0f1eee", borderTop:"1px solid #1e2d4a22", padding:"8px 16px", display:"flex", alignItems:"center", justifyContent:"space-between", gap:12, zIndex:98, fontSize:11, color:"#445566" }}>
-          <span>האתר משתמש בעוגיות Remarketing בלבד. שיחות הבוט אינן נשמרות. <a href="/privacy" style={{ color:"#c9a84c88" }}>פרטיות</a></span>
-          <button style={{ background:"#c9a84c22", color:"#c9a84c", border:"1px solid #c9a84c44", borderRadius:8, fontFamily:"inherit", fontSize:11, padding:"4px 10px", cursor:"pointer", flexShrink:0 }} onClick={() => { setCookie(true); localStorage.setItem("nifgati_consent","granted"); window.gtag && window.gtag("consent","update",{analytics_storage:"granted",ad_storage:"granted",ad_user_data:"granted",ad_personalization:"granted"}); }}>אישור ✓</button>
+          <span>האתר משתמש בעוגיות Remarketing בלבד. שיחות הבוט אינן נשמרות. <a href="/privacy" style={{ color:"#c9a84c", textDecoration:"underline" }}>פרטיות</a></span>
+          <button style={{ background:"#c9a84c22", color:"#c9a84c", border:"1px solid #c9a84c44", borderRadius:8, fontFamily:"inherit", fontSize:13, padding:"10px 18px", cursor:"pointer", flexShrink:0, minHeight:44, minWidth:44 }} onClick={() => { setCookie(true); localStorage.setItem("nifgati_consent","granted"); window.gtag && window.gtag("consent","update",{analytics_storage:"granted",ad_storage:"granted",ad_user_data:"granted",ad_personalization:"granted"}); }}>אישור ✓</button>
         </div>
       )}
 
@@ -531,7 +530,7 @@ export default function App() {
       )}
 
       {/* Bot */}
-      {showBot && <Bot onClose={() => setShowBot(false)} />}
+      {showBot && <Suspense fallback={null}><Bot onClose={() => setShowBot(false)} /></Suspense>}
     </div>
   );
 }

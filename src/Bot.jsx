@@ -380,10 +380,10 @@ export default function Bot({ onClose }) {
             <button onClick={()=>send(inp)} disabled={load||!inp.trim()} aria-label="שלח הודעה" style={{ background:"#c9a84c",color:"#0a0f1e",border:"none",borderRadius:10,fontWeight:700,fontSize:16,width:42,height:42,cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0,opacity:(load||!inp.trim())?.35:1 }}>➤</button>
           </div>
           {docName && <p style={{ textAlign:"center",fontSize:12,color:"#c9a84c",marginTop:6 }}>{load ? "📤 מעלה ומנתח" : "🔍 מנתח"}: {docName}...</p>}
-          <p style={{ textAlign:"center",fontSize:11,color:"#2a3545",marginTop:6 }}>הערכה ראשונית בלבד • אינה מהווה ייעוץ משפטי • המידע אינו נשמר</p>
+          <p style={{ textAlign:"center",fontSize:11,color:"#7a8fa5",marginTop:6 }}>הערכה ראשונית בלבד • אינה מהווה ייעוץ משפטי • המידע אינו נשמר</p>
         </div>
         {/* Floating WhatsApp icon inside chat */}
-        <button onClick={()=>window.location.href=`https://wa.me/${WA}?text=${encodeURIComponent(waMsg)}`} aria-label="שיחת וואטסאפ עם עו״ד אלון" title="וואטסאפ" style={{ position:"absolute",bottom:76,left:12,background:"#25d366",color:"#fff",border:"none",borderRadius:"50%",width:38,height:38,fontSize:18,cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",boxShadow:"0 4px 12px #25d36644",zIndex:5,transition:"transform .2s" }} onMouseOver={e=>e.currentTarget.style.transform="scale(1.1)"} onMouseOut={e=>e.currentTarget.style.transform="scale(1)"}>💬</button>
+        <button onClick={()=>window.location.href=`https://wa.me/${WA}?text=${encodeURIComponent(waMsg)}`} aria-label="שיחת וואטסאפ עם עו״ד אלון" title="וואטסאפ" style={{ position:"absolute",bottom:76,left:12,background:"#25d366",color:"#fff",border:"none",borderRadius:"50%",width:48,height:48,fontSize:20,cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",boxShadow:"0 4px 12px #25d36644",zIndex:5,transition:"transform .2s" }} onMouseOver={e=>e.currentTarget.style.transform="scale(1.1)"} onMouseOut={e=>e.currentTarget.style.transform="scale(1)"}>💬</button>
       </div>
       <style>{`
         @keyframes bl{0%,80%,100%{opacity:.15}40%{opacity:1}}

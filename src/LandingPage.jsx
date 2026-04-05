@@ -41,7 +41,6 @@ export default function LandingPage({ pageTitle, pageSubtitle, heroEmoji, bullet
   return (
     <div style={{ fontFamily:"'Heebo',sans-serif", direction:"rtl", background:"#080d18", color:"#e8edf2", overflowX:"hidden", minHeight:"100vh", display:"flex", flexDirection:"column" }}>
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;500;700;900&display=swap');
         *{box-sizing:border-box;margin:0;padding:0}
         html{scroll-behavior:smooth}
         a{text-decoration:none;color:inherit}
