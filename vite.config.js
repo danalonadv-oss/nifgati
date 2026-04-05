@@ -5,5 +5,14 @@ export default defineConfig({
   plugins: [react()],
   server: {
     proxy: { "/api": "http://localhost:3000" }
-  }
+  },
+  build: {
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          vendor: ["react", "react-dom", "react-router-dom"],
+        },
+      },
+    },
+  },
 });
