@@ -82,27 +82,32 @@
       </div>
     </div>
     <script type="module" src="/src/main.jsx" fetchpriority="high"></script>
-    <!-- Single gtag.js replaces GTM — 1 script instead of 3 (saves ~252 KiB) -->
-    <!-- Loads on first user interaction OR after 4s -->
+    <noscript>
+      <iframe src="https://www.googletagmanager.com/ns.html?id=GTM-5MJM9DVJ"
+        height="0" width="0" style="display:none;visibility:hidden">
+      </iframe>
+    </noscript>
+    <!-- GTM deferred: loads on first interaction OR after 2.5s -->
     <script>
-      function loadGtag() {
-        if (window._gtagLoaded) return;
-        window._gtagLoaded = true;
-        var s = document.createElement('script');
-        s.async = true;
-        s.src = 'https://www.googletagmanager.com/gtag/js?id=G-NPHZ1VS3LY';
-        document.head.appendChild(s);
-        s.onload = function() {
-          gtag('js', new Date());
-          gtag('config', 'G-NPHZ1VS3LY');
-          gtag('config', 'AW-18043747793');
-        };
+      window.dataLayer = window.dataLayer || [];
+      function loadGTM() {
+        if (window._gtmLoaded) return;
+        window._gtmLoaded = true;
+        (function(w,d,s,l,i){
+          w[l]=w[l]||[];
+          w[l].push({'gtm.start': new Date().getTime(), event:'gtm.js'});
+          var f=d.getElementsByTagName(s)[0],
+          j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';
+          j.async=true;
+          j.src='https://www.googletagmanager.com/gtm.js?id='+i+dl;
+          f.parentNode.insertBefore(j,f);
+        })(window,document,'script','dataLayer','GTM-5MJM9DVJ');
       }
-      var gtagTimer = setTimeout(loadGtag, 4000);
+      var gtmTimer = setTimeout(loadGTM, 2500);
       ['mousedown','mousemove','keydown','touchstart','scroll','click'].forEach(function(event) {
         document.addEventListener(event, function handler() {
-          clearTimeout(gtagTimer);
-          loadGtag();
+          clearTimeout(gtmTimer);
+          loadGTM();
           document.removeEventListener(event, handler);
         }, { once: true, passive: true });
       });
