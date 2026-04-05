@@ -7,11 +7,29 @@ export default defineConfig({
     proxy: { "/api": "http://localhost:3000" }
   },
   build: {
+    target: "es2015",
+    minify: "terser",
+    terserOptions: {
+      compress: {
+        drop_console: true,
+        drop_debugger: true,
+      },
+    },
     rollupOptions: {
       output: {
-        manualChunks: {
-          vendor: ["react", "react-dom", "react-router-dom"],
-          bot: ["./src/Bot.jsx"],
+        manualChunks(id) {
+          if (id.includes("node_modules/react") || id.includes("node_modules/react-dom")) {
+            return "react-vendor";
+          }
+          if (id.includes("node_modules/react-router")) {
+            return "react-vendor";
+          }
+          if (id.includes("Bot.jsx")) {
+            return "bot";
+          }
+          if (id.includes("Privacy.jsx") || id.includes("Accessibility.jsx")) {
+            return "pages";
+          }
         },
       },
     },
