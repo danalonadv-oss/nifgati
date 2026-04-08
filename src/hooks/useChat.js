@@ -1,66 +1,87 @@
 import { useState, useRef, useEffect } from "react";
 
 const WA = "972544338212";
-const MY_NAME = "דן אלון";
 
-const GREETING_1 = {
-  role: "assistant",
-  content: `שלום 👋\n\nנפגעת בתאונה? בוא נבדוק ב-60 שניות כמה פיצוי מגיע לך.\n\n🎙️ דבר/י, כתוב/י, או 📎 צרף/י מסמך רפואי.`,
-  privacy: true,
-};
-const GREETING_2 = {
-  role: "assistant",
-  content: "ספר/י לי בקצרה: מה קרה, בן כמה את/ה, כמה את/ה משתכר/ת ואיפה נפגעת בגוף?",
-};
-const INITIAL_MSGS = [GREETING_1, GREETING_2];
-const CTA_MSG = `ניתן לעבור בכל שלב להתייעצות עם עורך דין ${MY_NAME} לתכנון הצעדים הבאים ומיקסום הפיצוי.`;
-const REFERRAL_RE = /עורך.?דין|עו"ד|דן אלון|לדבר עם|להעביר|תעביר|אנושי|בן.?אדם|lawyer/i;
+// ═══ State Machine: Nifgati Bot ═══
+// STATE 1: Entry greeting (auto)
+// STATE 2: Role — driver / passenger / pedestrian
+// STATE 3: Medical — ER visit?
+// STATE 4: Context — work commute or personal?
+// STATE 5: Age → Summary + WhatsApp CTA
 
-function parseCalc(t) {
-  if (!t.includes("---חישוב---")) return null;
-  const mn = t.match(/סה"כ מינימום:\s*₪([\d,]+)/);
-  const mx = t.match(/סה"כ מקסימום:\s*₪([\d,]+)/);
-  if (!mn || !mx) return null;
-  return { min: parseInt(mn[1].replace(/,/g, "")), max: parseInt(mx[1].replace(/,/g, "")) };
+const STATE_ENTRY = 1;
+const STATE_ROLE = 2;
+const STATE_MEDICAL = 3;
+const STATE_CONTEXT = 4;
+const STATE_AGE = 5;
+const STATE_DONE = 6;
+
+const GREETING = "שלום, אני הבוט של ניפגעתי. קודם כל, צר לי לשמוע על התאונה שלך. אני כאן כדי לעזור לך להבין את הזכויות שלך לפי החוק.";
+const ROLE_QUESTION = "חוק הפיצויים לנפגעי תאונות דרכים בישראל מבטיח פיצוי כמעט בכל מקרה של פציעה. זה לא תלוי בזה מי אשם.\n\nהיית הנהג, נוסע, או הולך רגל בתאונה?";
+
+const DRIVER_RE = /נהג|נהגת|הנהג/i;
+const PASSENGER_RE = /נוסע|נוסעת|יושב/i;
+const PEDESTRIAN_RE = /הולך|הולכת|רגל|חצ/i;
+
+const MEDICAL_QUESTION = "האם פונית למיון או לבית חולים?";
+const YES_RE = /כן|בטח|פונ|מיון|בית.?חולים|אמבולנס|ניתוח|אשפוז/i;
+const NO_RE = /לא|אף|בלי/i;
+
+const CONTEXT_QUESTION = "התאונה קרתה בדרך לעבודה, בחזרה ממנה, או בשעות פנויות?";
+const WORK_RE = /עבודה|בדרך ל|בחזרה מ|עובד|נסיעה לעבודה|משמרת/i;
+
+const AGE_QUESTION = "בן כמה אתה בערך?";
+
+const INITIAL_MSGS = [
+  { role: "assistant", content: GREETING, privacy: true },
+  { role: "assistant", content: ROLE_QUESTION },
+];
+
+function classifyRole(txt) {
+  if (DRIVER_RE.test(txt)) return "driver";
+  if (PASSENGER_RE.test(txt)) return "passenger";
+  if (PEDESTRIAN_RE.test(txt)) return "pedestrian";
+  return null;
 }
 
-function extractPhone(msgs) {
-  const userMsgs = msgs.filter(m => m.role === "user" && typeof m.content === "string").slice(-5);
-  for (let i = userMsgs.length - 1; i >= 0; i--) {
-    const match = userMsgs[i].content.match(/0[2-9]\d[\d-]{6,9}/);
-    if (match) return match[0].replace(/-/g, "");
-  }
-  return "";
+function roleResponse(role) {
+  if (role === "driver") return "הבנתי. חברת הביטוח של הנהג האחר אחראית.";
+  if (role === "passenger") return "הבנתי. אתה יכול לתבוע גם את חברת הביטוח של הנהג וגם של הרכב שלך.";
+  return "הבנתי. זה דורש הוכחה אבל יש לך זכויות.";
 }
 
-function notifyLead(msgs, calc) {
+function medicalResponse(yes) {
+  return yes
+    ? "זה חשוב מאוד. הטיפול הרפואי הוא ראיה חזקה."
+    : "הבנתי. גם ללא אשפוז יכול להיות לך קייס. יש לך כאבים או פגיעות?";
+}
+
+function contextResponse(isWork) {
+  return isWork
+    ? "זה משנה הכל לטובתך! אתה זכאי לפיצוי גם מול ביטוח לאומי. זה שני מקורות פיצוי."
+    : "בסדר, אתה תתבוע את חברת הביטוח של הרכב.";
+}
+
+function buildSummary(data) {
+  const { role, medical, isWork, age } = data;
+  const ageNum = parseInt(age) || 30;
+  const min = 50000;
+  const max = 250000;
+  const roleLabel = role === "driver" ? "נהג" : role === "passenger" ? "נוסע" : "הולך רגל";
+  const contextLabel = isWork ? "תאונה בדרך לעבודה (זכאות כפולה — ביטוח + ביטוח לאומי)" : "תאונה פרטית";
+  const medLabel = medical ? "פנה למיון — ראיה רפואית חזקה" : "לא פנה למיון";
+
+  return `סיכום:\n• תפקיד: ${roleLabel}\n• ${medLabel}\n• ${contextLabel}\n• גיל: ${ageNum}\n\nהערכת פיצוי ראשונית: ₪${min.toLocaleString("he-IL")} – ₪${max.toLocaleString("he-IL")}\n\nזוהי הערכה ראשונית בלבד. לחץ על הכפתור למטה כדי לדבר עם עו"ד דן אלון בוואטסאפ ולקבל הערכה מדויקת.`;
+}
+
+function notifyLead(data, calc) {
   try {
-    const phone = extractPhone(msgs);
-    const userMsgs = msgs.filter(m => m.role === "user" && typeof m.content === "string");
-    const injury = userMsgs.length > 0 ? userMsgs[0].content.slice(0, 120) : "";
     fetch("/api/notify", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ summary: "lead", calculation: calc, phone, injury }),
+      body: JSON.stringify({ summary: "lead", calculation: calc, ...data }),
     }).catch(() => {});
   } catch (_) {}
-}
-
-async function callClaude(messages, model = "claude-haiku-4-5-20251001") {
-  const cleaned = messages.slice(-12).map(m => ({ role: m.role, content: m.content }));
-  const r = await fetch("/api/claude", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ messages: cleaned, model }),
-  });
-  if (!r.ok) {
-    const e = await r.json().catch(() => ({}));
-    throw new Error(e.error || "שגיאה");
-  }
-  const d = await r.json();
-  const text = d.content?.[0]?.text;
-  if (!text) throw new Error("תשובה ריקה — נסה שוב.");
-  return text;
 }
 
 export default function useChat() {
@@ -69,8 +90,9 @@ export default function useChat() {
   const [load, setLoad] = useState(false);
   const [calc, setCalc] = useState(null);
   const [err, setErr] = useState("");
-  const [ctaShown, setCtaShown] = useState(false);
   const [showReferral, setShowReferral] = useState(false);
+  const [state, setState] = useState(STATE_ROLE);
+  const [data, setData] = useState({ role: null, medical: null, isWork: null, age: null });
   const endRef = useRef(null);
 
   useEffect(() => { endRef.current?.scrollIntoView({ behavior: "smooth" }); }, [msgs, load]);
@@ -81,94 +103,80 @@ export default function useChat() {
     setCalc(null);
     setInp("");
     setErr("");
-    setCtaShown(false);
     setShowReferral(false);
+    setState(STATE_ROLE);
+    setData({ role: null, medical: null, isWork: null, age: null });
   }
 
-  function handleCalc(rep, updatedMsgs) {
-    const c = parseCalc(rep);
-    if (c) {
-      setCalc(c);
-      setShowReferral(true);
-      notifyLead(updatedMsgs, c);
-      window.dataLayer = window.dataLayer || [];
-      window.dataLayer.push({ event: "calculation_complete", value_min: c.min, value_max: c.max });
-    }
-    return c;
-  }
-
-  async function send(txt) {
+  function send(txt) {
     if (!txt.trim() || load) return;
     setErr("");
     setInp("");
 
-    if (REFERRAL_RE.test(txt)) {
-      setMsgs(p => [...p,
-        { role: "user", content: txt },
-        { role: "assistant", content: `בשמחה! עו"ד ${MY_NAME} ישמח לעזור. לחץ על הכפתור למטה לשליחת הפרטים בוואטסאפ.` },
-      ]);
-      setShowReferral(true);
-      return;
+    const userMsg = { role: "user", content: txt };
+    const botMsgs = [];
+    const newData = { ...data };
+
+    if (state === STATE_ROLE) {
+      const role = classifyRole(txt);
+      if (!role) {
+        botMsgs.push({ role: "assistant", content: "לא הבנתי. היית הנהג, נוסע, או הולך רגל?" });
+      } else {
+        newData.role = role;
+        botMsgs.push({ role: "assistant", content: roleResponse(role) });
+        botMsgs.push({ role: "assistant", content: MEDICAL_QUESTION });
+        setState(STATE_MEDICAL);
+      }
+    } else if (state === STATE_MEDICAL) {
+      const yes = YES_RE.test(txt);
+      const no = NO_RE.test(txt);
+      if (!yes && !no) {
+        botMsgs.push({ role: "assistant", content: "פונית למיון או לבית חולים? כן או לא?" });
+      } else {
+        newData.medical = yes;
+        botMsgs.push({ role: "assistant", content: medicalResponse(yes) });
+        botMsgs.push({ role: "assistant", content: CONTEXT_QUESTION });
+        setState(STATE_CONTEXT);
+      }
+    } else if (state === STATE_CONTEXT) {
+      const isWork = WORK_RE.test(txt);
+      newData.isWork = isWork;
+      botMsgs.push({ role: "assistant", content: contextResponse(isWork) });
+      botMsgs.push({ role: "assistant", content: AGE_QUESTION });
+      setState(STATE_AGE);
+    } else if (state === STATE_AGE) {
+      const ageMatch = txt.match(/(\d+)/);
+      if (!ageMatch) {
+        botMsgs.push({ role: "assistant", content: "בן כמה אתה? כתוב מספר." });
+      } else {
+        newData.age = ageMatch[1];
+        const summary = buildSummary(newData);
+        botMsgs.push({ role: "assistant", content: summary });
+        const c = { min: 50000, max: 250000 };
+        setCalc(c);
+        setShowReferral(true);
+        setState(STATE_DONE);
+        notifyLead(newData, c);
+        window.dataLayer = window.dataLayer || [];
+        window.dataLayer.push({ event: "calculation_complete", value_min: c.min, value_max: c.max });
+      }
+    } else if (state === STATE_DONE) {
+      botMsgs.push({ role: "assistant", content: "לחץ על הכפתור למטה כדי לשוחח עם עו\"ד דן אלון בוואטסאפ." });
     }
 
-    const next = [...msgs, { role: "user", content: txt }];
-    setMsgs(next);
-    setLoad(true);
-    try {
-      const rep = await callClaude(next.map(m => ({ role: m.role, content: typeof m.content === "string" ? m.content : "[הודעה]" })));
-      const updated = [...next, { role: "assistant", content: rep }];
-      const userCount = next.filter(m => m.role === "user").length;
-      if (!ctaShown && (userCount === 1 || userCount >= 3)) {
-        updated.push({ role: "assistant", content: CTA_MSG });
-        setCtaShown(true);
-      }
-      setMsgs(updated);
-      if (userCount === 1) notifyLead(updated, null);
-      handleCalc(rep, updated);
-    } catch (e) {
-      setErr(e.message || "שגיאת חיבור");
-    }
-    setLoad(false);
+    setData(newData);
+    setMsgs(p => [...p, userMsg, ...botMsgs]);
   }
 
-  async function sendDoc(userContent, displayName) {
-    const displayMsg = { role: "user", content: `📎 צורף מסמך: ${displayName}` };
-    const next = [...msgs, displayMsg];
-    setMsgs(next);
-
-    const historyMsgs = msgs.map(m => {
-      if (Array.isArray(m.content)) {
-        const textParts = m.content.filter(p => p.type === "text").map(p => p.text).join(" ");
-        return { role: m.role, content: textParts || "[מסמך שנותח]" };
-      }
-      return { role: m.role, content: typeof m.content === "string" ? m.content : "[הודעה]" };
-    });
-    const userMsg = { role: "user", content: userContent };
-    const apiMsgs = [...historyMsgs, userMsg];
-    const rep = await callClaude(apiMsgs, "claude-sonnet-4-20250514");
-    setMsgs(p => [...p, { role: "assistant", content: rep }]);
-    handleCalc(rep, [...historyMsgs, { role: "assistant", content: rep }]);
-    if (!ctaShown) {
-      setMsgs(p => [...p, { role: "assistant", content: CTA_MSG }]);
-      setCtaShown(true);
-    }
+  // sendDoc — not used in state machine flow but kept for compatibility
+  async function sendDoc() {
+    setErr("בבוט זה אין צורך בצירוף מסמכים. ענה על השאלות ונעזור לך.");
   }
 
-  // Computed values for WhatsApp CTA
-  const userMsgs = msgs.filter(m => m.role === "user").map(m => typeof m.content === "string" ? m.content : "").filter(Boolean);
-  const allText = userMsgs.join(" ");
-  const ageMatch = allText.match(/בן\s*(\d+)|בת\s*(\d+)|(\d+)\s*שנ/);
-  const age = ageMatch ? (ageMatch[1] || ageMatch[2] || ageMatch[3]) : "";
-  const salaryMatch = allText.match(/([\d,]+)\s*(?:₪|שקל|ש"ח|שכר|ברוטו)/);
-  const salary = salaryMatch ? salaryMatch[1] : "";
-  const isWork = /עבודה|בדרך ל/.test(allText);
-  const injuryWords = userMsgs[0] ? userMsgs[0].slice(0, 100) : "";
-
+  // WhatsApp message
   const waMsg = calc
-    ? `היי אלון, קיבלתי הערכה מהבוט עבור ${injuryWords} בתאונה ${isWork ? "בדרך לעבודה" : "פרטית"}.${age ? ` אני בן ${age}.` : ""}${salary ? ` משתכר ${salary} ₪.` : ""}\nהערכת פיצוי: ₪${calc.min.toLocaleString("he-IL")}–₪${calc.max.toLocaleString("he-IL")}.\nאשמח לבדיקה שלך.`
-    : userMsgs.length
-      ? `היי דני, הגעתי מהבוט. תיאור: ${userMsgs.slice(0, 3).join(" | ").slice(0, 200)}. אשמח לפרטים.`
-      : "היי דני, הגעתי מהבוט ואשמח לפרטים.";
+    ? `שלום, הגעתי מהבוט של ניפגעתי.\nתפקיד: ${data.role === "driver" ? "נהג" : data.role === "passenger" ? "נוסע" : "הולך רגל"}\nגיל: ${data.age}\nתאונה: ${data.isWork ? "בדרך לעבודה" : "פרטית"}\nהערכת פיצוי: ₪50,000–₪250,000\nאשמח לבדיקה.`
+    : "שלום";
 
   return {
     msgs, inp, setInp, load, setLoad, calc, err, setErr,
