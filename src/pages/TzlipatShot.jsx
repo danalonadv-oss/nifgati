@@ -7,5 +7,6 @@ export default function TzlipatShot() {
     bullets={["כאבי צוואר וגב מוכרים כנזק גוף","אחוזי נכות 5-20% בהתאם לחומרה","חישוב פיצוי מיידי לפי גיל ושכר"]}
     ctaText="בדוק פיצוי על צליפת שוט"
     pageSlug="tzlipat-shot"
+    bannerText="צליפת שוט — חשב ודע מיד כמה מגיע לך"
   />;
 }

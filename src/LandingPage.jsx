@@ -6,7 +6,7 @@ const WA       = "972544338212";
 const MY_NAME  = "דן אלון";
 const MY_TITLE = "עורך דין נזיקין";
 
-export default function LandingPage({ pageTitle, pageSubtitle, heroEmoji, bullets, ctaText, pageSlug }) {
+export default function LandingPage({ pageTitle, pageSubtitle, heroEmoji, bullets, ctaText, pageSlug, bannerText }) {
   const [scrolled, setScrolled]     = useState(false);
   const [showBot, setShowBot]       = useState(false);
   const [cookie, setCookie]         = useState(false);
@@ -60,7 +60,7 @@ export default function LandingPage({ pageTitle, pageSubtitle, heroEmoji, bullet
       {/* URGENCY BANNER */}
       {showBanner && (
         <div style={{ position:"fixed", top:0, right:0, left:0, zIndex:110, background:G, color:"#060a12", height:40, display:"flex", alignItems:"center", justifyContent:"center", fontSize:14, fontWeight:700, gap:8, paddingInlineStart:16, paddingInlineEnd:16 }}>
-          <span>⚖️ תביעות פלת״ד — התיישנות לאחר 7 שנים. פעל עכשיו לשמירה על זכויותיך.</span>
+          <span>{bannerText || "תביעות פלת״ד — חשב ודע מיד כמה מגיע לך"}</span>
           <button onClick={() => setShowBanner(false)} aria-label="סגור באנר" style={{ background:"transparent", border:"none", color:"#060a12", fontSize:18, cursor:"pointer", lineHeight:1, marginInlineStart:8, fontWeight:900 }}>✕</button>
         </div>
       )}
@@ -85,22 +85,19 @@ export default function LandingPage({ pageTitle, pageSubtitle, heroEmoji, bullet
         {/* HERO */}
         <section aria-label={pageTitle} style={{ minHeight:"100vh", display:"flex", alignItems:"center", position:"relative", overflow:"hidden", paddingTop:showBanner ? 120 : 80 }}>
           <div style={{ position:"absolute", top:"20%", right:"-8%", width:500, height:500, background:"radial-gradient(circle, #c9a84c09 0%, transparent 70%)", pointerEvents:"none" }} aria-hidden="true" />
-          <div style={{ maxWidth:1100, margin:"0 auto", padding:"80px 24px", width:"100%" }}>
-            <div style={{ maxWidth:700 }}>
+          <div style={{ maxWidth:900, margin:"0 auto", padding:"80px 24px", width:"100%", textAlign:"center" }}>
 
               <div style={{ marginBottom:28 }}>
                 <div style={{ fontSize:15, fontWeight:700, color:"#e8edf2" }}>דן אלון, עו״ד נזיקין</div>
                 <div style={{ fontSize:13, color:"#7a8fa5" }}>25 שנות ניסיון</div>
               </div>
 
-              <div style={{ fontSize:64, marginBottom:20 }} aria-hidden="true">{heroEmoji}</div>
-
               <h1 className="ht" style={{ fontSize:44, fontWeight:900, lineHeight:1.25, marginBottom:14 }}>
                 {pageTitle}
               </h1>
               <p style={{ fontSize:18, color:"#7a8fa5", marginBottom:32, lineHeight:1.6 }}>{pageSubtitle}</p>
 
-              <div style={{ display:"flex", flexDirection:"column", gap:12, marginBottom:32, maxWidth:480 }}>
+              <div style={{ display:"inline-flex", flexDirection:"column", gap:12, marginBottom:32, textAlign:"right" }}>
                 {bullets.map((b, i) => (
                   <div key={i} style={{ display:"flex", gap:10, alignItems:"flex-start", fontSize:15, color:"#bcc8d4", lineHeight:1.6 }}>
                     <span style={{ color:G, fontWeight:700, flexShrink:0, fontSize:16, marginTop:2 }}>✓</span>
@@ -109,18 +106,17 @@ export default function LandingPage({ pageTitle, pageSubtitle, heroEmoji, bullet
                 ))}
               </div>
 
-              <div style={{ display:"flex", gap:14, flexWrap:"wrap", marginBottom:40 }}>
+              <div style={{ display:"flex", gap:14, flexWrap:"wrap", marginBottom:40, justifyContent:"center" }}>
                 <button style={{ ...gBtn, fontSize:16, padding:"16px 32px" }} onClick={openBot} aria-label="בדיקת גובה הפיצוי">💬 {ctaText || "לבדיקת גובה הפיצוי שלי"}</button>
               </div>
 
-              <div style={{ display:"flex", gap:10, fontSize:13, color:"#556070" }}>
+              <div style={{ display:"flex", gap:10, fontSize:13, color:"#556070", justifyContent:"center" }}>
                 <span>🔒 אנונימי</span>
                 <span>|</span>
                 <span>⚡ תוך 60 שניות</span>
                 <span>|</span>
                 <span>₪0 מראש</span>
               </div>
-            </div>
           </div>
         </section>
 

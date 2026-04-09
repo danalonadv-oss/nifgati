@@ -7,5 +7,6 @@ export default function PritzatDisc() {
     bullets={["נכות 10-25% בהתאם לחומרת הפגיעה","פיצוי על אובדן כושר עבודה עתידי","ניסיון בתביעות עמוד שדרה"]}
     ctaText="בדוק פיצוי על פריצת דיסק"
     pageSlug="pritzat-disc"
+    bannerText="פריצת דיסק — חשב ודע מיד כמה מגיע לך"
   />;
 }

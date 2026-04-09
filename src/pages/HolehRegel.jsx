@@ -7,5 +7,6 @@ export default function HolehRegel() {
     bullets={["אחריות מוחלטת של הרכב כלפי הולך הרגל","פיצוי על כל ראשי הנזק","חישוב מיידי ללא התחייבות"]}
     ctaText="בדוק פיצוי להולך רגל"
     pageSlug="holeh-regel"
+    bannerText="נפגעת כהולך רגל — חשב ודע מיד כמה מגיע לך"
   />;
 }

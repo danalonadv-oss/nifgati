@@ -7,5 +7,6 @@ export default function TaonatDrakhim() {
     bullets={["פיצוי על כאב וסבל, הפסדי שכר ונזקים רפואיים","שכ״ט רק מהפיצוי — ₪0 מראש","ניסיון מול הראל, מגדל, הפניקס וכלל"]}
     ctaText="בדוק פיצוי על תאונת דרכים"
     pageSlug="taonat-drakhim"
+    bannerText="תאונת דרכים — חשב ודע מיד כמה מגיע לך"
   />;
 }
