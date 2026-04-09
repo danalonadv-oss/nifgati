@@ -206,6 +206,7 @@ export default function App() {
         .pulse{animation:p 2s ease-in-out infinite}
         @keyframes p{0%,100%{opacity:1}50%{opacity:.5}}
         .ck{position:fixed;bottom:0;right:0;left:0;background:#0d1323;border-top:1px solid #1e2d4a;padding:14px 20px;display:flex;align-items:center;justify-content:space-between;gap:16px;z-index:98;font-size:13px;color:#7a8fa5}
+        @media(min-width:769px){.hero-wrap{max-width:1200px!important;padding:60px 80px!important}.ht{font-size:4.5rem!important;line-height:1.2!important}.hero-sub{font-size:1.6rem!important}.hero-bullets{font-size:1.2rem!important;max-width:800px!important;margin:0 auto 32px!important}.sect-inner{max-width:1200px!important}}
         @media(max-width:768px){.g2,.g3{grid-template-columns:1fr}.g4{grid-template-columns:1fr 1fr}.hm{display:none!important}.ht{font-size:34px!important}.marquee-track{animation-duration:12s!important}}
         @media(max-width:480px){.g4{grid-template-columns:1fr 1fr}}
         @keyframes marquee{0%{transform:translateX(0)}100%{transform:translateX(100%)}}
@@ -246,7 +247,7 @@ export default function App() {
         {/* HERO */}
         <section id="hero" aria-label="עמוד ראשי" style={{ minHeight:"100vh", display:"flex", alignItems:"center", position:"relative", overflow:"hidden", paddingTop:showBanner ? 120 : 80 }}>
           <div style={{ position:"absolute", top:"20%", right:"-8%", width:500, height:500, background:"radial-gradient(circle, #c9a84c09 0%, transparent 70%)", pointerEvents:"none" }} aria-hidden="true" />
-          <div style={{ maxWidth:900, margin:"0 auto", padding:"80px 24px", width:"100%", textAlign:"center" }}>
+          <div className="hero-wrap" style={{ maxWidth:900, margin:"0 auto", padding:"80px 24px", width:"100%", textAlign:"center" }}>
 
               <div style={{ marginBottom:28 }}>
                 <div style={{ fontSize:15, fontWeight:700, color:"#e8edf2" }}>דן אלון, עו״ד נזיקין</div>
@@ -257,9 +258,9 @@ export default function App() {
                 נפגעת בתאונה?<br />
                 <span style={{ color:G }}>מגיע לך פיצוי.</span>
               </h1>
-              <p style={{ fontSize:18, color:"#7a8fa5", marginBottom:32, lineHeight:1.6 }}>גלה כמה — תוך 60 שניות, בחינם.</p>
+              <p className="hero-sub" style={{ fontSize:18, color:"#7a8fa5", marginBottom:32, lineHeight:1.6 }}>גלה כמה — תוך 60 שניות, בחינם.</p>
 
-              <div style={{ display:"inline-flex", flexDirection:"column", gap:10, marginBottom:32, textAlign:"right" }}>
+              <div className="hero-bullets" style={{ display:"inline-flex", flexDirection:"column", gap:10, marginBottom:32, textAlign:"right" }}>
                 {[
                   { icon:"🔒", text:"בדיקה אנונימית: ללא צורך בשם או תעודת זהות." },
                   { icon:"🤫", text:"דיסקרטיות מלאה: המידע אינו נשמר במערכת ואינו מתועד." },
@@ -292,7 +293,7 @@ export default function App() {
         {/* HOW */}
         <section id="how" aria-label="איך זה עובד" style={{ padding:"68px 24px", background:"#0d1323" }}>
           <Reveal>
-            <div style={{ maxWidth:1100, margin:"0 auto" }}>
+            <div className="sect-inner" style={{ maxWidth:1100, margin:"0 auto" }}>
               <div style={{ textAlign:"center", marginBottom:48 }}>
                 <div className="div" aria-hidden="true" />
                 <h2 style={{ fontSize:32, fontWeight:900, marginBottom:10 }}>איך זה עובד</h2>
@@ -314,7 +315,7 @@ export default function App() {
         {/* CALCULATOR */}
         <section id="calc" aria-label="מחשבון פיצויים" style={{ padding:"68px 24px" }}>
           <Reveal>
-            <div style={{ maxWidth:680, margin:"0 auto", textAlign:"center" }}>
+            <div className="sect-inner" style={{ maxWidth:680, margin:"0 auto", textAlign:"center" }}>
               <div className="div" aria-hidden="true" />
               <h2 style={{ fontSize:32, fontWeight:900, marginBottom:12 }}>מחשבון פיצויים חינמי</h2>
               <p style={{ color:"#7a8fa5", fontSize:15, marginBottom:36, lineHeight:1.75 }}>
@@ -338,7 +339,7 @@ export default function App() {
         {/* RESULTS STRIP */}
         <section id="results" aria-label="תוצאות אמיתיות" style={{ padding:"68px 24px", background:"#0d1323" }}>
           <Reveal>
-            <div style={{ maxWidth:1100, margin:"0 auto" }}>
+            <div className="sect-inner" style={{ maxWidth:1100, margin:"0 auto" }}>
               <div style={{ textAlign:"center", marginBottom:48 }}>
                 <div className="div" aria-hidden="true" />
                 <h2 style={{ fontSize:32, fontWeight:900, marginBottom:10 }}>תוצאות אמיתיות של לקוחותינו</h2>
@@ -361,7 +362,7 @@ export default function App() {
         {/* REVIEWS */}
         <section id="why" aria-label="ביקורות לקוחות" style={{ padding:"68px 24px" }}>
           <Reveal>
-            <div style={{ maxWidth:1100, margin:"0 auto" }}>
+            <div className="sect-inner" style={{ maxWidth:1100, margin:"0 auto" }}>
               <div style={{ textAlign:"center", marginBottom:48 }}>
                 <div className="div" aria-hidden="true" />
                 <h2 style={{ fontSize:32, fontWeight:900, marginBottom:10 }}>לקוחות מספרים</h2>
@@ -385,7 +386,7 @@ export default function App() {
         {/* ATTORNEY SECTION */}
         <section aria-label="אודות עורך הדין" style={{ padding:"68px 24px", background:"#0d1323" }}>
           <Reveal>
-            <div style={{ maxWidth:700, margin:"0 auto" }}>
+            <div className="sect-inner" style={{ maxWidth:700, margin:"0 auto" }}>
               <div>
                 <h2 style={{ fontSize:26, fontWeight:900, marginBottom:18 }}>עו״ד דן אלון</h2>
                 <div style={{ display:"flex", flexDirection:"column", gap:12 }}>
@@ -405,7 +406,7 @@ export default function App() {
         {/* FAQ */}
         <section id="faq" aria-label="שאלות נפוצות" style={{ padding:"68px 24px" }}>
           <Reveal>
-            <div style={{ maxWidth:700, margin:"0 auto" }}>
+            <div className="sect-inner" style={{ maxWidth:700, margin:"0 auto" }}>
               <div style={{ textAlign:"center", marginBottom:48 }}>
                 <div className="div" aria-hidden="true" />
                 <h2 style={{ fontSize:32, fontWeight:900, marginBottom:10 }}>שאלות נפוצות</h2>
@@ -420,7 +421,7 @@ export default function App() {
         {/* CONTACT */}
         <section id="contact" aria-label="צור קשר" style={{ padding:"68px 24px", background:"#0d1323" }}>
           <Reveal>
-            <div style={{ maxWidth:500, margin:"0 auto", textAlign:"center" }}>
+            <div className="sect-inner" style={{ maxWidth:500, margin:"0 auto", textAlign:"center" }}>
               <div className="div" aria-hidden="true" />
               <h2 style={{ fontSize:32, fontWeight:900, marginBottom:12 }}>דברו איתנו עכשיו</h2>
               <p style={{ color:"#7a8fa5", fontSize:15, marginBottom:36 }}>ייעוץ ראשוני חינמי, ללא התחייבות</p>

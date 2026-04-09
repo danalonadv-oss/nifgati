@@ -51,6 +51,7 @@ export default function LandingPage({ pageTitle, pageSubtitle, heroEmoji, bullet
         .wa-btn{position:fixed;bottom:24px;left:24px;background:#25d366;color:#fff;border:none;border-radius:50%;width:56px;height:56px;font-size:24px;cursor:pointer;box-shadow:0 8px 24px #25d36655;z-index:99;display:flex;align-items:center;justify-content:center;transition:transform .2s}
         .wa-btn:hover{transform:scale(1.1)}
         .hm{display:flex}
+        @media(min-width:769px){.hero-wrap{max-width:1200px!important;padding:60px 80px!important}.ht{font-size:4.5rem!important;line-height:1.2!important}.hero-sub{font-size:1.6rem!important}.hero-bullets{font-size:1.2rem!important;max-width:800px!important;margin:0 auto 32px!important}.sect-inner{max-width:1200px!important}}
         @media(max-width:768px){.hm{display:none!important}.ht{font-size:34px!important}}
       `}</style>
 
@@ -85,7 +86,7 @@ export default function LandingPage({ pageTitle, pageSubtitle, heroEmoji, bullet
         {/* HERO */}
         <section aria-label={pageTitle} style={{ minHeight:"100vh", display:"flex", alignItems:"center", position:"relative", overflow:"hidden", paddingTop:showBanner ? 120 : 80 }}>
           <div style={{ position:"absolute", top:"20%", right:"-8%", width:500, height:500, background:"radial-gradient(circle, #c9a84c09 0%, transparent 70%)", pointerEvents:"none" }} aria-hidden="true" />
-          <div style={{ maxWidth:900, margin:"0 auto", padding:"80px 24px", width:"100%", textAlign:"center" }}>
+          <div className="hero-wrap" style={{ maxWidth:900, margin:"0 auto", padding:"80px 24px", width:"100%", textAlign:"center" }}>
 
               <div style={{ marginBottom:28 }}>
                 <div style={{ fontSize:15, fontWeight:700, color:"#e8edf2" }}>דן אלון, עו״ד נזיקין</div>
@@ -95,9 +96,9 @@ export default function LandingPage({ pageTitle, pageSubtitle, heroEmoji, bullet
               <h1 className="ht" style={{ fontSize:44, fontWeight:900, lineHeight:1.25, marginBottom:14 }}>
                 {pageTitle}
               </h1>
-              <p style={{ fontSize:18, color:"#7a8fa5", marginBottom:32, lineHeight:1.6 }}>{pageSubtitle}</p>
+              <p className="hero-sub" style={{ fontSize:18, color:"#7a8fa5", marginBottom:32, lineHeight:1.6 }}>{pageSubtitle}</p>
 
-              <div style={{ display:"inline-flex", flexDirection:"column", gap:12, marginBottom:32, textAlign:"right" }}>
+              <div className="hero-bullets" style={{ display:"inline-flex", flexDirection:"column", gap:12, marginBottom:32, textAlign:"right" }}>
                 {bullets.map((b, i) => (
                   <div key={i} style={{ display:"flex", gap:10, alignItems:"flex-start", fontSize:15, color:"#bcc8d4", lineHeight:1.6 }}>
                     <span style={{ color:G, fontWeight:700, flexShrink:0, fontSize:16, marginTop:2 }}>✓</span>
@@ -122,7 +123,7 @@ export default function LandingPage({ pageTitle, pageSubtitle, heroEmoji, bullet
 
         {/* CTA SECTION */}
         <section style={{ padding:"68px 24px", background:"#0d1323" }}>
-          <div style={{ maxWidth:500, margin:"0 auto", textAlign:"center" }}>
+          <div className="sect-inner" style={{ maxWidth:500, margin:"0 auto", textAlign:"center" }}>
             <h2 style={{ fontSize:28, fontWeight:900, marginBottom:12 }}>דברו איתנו עכשיו</h2>
             <p style={{ color:"#7a8fa5", fontSize:15, marginBottom:36 }}>ייעוץ ראשוני חינמי, ללא התחייבות</p>
             <div style={{ display:"flex", flexDirection:"column", gap:12 }}>
