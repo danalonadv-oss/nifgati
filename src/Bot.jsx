@@ -56,12 +56,6 @@ export default function Bot({ onClose }) {
           {msgs.map((m, i) => (
             <div key={i} className={`${s.msgRow} ${m.role === "user" ? s.msgRowUser : s.msgRowBot}`}>
               <div className={`${s.bubble} ${m.role === "user" ? s.bubbleUser : s.bubbleBot}`}>{m.content}</div>
-              {m.privacy && (
-                <div className={s.privacy}>
-                  🔒 הפרטיות שלך חשובה: המידע נמחק בסיום השיחה ואינו נשמר אצלנו.{" "}
-                  <a href="/privacy" target="_blank" rel="noopener" className={s.privacyLink}>מדיניות פרטיות</a>
-                </div>
-              )}
             </div>
           ))}
 
@@ -142,8 +136,8 @@ export default function Bot({ onClose }) {
             <button onClick={() => send(inp)} disabled={load || !inp.trim()} aria-label="שלח הודעה" className={`${s.sendBtn} ${load || !inp.trim() ? s.sendBtnDisabled : ""}`}>➤</button>
           </div>
           {docName && <p className={s.docStatus}>{load ? "📤 מעלה ומנתח" : "🔍 מנתח"}: {docName}...</p>}
-          <p className={s.disclaimer}>הערכה ראשונית בלבד • אינה מהווה ייעוץ משפטי • המידע אינו נשמר</p>
         </div>
+        <p style={{ fontSize:10, color:"#666", textAlign:"center", padding:"4px 12px", margin:0, borderTop:"1px solid #ffffff11" }}>המידע אינו נשמר ואינו מתועד • הערכה ראשונית בלבד • אינה מהווה ייעוץ משפטי</p>
 
         {/* ── Floating WhatsApp ── */}
         <button onClick={() => { notifyWhatsApp(); window.location.href = waHref; }} aria-label="שיחת וואטסאפ עם עו״ד אלון" title="וואטסאפ" className={s.waFab}>💬</button>
