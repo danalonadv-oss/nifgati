@@ -16,7 +16,6 @@ const STATE_CONTEXT = 4;
 const STATE_AGE = 5;
 const STATE_DONE = 6;
 
-const GREETING = "שלום, אני הבוט של ניפגעתי. קודם כל, צר לי לשמוע על התאונה שלך. אני כאן כדי לעזור לך להבין את הזכויות שלך לפי החוק.";
 const ROLE_QUESTION = "חוק הפיצויים לנפגעי תאונות דרכים בישראל מבטיח פיצוי כמעט בכל מקרה של פציעה. זה לא תלוי בזה מי אשם.\n\nהיית הנהג, נוסע, או הולך רגל בתאונה?";
 
 const DRIVER_RE = /נהג|נהגת|הנהג/i;
@@ -32,10 +31,64 @@ const WORK_RE = /עבודה|בדרך ל|בחזרה מ|עובד|נסיעה לעב
 
 const AGE_QUESTION = "בן כמה אתה בערך?";
 
-const INITIAL_MSGS = [
-  { role: "assistant", content: GREETING, privacy: true },
-  { role: "assistant", content: ROLE_QUESTION },
-];
+function getUrlParams() {
+  const params = new URLSearchParams(window.location.search);
+  return {
+    source: params.get('utm_source'),
+    term: params.get('utm_term'),
+    content: params.get('utm_content'),
+    page: window.location.pathname
+  };
+}
+
+function getPersonalizedOpening() {
+  const { term, page } = getUrlParams();
+  const t = (term || '').toLowerCase();
+  const p = (page || '').toLowerCase();
+
+  if (t.includes('צליפת שוט') || t.includes('צוואר'))
+    return 'שלום 👋 חיפשת פיצוי על צליפת שוט — זה ראש נזק מוכר ומוכח. ספר לי מה קרה ואחשב כמה מגיע לך.';
+  if (t.includes('דרך לעבודה') || t.includes('תאונת עבודה'))
+    return 'שלום 👋 תאונה בדרך לעבודה מזכה בפיצוי כפול — מביטוח לאומי וגם מפלת״ד. בוא נבדוק יחד כמה מגיע לך.';
+  if (t.includes('נכות') || t.includes('אחוזי נכות'))
+    return 'שלום 👋 חיפשת מה שווים אחוזי הנכות שלך — בוא נחשב בדיוק כמה כסף זה מייצג לפי החוק.';
+  if (t.includes('כאב וסבל') || t.includes('כאב'))
+    return 'שלום 👋 חיפשת מחשבון כאב וסבל — אתה במקום הנכון. כאב וסבל הוא רק חלק מהפיצוי המגיע לך. בוא נחשב את התמונה המלאה — כולל הפסדי שכר ונכות.';
+  if (t.includes('מחשבון') || t.includes('חישוב') || t.includes('כמה'))
+    return 'שלום 👋 בוא נחשב ישר — כמה שאלות קצרות ואתן לך הערכת פיצוי מיידית לפי חוק הפלת״ד. מה קרה לך?';
+
+  if (p.includes('taonat-drakhim'))
+    return 'שלום 👋 ראיתי שחיפשת עזרה בנושא תאונת דרכים. ספר לי מה קרה — ואחשב לך תוך דקות כמה פיצוי מגיע לך לפי החוק.';
+  if (p.includes('machshevon'))
+    return 'שלום 👋 בוא נחשב ישר — כמה שאלות קצרות ואתן לך הערכת פיצוי מיידית לפי חוק הפלת״ד. מה קרה לך?';
+  if (p.includes('ofanoa'))
+    return 'שלום 👋 תאונות אופנוע מזכות לרוב בפיצוי גבוה במיוחד. ספר לי מה קרה ואחשב כמה מגיע לך.';
+  if (p.includes('avoda'))
+    return 'שלום 👋 נפגעת בתאונת עבודה? מגיע לך פיצוי מביטוח לאומי ומהמעסיק. בוא נבדוק יחד כמה.';
+  if (p.includes('korkinet'))
+    return 'שלום 👋 תאונת קורקינט או אופניים חשמליים? גם זה מכוסה בחוק. ספר לי מה קרה.';
+  if (p.includes('tzlipat-shot'))
+    return 'שלום 👋 צליפת שוט היא פגיעה מוכרת שמזכה בפיצוי — גם ללא שבר. בוא נחשב כמה מגיע לך.';
+  if (p.includes('pritzat-disc'))
+    return 'שלום 👋 פריצת דיסק בגלל תאונה מזכה בפיצוי משמעותי. ספר לי על הפגיעה ואחשב כמה מגיע לך.';
+  if (p.includes('shever'))
+    return 'שלום 👋 שבר בתאונה מזכה בפיצוי על כאב, היעדרות ונזק עתידי. בוא נחשב יחד.';
+  if (p.includes('ptsd'))
+    return 'שלום 👋 נזק נפשי אחרי תאונה הוא ראש נזק מוכר בחוק. בוא נבדוק כמה מגיע לך.';
+  if (p.includes('holeh-regel'))
+    return 'שלום 👋 הולכי רגל שנפגעו זכאים לפיצוי מלא — גם ללא אשם. ספר לי מה קרה.';
+  if (p.includes('nechut'))
+    return 'שלום 👋 כל אחוז נכות שווה עשרות אלפי שקלים. הכנס את הנתונים שלך ואחשב כמה מגיע לך.';
+
+  return 'שלום 👋 נפגעת בתאונה? בוא נבדוק ב-60 שניות כמה פיצוי מגיע לך — חינם, ללא התחייבות.';
+}
+
+function getInitialMsgs() {
+  return [
+    { role: "assistant", content: getPersonalizedOpening(), privacy: true },
+    { role: "assistant", content: ROLE_QUESTION },
+  ];
+}
 
 function classifyRole(txt) {
   if (DRIVER_RE.test(txt)) return "driver";
@@ -76,7 +129,7 @@ function buildSummary(data) {
 
 
 export default function useChat() {
-  const [msgs, setMsgs] = useState([...INITIAL_MSGS]);
+  const [msgs, setMsgs] = useState([...getInitialMsgs()]);
   const [inp, setInp] = useState("");
   const [load, setLoad] = useState(false);
   const [calc, setCalc] = useState(null);
@@ -90,7 +143,7 @@ export default function useChat() {
   useEffect(() => { if (!err) return; const t = setTimeout(() => setErr(""), 6000); return () => clearTimeout(t); }, [err]);
 
   function restart() {
-    setMsgs([...INITIAL_MSGS]);
+    setMsgs([...getInitialMsgs()]);
     setCalc(null);
     setInp("");
     setErr("");
