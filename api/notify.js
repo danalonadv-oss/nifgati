@@ -28,11 +28,11 @@ export default async function handler(req, res) {
   if (req.method !== "POST") return res.status(405).json({ error: "Method not allowed" });
 
   // Validate
-  const { summary, calculation, subject, phone, injury } = req.body || {};
+  const { summary, calculation, conversation } = req.body || {};
   if (!summary || typeof summary !== "string") {
     return res.status(400).json({ error: "missing summary" });
   }
-  const emailSubject = "ליד חדש 🔥 nifgati.co.il";
+  const emailSubject = "ליד חדש — שיחת וואטסאפ | nifgati.co.il";
 
   // Check for Resend API key
   if (!process.env.RESEND_API_KEY) {
@@ -40,24 +40,33 @@ export default async function handler(req, res) {
     return res.status(200).json({ ok: true, skipped: true });
   }
 
-  // Build short plain-text email
   function escapeHtml(str) {
     return str.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
   }
 
   const ts = new Date().toLocaleString("he-IL", { timeZone: "Asia/Jerusalem" });
-  const safePhone = escapeHtml(phone || "לא צוין");
-  const safeInjury = escapeHtml(injury || "לא צוין");
   const calcLine = calculation
     ? `₪${Number(calculation.min).toLocaleString("he-IL")} – ₪${Number(calculation.max).toLocaleString("he-IL")}`
     : "לא חושב";
 
+  // Extract phone from conversation if mentioned
+  const allText = Array.isArray(conversation) ? conversation.join(" ") : "";
+  const phoneMatch = allText.match(/0[5-9]\d[\d-]{6,9}/);
+  const safePhone = phoneMatch ? escapeHtml(phoneMatch[0]) : "לא צוין";
+
+  // Build conversation HTML
+  const convoHtml = Array.isArray(conversation)
+    ? conversation.map(line => `<p>${escapeHtml(line)}</p>`).join("")
+    : "<p>לא זמינה</p>";
+
   const html = `
-    <div style="font-family:Arial,sans-serif;direction:rtl;max-width:500px;margin:0 auto;line-height:2">
-      <p>טלפון: ${safePhone}</p>
-      <p>פגיעה: ${safeInjury}</p>
-      <p>פיצוי משוער: ${calcLine}</p>
-      <p>שעה: ${ts}</p>
+    <div style="font-family:Arial,sans-serif;direction:rtl;max-width:600px;margin:0 auto;line-height:1.8">
+      <p><strong>שעה:</strong> ${ts}</p>
+      <p><strong>טלפון:</strong> ${safePhone}</p>
+      <p><strong>סכום משוער:</strong> ${calcLine}</p>
+      <hr style="border:none;border-top:1px solid #ccc;margin:16px 0"/>
+      <p><strong>השיחה המלאה:</strong></p>
+      ${convoHtml}
     </div>
   `;
 

@@ -74,15 +74,6 @@ function buildSummary(data) {
   return `סיכום:\n• תפקיד: ${roleLabel}\n• ${medLabel}\n• ${contextLabel}\n• גיל: ${ageNum}\n\nהערכת פיצוי ראשונית: ₪${min.toLocaleString("he-IL")} – ₪${max.toLocaleString("he-IL")}\n\nזוהי הערכה ראשונית בלבד. לחץ על הכפתור למטה כדי לדבר עם עו"ד דן אלון בוואטסאפ ולקבל הערכה מדויקת.`;
 }
 
-function notifyLead(data, calc) {
-  try {
-    fetch("/api/notify", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ summary: "lead", calculation: calc, ...data }),
-    }).catch(() => {});
-  } catch (_) {}
-}
 
 export default function useChat() {
   const [msgs, setMsgs] = useState([...INITIAL_MSGS]);
@@ -156,7 +147,6 @@ export default function useChat() {
         setCalc(c);
         setShowReferral(true);
         setState(STATE_DONE);
-        notifyLead(newData, c);
         window.dataLayer = window.dataLayer || [];
         window.dataLayer.push({ event: "calculation_complete", value_min: c.min, value_max: c.max });
       }
@@ -173,6 +163,19 @@ export default function useChat() {
     setErr("בבוט זה אין צורך בצירוף מסמכים. ענה על השאלות ונעזור לך.");
   }
 
+  function notifyWhatsApp() {
+    const conversation = msgs.map(m => m.role === "user" ? `משתמש: ${m.content}` : `בוט: ${m.content}`);
+    fetch("/api/notify", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        summary: "whatsapp_click",
+        calculation: calc,
+        conversation,
+      }),
+    }).catch(() => {});
+  }
+
   // WhatsApp message
   const waMsg = calc
     ? `שלום, הגעתי מהבוט של ניפגעתי.\nתפקיד: ${data.role === "driver" ? "נהג" : data.role === "passenger" ? "נוסע" : "הולך רגל"}\nגיל: ${data.age}\nתאונה: ${data.isWork ? "בדרך לעבודה" : "פרטית"}\nהערכת פיצוי: ₪50,000–₪250,000\nאשמח לבדיקה.`
@@ -180,6 +183,6 @@ export default function useChat() {
 
   return {
     msgs, inp, setInp, load, setLoad, calc, err, setErr,
-    showReferral, send, sendDoc, restart, waMsg, endRef, WA,
+    showReferral, send, sendDoc, restart, waMsg, endRef, WA, notifyWhatsApp,
   };
 }

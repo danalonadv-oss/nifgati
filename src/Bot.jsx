@@ -7,7 +7,7 @@ import s from "./styles/Bot.module.css";
 export default function Bot({ onClose }) {
   const {
     msgs, inp, setInp, load, setLoad, calc, err, setErr,
-    showReferral, send, sendDoc, waMsg, endRef, WA,
+    showReferral, send, sendDoc, waMsg, endRef, WA, notifyWhatsApp,
   } = useChat();
 
   const {
@@ -80,7 +80,7 @@ export default function Bot({ onClose }) {
               <div className={s.calcAmount}>₪{calc.min.toLocaleString("he-IL")} – ₪{calc.max.toLocaleString("he-IL")}</div>
               <div className={s.calcFee}>לפני שכ"ט (8%–13%)</div>
               <div className={s.bounceArrow}>👇</div>
-              <button onClick={() => window.location.href = waHref} aria-label="שלח את החישוב לעורך דין בוואטסאפ" className={s.ctaBtn}>
+              <button onClick={() => { notifyWhatsApp(); window.location.href = waHref; }} aria-label="שלח את החישוב לעורך דין בוואטסאפ" className={s.ctaBtn}>
                 💬 שלח את החישוב לעו"ד בוואטסאפ
               </button>
             </div>
@@ -88,7 +88,7 @@ export default function Bot({ onClose }) {
 
           {showReferral && !calc && (
             <div className={s.referralWrap}>
-              <button onClick={() => window.location.href = waHref} className={s.referralBtn}>
+              <button onClick={() => { notifyWhatsApp(); window.location.href = waHref; }} className={s.referralBtn}>
                 📱 שליחת הנתונים לעו"ד אלון ובדיקת זכאות בוואטסאפ
               </button>
             </div>
@@ -146,7 +146,7 @@ export default function Bot({ onClose }) {
         </div>
 
         {/* ── Floating WhatsApp ── */}
-        <button onClick={() => window.location.href = waHref} aria-label="שיחת וואטסאפ עם עו״ד אלון" title="וואטסאפ" className={s.waFab}>💬</button>
+        <button onClick={() => { notifyWhatsApp(); window.location.href = waHref; }} aria-label="שיחת וואטסאפ עם עו״ד אלון" title="וואטסאפ" className={s.waFab}>💬</button>
       </div>
     </div>
   );

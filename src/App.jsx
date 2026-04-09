@@ -45,15 +45,6 @@ function FAQItem({ q, a }) {
   );
 }
 
-/* ── Fire-and-forget notify helper ── */
-function notifyEvent(subject, body) {
-  fetch("/api/notify", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ summary: body, subject }),
-  }).catch(() => {});
-}
-
 export default function App() {
   const [scrolled, setScrolled]       = useState(false);
   const [showBot, setShowBot]         = useState(false);
@@ -61,7 +52,6 @@ export default function App() {
   const [showBanner, setShowBanner]   = useState(true);
   const [showExit, setShowExit]       = useState(false);
   const botOpenedRef = useRef(false);
-  const dwellSentRef = useRef(false);
   const exitSentRef  = useRef(false);
 
   /* ── Auto-open bot after 6 seconds, once per session ── */
@@ -75,21 +65,7 @@ export default function App() {
   }, []);
 
   /* ── TRIGGER 1: 30s dwell time passive lead ── */
-  useEffect(() => {
-    const t = setTimeout(() => {
-      if (!botOpenedRef.current && !dwellSentRef.current) {
-        dwellSentRef.current = true;
-        const ts = new Date().toLocaleString("he-IL", { timeZone: "Asia/Jerusalem" });
-        notifyEvent(
-          "גולש פסיבי — שהייה 30 שניות | nifgati.co.il",
-          `גולש שהה באתר למעלה מ-30 שניות מבלי לפתוח את הבוט. תאריך ושעה: ${ts}`
-        );
-      }
-    }, 30000);
-    return () => clearTimeout(t);
-  }, []);
-
-  /* ── TRIGGER 2: Exit intent (desktop: mouseY<50, mobile: 45s inactivity) ── */
+  /* ── TRIGGER: Exit intent (desktop: mouseY<50, mobile: 45s inactivity) ── */
   useEffect(() => {
     const isMobile = "ontouchstart" in window || navigator.maxTouchPoints > 0;
 
@@ -98,11 +74,6 @@ export default function App() {
       exitSentRef.current = true;
       sessionStorage.setItem("exitShown", "1");
       setShowExit(true);
-      const ts = new Date().toLocaleString("he-IL", { timeZone: "Asia/Jerusalem" });
-      notifyEvent(
-        "exit intent — nifgati.co.il",
-        `גולש ניסה לעזוב את האתר. תאריך ושעה: ${ts}`
-      );
     }
 
     if (isMobile) {
