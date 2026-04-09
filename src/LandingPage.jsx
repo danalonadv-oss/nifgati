@@ -96,7 +96,7 @@ export default function LandingPage({ pageTitle, pageSubtitle, heroEmoji, bullet
               <h1 className="ht" style={{ fontSize:44, fontWeight:900, lineHeight:1.25, marginBottom:14 }}>
                 {pageTitle}
               </h1>
-              <p className="hero-sub" style={{ fontSize:18, color:"#7a8fa5", marginBottom:32, lineHeight:1.6 }}>{pageSubtitle}</p>
+              <h2 className="hero-sub" style={{ fontSize:18, fontWeight:700, color:"#7a8fa5", marginBottom:32, lineHeight:1.6 }}>{pageSubtitle}</h2>
 
               <div className="hero-bullets" style={{ display:"inline-flex", flexDirection:"column", gap:12, marginBottom:32, textAlign:"right" }}>
                 {bullets.map((b, i) => (
