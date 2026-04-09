@@ -246,8 +246,7 @@ export default function App() {
         {/* HERO */}
         <section id="hero" aria-label="עמוד ראשי" style={{ minHeight:"100vh", display:"flex", alignItems:"center", position:"relative", overflow:"hidden", paddingTop:showBanner ? 120 : 80 }}>
           <div style={{ position:"absolute", top:"20%", right:"-8%", width:500, height:500, background:"radial-gradient(circle, #c9a84c09 0%, transparent 70%)", pointerEvents:"none" }} aria-hidden="true" />
-          <div style={{ maxWidth:1100, margin:"0 auto", padding:"80px 24px", width:"100%" }}>
-            <div style={{ maxWidth:700 }}>
+          <div style={{ maxWidth:900, margin:"0 auto", padding:"80px 24px", width:"100%", textAlign:"center" }}>
 
               <div style={{ marginBottom:28 }}>
                 <div style={{ fontSize:15, fontWeight:700, color:"#e8edf2" }}>דן אלון, עו״ד נזיקין</div>
@@ -260,7 +259,7 @@ export default function App() {
               </h1>
               <p style={{ fontSize:18, color:"#7a8fa5", marginBottom:32, lineHeight:1.6 }}>גלה כמה — תוך 60 שניות, בחינם.</p>
 
-              <div style={{ display:"flex", flexDirection:"column", gap:10, marginBottom:32, maxWidth:480 }}>
+              <div style={{ display:"inline-flex", flexDirection:"column", gap:10, marginBottom:32, textAlign:"right" }}>
                 {[
                   { icon:"🔒", text:"בדיקה אנונימית: ללא צורך בשם או תעודת זהות." },
                   { icon:"🤫", text:"דיסקרטיות מלאה: המידע אינו נשמר במערכת ואינו מתועד." },
@@ -273,10 +272,9 @@ export default function App() {
                   </div>
                 ))}
               </div>
-              <div style={{ display:"flex", gap:14, flexWrap:"wrap", marginBottom:40 }}>
+              <div style={{ display:"flex", gap:14, flexWrap:"wrap", marginBottom:40, justifyContent:"center" }}>
                 <button style={{ ...gBtn, fontSize:16, padding:"16px 32px" }} onClick={openBot} aria-label="בדיקת גובה הפיצוי">💬 לבדיקת גובה הפיצוי שלי</button>
               </div>
-            </div>
           </div>
         </section>
 
@@ -458,6 +456,37 @@ export default function App() {
           האתר אינו מהווה ייעוץ משפטי. כל מקרה נבחן באופן אישי. | שיחות הבוט אינן נשמרות ואינן מתועדות בשום אופן.
         </p>
       </footer>
+
+      {/* Floating bot button */}
+      {!showBot && (
+        <button
+          onClick={() => setShowBot(true)}
+          style={{
+            position: "fixed",
+            bottom: 100,
+            left: 24,
+            width: 64,
+            height: 64,
+            borderRadius: "50%",
+            background: "linear-gradient(135deg, #c9a84c, #f0d080)",
+            color: "#080d18",
+            fontSize: 26,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            cursor: "pointer",
+            boxShadow: "0 4px 20px rgba(201,168,76,0.6)",
+            zIndex: 1000,
+            border: "none",
+            flexDirection: "column",
+            gap: 2
+          }}
+          aria-label="פתח מחשבון פיצויים"
+        >
+          🧮
+          <span style={{ fontSize: 9, fontWeight: 800 }}>חשב פיצוי</span>
+        </button>
+      )}
 
       {/* WhatsApp float */}
       <button className="wa-btn" onClick={() => { if(typeof window.gtag==='function'){window.gtag('event','whatsapp_click',{'event_category':'engagement','event_label':'whatsapp_button'});} window.dataLayer=window.dataLayer||[]; window.dataLayer.push({event:'whatsapp_click'}); window.open(`https://wa.me/${WA}`,"_blank"); }} aria-label="פתח שיחת וואטסאפ">💬</button>
