@@ -3,18 +3,14 @@ import { useState, useRef, useEffect } from "react";
 const WA = "972544338212";
 
 // ═══ State Machine: Nifgati Bot ═══
-// STATE 1: Entry greeting (auto)
-// STATE 2: Role — driver / passenger / pedestrian
-// STATE 3: Medical — ER visit?
-// STATE 4: Context — work commute or personal?
-// STATE 5: Age → Summary + WhatsApp CTA
-
-const STATE_ENTRY = 1;
-const STATE_ROLE = 2;
-const STATE_MEDICAL = 3;
-const STATE_CONTEXT = 4;
-const STATE_AGE = 5;
-const STATE_DONE = 6;
+const STATE_ROLE = 1;
+const STATE_MEDICAL = 2;
+const STATE_CONTEXT = 3;
+const STATE_INJURY = 4;
+const STATE_DISABILITY = 5;
+const STATE_MONTHS_OFF = 6;
+const STATE_AGE = 7;
+const STATE_DONE = 8;
 
 const ROLE_QUESTION = "חוק הפיצויים לנפגעי תאונות דרכים בישראל מבטיח פיצוי כמעט בכל מקרה של פציעה. זה לא תלוי בזה מי אשם.\n\nהיית הנהג, נוסע, או הולך רגל בתאונה?";
 
@@ -29,7 +25,54 @@ const NO_RE = /לא|אף|בלי/i;
 const CONTEXT_QUESTION = "התאונה קרתה בדרך לעבודה, בחזרה ממנה, או בשעות פנויות?";
 const WORK_RE = /עבודה|בדרך ל|בחזרה מ|עובד|נסיעה לעבודה|משמרת/i;
 
+const INJURY_QUESTION = "מה סוג הפגיעה? (למשל: צליפת שוט, שבר, פריצת דיסק, חבלת ראש, PTSD, פגיעה רכה)";
+const DISABILITY_QUESTION = "האם נקבעו לך אחוזי נכות? אם כן — כמה אחוז? אם לא — כתוב ״לא יודע״.";
+const MONTHS_OFF_QUESTION = "כמה חודשים לא עבדת (או צפוי שלא תעבוד) בגלל התאונה?";
 const AGE_QUESTION = "בן כמה אתה בערך?";
+
+// ── Injury → estimated disability mapping ──
+function estimateDisability(injuryText) {
+  const t = (injuryText || "").toLowerCase();
+  if (/פריצת דיסק|דיסק|עמוד שדרה/.test(t)) return 15;
+  if (/שבר מרוסק|שבר מורכב|שברים/.test(t)) return 15;
+  if (/שבר/.test(t)) return 10;
+  if (/ptsd|נפשי|טראומ|חרדה|דיכאון/.test(t)) return 15;
+  if (/חבלת ראש|ראש|מוח/.test(t)) return 20;
+  if (/צליפת שוט|צוואר|whiplash/.test(t)) return 5;
+  if (/קרע|רצועה|מניסקוס|ברך/.test(t)) return 10;
+  if (/כתף|ירך|אגן/.test(t)) return 10;
+  if (/פגיעה רכה|חבורות|שריטות/.test(t)) return 5;
+  return 10; // default
+}
+
+// ── Paltad-based calculation ──
+function calculateCompensation(data) {
+  const ageNum = parseInt(data.age) || 30;
+  const disability = data.disability || 10;
+  const monthsOff = data.monthsOff || 3;
+  const salary = 11000; // default average salary
+
+  // Age factor: younger = higher multiplier (more years of suffering)
+  const ageFactor = ageNum <= 25 ? 1.3 : ageNum <= 40 ? 1.1 : ageNum <= 55 ? 1.0 : 0.85;
+
+  // Pain & suffering (paltad formula base)
+  const painSuffering = (disability / 100) * ageFactor * 182000;
+
+  // Lost wages
+  const lostWages = salary * monthsOff;
+
+  // Work capacity loss for significant disability
+  const futureCapacity = disability >= 10 ? (disability / 100) * salary * 12 * 3 : 0;
+
+  // Medical expenses estimate
+  const medicalExpenses = disability >= 10 ? 15000 : 5000;
+
+  const base = painSuffering + lostWages + futureCapacity + medicalExpenses;
+  const min = Math.round(base * 0.7);
+  const max = Math.round(base * 1.3);
+
+  return { min, max };
+}
 
 function getUrlParams() {
   const params = new URLSearchParams(window.location.search);
@@ -115,16 +158,14 @@ function contextResponse(isWork) {
     : "בסדר, אתה תתבוע את חברת הביטוח של הרכב.";
 }
 
-function buildSummary(data) {
-  const { role, medical, isWork, age } = data;
+function buildSummary(data, calc) {
+  const { role, medical, isWork, age, injury, disability, monthsOff } = data;
   const ageNum = parseInt(age) || 30;
-  const min = 50000;
-  const max = 250000;
   const roleLabel = role === "driver" ? "נהג" : role === "passenger" ? "נוסע" : "הולך רגל";
   const contextLabel = isWork ? "תאונה בדרך לעבודה (זכאות כפולה — ביטוח + ביטוח לאומי)" : "תאונה פרטית";
   const medLabel = medical ? "פנה למיון — ראיה רפואית חזקה" : "לא פנה למיון";
 
-  return `סיכום:\n• תפקיד: ${roleLabel}\n• ${medLabel}\n• ${contextLabel}\n• גיל: ${ageNum}\n\nהערכת פיצוי ראשונית: ₪${min.toLocaleString("he-IL")} – ₪${max.toLocaleString("he-IL")}\n\nזוהי הערכה ראשונית בלבד. לחץ על הכפתור למטה כדי לדבר עם עו"ד דן אלון בוואטסאפ ולקבל הערכה מדויקת.`;
+  return `סיכום:\n• תפקיד: ${roleLabel}\n• ${medLabel}\n• ${contextLabel}\n• פגיעה: ${injury || "לא צוין"}\n• אחוזי נכות: ${disability}%\n• חודשי היעדרות: ${monthsOff}\n• גיל: ${ageNum}\n\nהערכת פיצוי ראשונית: ₪${calc.min.toLocaleString("he-IL")} – ₪${calc.max.toLocaleString("he-IL")}\n\nזוהי הערכה ראשונית בלבד לפי נוסחת הפלת״ד. לחץ על הכפתור למטה כדי לדבר עם עו"ד דן אלון בוואטסאפ ולקבל הערכה מדויקת.`;
 }
 
 
@@ -136,7 +177,7 @@ export default function useChat() {
   const [err, setErr] = useState("");
   const [showReferral, setShowReferral] = useState(false);
   const [state, setState] = useState(STATE_ROLE);
-  const [data, setData] = useState({ role: null, medical: null, isWork: null, age: null });
+  const [data, setData] = useState({ role: null, medical: null, isWork: null, injury: null, disability: null, monthsOff: null, age: null });
   const endRef = useRef(null);
 
   useEffect(() => { endRef.current?.scrollIntoView({ behavior: "smooth" }); }, [msgs, load]);
@@ -149,7 +190,7 @@ export default function useChat() {
     setErr("");
     setShowReferral(false);
     setState(STATE_ROLE);
-    setData({ role: null, medical: null, isWork: null, age: null });
+    setData({ role: null, medical: null, isWork: null, injury: null, disability: null, monthsOff: null, age: null });
   }
 
   function send(txt) {
@@ -186,24 +227,54 @@ export default function useChat() {
       const isWork = WORK_RE.test(txt);
       newData.isWork = isWork;
       botMsgs.push({ role: "assistant", content: contextResponse(isWork) });
-      botMsgs.push({ role: "assistant", content: AGE_QUESTION });
-      setState(STATE_AGE);
+      botMsgs.push({ role: "assistant", content: INJURY_QUESTION });
+      setState(STATE_INJURY);
+    } else if (state === STATE_INJURY) {
+      newData.injury = txt.trim();
+      botMsgs.push({ role: "assistant", content: `הבנתי — ${txt.trim()}. חשוב לתעד את זה.` });
+      botMsgs.push({ role: "assistant", content: DISABILITY_QUESTION });
+      setState(STATE_DISABILITY);
+    } else if (state === STATE_DISABILITY) {
+      const pctMatch = txt.match(/(\d+)\s*%?/);
+      const dontKnow = /לא יודע|לא נקבע|אין|טרם|עדיין לא/.test(txt);
+      if (pctMatch) {
+        newData.disability = Math.min(parseInt(pctMatch[1]), 100);
+        botMsgs.push({ role: "assistant", content: `${newData.disability}% נכות — זה משמעותי מבחינת הפיצוי.` });
+      } else if (dontKnow) {
+        newData.disability = estimateDisability(newData.injury);
+        botMsgs.push({ role: "assistant", content: `הבנתי. לפי סוג הפגיעה אני מעריך בערך ${newData.disability}% נכות לצורך החישוב. עו״ד אלון יוכל לתת הערכה מדויקת יותר.` });
+      } else {
+        botMsgs.push({ role: "assistant", content: "כמה אחוזי נכות נקבעו לך? כתוב מספר, או ״לא יודע״." });
+        setData(newData);
+        setMsgs(p => [...p, userMsg, ...botMsgs]);
+        return;
+      }
+      botMsgs.push({ role: "assistant", content: MONTHS_OFF_QUESTION });
+      setState(STATE_MONTHS_OFF);
+    } else if (state === STATE_MONTHS_OFF) {
+      const monthMatch = txt.match(/(\d+)/);
+      if (!monthMatch) {
+        botMsgs.push({ role: "assistant", content: "כמה חודשים לא עבדת? כתוב מספר (למשל: 3)." });
+      } else {
+        newData.monthsOff = parseInt(monthMatch[1]);
+        botMsgs.push({ role: "assistant", content: `${newData.monthsOff} חודשים — זה ייכלל בחישוב הפסדי השכר.` });
+        botMsgs.push({ role: "assistant", content: AGE_QUESTION });
+        setState(STATE_AGE);
+      }
     } else if (state === STATE_AGE) {
       const ageMatch = txt.match(/(\d+)/);
       if (!ageMatch) {
         botMsgs.push({ role: "assistant", content: "בן כמה אתה? כתוב מספר." });
       } else {
         newData.age = ageMatch[1];
-        const summary = buildSummary(newData);
+        const c = calculateCompensation(newData);
+        const summary = buildSummary(newData, c);
         botMsgs.push({ role: "assistant", content: summary });
-        const c = { min: 50000, max: 250000 };
         setCalc(c);
         setShowReferral(true);
         setState(STATE_DONE);
-        console.log('DEBUG: About to fire calculation_complete', { min: c.min, max: c.max });
         window.dataLayer = window.dataLayer || [];
         window.dataLayer.push({ event: "calculation_complete", value_min: c.min, value_max: c.max });
-        console.log('DEBUG: calculation_complete fired');
       }
     } else if (state === STATE_DONE) {
       botMsgs.push({ role: "assistant", content: "לחץ על הכפתור למטה כדי לשוחח עם עו\"ד דן אלון בוואטסאפ." });
@@ -232,8 +303,9 @@ export default function useChat() {
   }
 
   // WhatsApp message
+  const roleLabel = data.role === "driver" ? "נהג" : data.role === "passenger" ? "נוסע" : "הולך רגל";
   const waMsg = calc
-    ? `שלום, הגעתי מהבוט של ניפגעתי.\nתפקיד: ${data.role === "driver" ? "נהג" : data.role === "passenger" ? "נוסע" : "הולך רגל"}\nגיל: ${data.age}\nתאונה: ${data.isWork ? "בדרך לעבודה" : "פרטית"}\nהערכת פיצוי: ₪50,000–₪250,000\nאשמח לבדיקה.`
+    ? `שלום, הגעתי מהבוט של ניפגעתי.\nתפקיד: ${roleLabel}\nפגיעה: ${data.injury || "לא צוין"}\nנכות: ${data.disability || "לא ידוע"}%\nגיל: ${data.age}\nתאונה: ${data.isWork ? "בדרך לעבודה" : "פרטית"}\nהערכת פיצוי: ₪${calc.min.toLocaleString("he-IL")}–₪${calc.max.toLocaleString("he-IL")}\nאשמח לבדיקה.`
     : "שלום";
 
   return {
