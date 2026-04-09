@@ -157,6 +157,37 @@ export default function LandingPage({ pageTitle, pageSubtitle, heroEmoji, bullet
         </p>
       </footer>
 
+      {/* Floating bot button */}
+      {!showBot && (
+        <button
+          onClick={() => setShowBot(true)}
+          style={{
+            position: "fixed",
+            bottom: 100,
+            left: 24,
+            width: 64,
+            height: 64,
+            borderRadius: "50%",
+            background: "linear-gradient(135deg, #c9a84c, #f0d080)",
+            color: "#080d18",
+            fontSize: 26,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            cursor: "pointer",
+            boxShadow: "0 4px 20px rgba(201,168,76,0.6)",
+            zIndex: 1000,
+            border: "none",
+            flexDirection: "column",
+            gap: 2
+          }}
+          aria-label="פתח מחשבון פיצויים"
+        >
+          🧮
+          <span style={{ fontSize: 9, fontWeight: 800 }}>חשב פיצוי</span>
+        </button>
+      )}
+
       {/* WhatsApp float */}
       <button className="wa-btn" onClick={() => window.open(`https://wa.me/${WA}`, "_blank")} aria-label="פתח שיחת וואטסאפ">💬</button>
 
