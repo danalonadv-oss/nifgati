@@ -200,8 +200,10 @@ export default function useChat() {
         setCalc(c);
         setShowReferral(true);
         setState(STATE_DONE);
+        console.log('DEBUG: About to fire calculation_complete', { min: c.min, max: c.max });
         window.dataLayer = window.dataLayer || [];
         window.dataLayer.push({ event: "calculation_complete", value_min: c.min, value_max: c.max });
+        console.log('DEBUG: calculation_complete fired');
       }
     } else if (state === STATE_DONE) {
       botMsgs.push({ role: "assistant", content: "לחץ על הכפתור למטה כדי לשוחח עם עו\"ד דן אלון בוואטסאפ." });
