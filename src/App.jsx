@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, lazy, Suspense } from "react";
+﻿import { useState, useEffect, useRef, lazy, Suspense } from "react";
 const Bot = lazy(() => import("./Bot.jsx"));
 
 // ╔══════════════════════════════════════╗
@@ -48,7 +48,7 @@ function FAQItem({ q, a }) {
 export default function App() {
   const [scrolled, setScrolled]       = useState(false);
   const [showBot, setShowBot]         = useState(false);
-  const [cookie, setCookie]           = useState(() => localStorage.getItem("nifgati_consent") === "granted");
+  const [cookie, setCookie]           = useState(() => sessionStorage.getItem("nifgati_consent") === "granted");
   const [showBanner, setShowBanner]   = useState(true);
   const [showExit, setShowExit]       = useState(false);
   const botOpenedRef = useRef(false);
@@ -490,13 +490,13 @@ export default function App() {
       )}
 
       {/* WhatsApp float */}
-      <button className="wa-btn" onClick={() => { if(typeof window.gtag==='function'){window.gtag('event','whatsapp_click',{'event_category':'engagement','event_label':'whatsapp_button'});} window.dataLayer=window.dataLayer||[]; window.dataLayer.push({event:'whatsapp_click'}); window.open(`https://wa.me/${WA}`,"_blank"); }} aria-label="פתח שיחת וואטסאפ">💬</button>
+      <button className="wa-btn" onClick={() => { if(typeof window.gtag==='function'){window.gtag('event','whatsapp_click',{'event_category':'engagement','event_label':'whatsapp_button'});} window.dataLayer=window.dataLayer||[]; window.dataLayer.push({event:'whatsapp_click'}); window.open(`https://wa.me/${WA}`,"_blank","noopener,noreferrer"); }} aria-label="פתח שיחת וואטסאפ">💬</button>
 
       {/* Cookie Banner */}
       {!cookie && (
         <div style={{ position:"fixed", bottom:0, right:0, left:0, background:"#0a0f1eee", borderTop:"1px solid #1e2d4a22", padding:"12px 16px", display:"flex", alignItems:"center", justifyContent:"space-between", gap:16, zIndex:98, fontSize:12, color:"#ffffff" }}>
           <span>האתר משתמש בעוגיות Remarketing בלבד. שיחות הבוט אינן נשמרות. <a href="/privacy" style={{ color:"#ffffff", textDecoration:"underline" }}>פרטיות</a></span>
-          <button style={{ background:"#c9a84c22", color:"#c9a84c", border:"1px solid #c9a84c44", borderRadius:10, fontFamily:"inherit", fontSize:14, padding:"14px 28px", cursor:"pointer", flexShrink:0, minHeight:48, minWidth:48 }} onClick={() => { setCookie(true); localStorage.setItem("nifgati_consent","granted"); window.dataLayer = window.dataLayer || []; window.dataLayer.push({event:'consent_update','analytics_storage':'granted','ad_storage':'granted'}); }}>אישור ✓</button>
+          <button style={{ background:"#c9a84c22", color:"#c9a84c", border:"1px solid #c9a84c44", borderRadius:10, fontFamily:"inherit", fontSize:14, padding:"14px 28px", cursor:"pointer", flexShrink:0, minHeight:48, minWidth:48 }} onClick={() => { setCookie(true); sessionStorage.setItem("nifgati_consent","granted"); window.dataLayer = window.dataLayer || []; window.dataLayer.push({event:'consent_update','analytics_storage':'granted','ad_storage':'granted'}); }}>אישור ✓</button>
         </div>
       )}
 

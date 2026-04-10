@@ -1,4 +1,4 @@
-// api/claude.js — שרת ביניים מאובטח
+﻿// api/claude.js — שרת ביניים מאובטח
 // ═══════════════════════════════════════════
 import { SYSTEM, MY_NAME, MY_TITLE } from "../src/constants/systemPrompt.js";
 // אבטחה:
@@ -224,8 +224,8 @@ export default async function handler(req, res) {
         if (/too large|size/i.test(hint)) return res.status(400).json({ error: "הקובץ גדול מדי — נסה קובץ קטן יותר." });
         if (/media_type|invalid.*type/i.test(hint)) return res.status(400).json({ error: "סוג קובץ לא נתמך — נסה PDF או תמונה." });
         if (/base64|decode|data/i.test(hint)) return res.status(400).json({ error: "שגיאה בקריאת הקובץ — נסה להעלות שוב." });
-        // Unknown 400 — show first 80 chars of hint for debugging
-        return res.status(400).json({ error: `שגיאה: ${hint.slice(0,80) || "בעיה לא ידועה"} — נסה שוב.` });
+        // Unknown 400 — generic error (do not expose Anthropic details)
+        return res.status(400).json({ error: "\u05E9\u05D2\u05D9\u05D0\u05D4 \u05D1\u05E2\u05D9\u05D1\u05D5\u05D3 \u05D4\u05D1\u05E7\u05E9\u05D4 \u2014 \u05E0\u05E1\u05D4 \u05E9\u05D5\u05D1." });
       }
       return res.status(502).json({ error: "שגיאת שרת — נסה שוב." });
     }

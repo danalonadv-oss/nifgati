@@ -1,4 +1,4 @@
-export default function Privacy() {
+﻿export default function Privacy() {
   const G = "#c9a84c";
   const s = { fontSize:15, lineHeight:"1.8", color:"#b0bec5", marginBottom:8 };
   return (
@@ -17,7 +17,7 @@ export default function Privacy() {
         <h2>2. מדיניות אי-איסוף מידע</h2>
         <p style={s}><strong>האתר אינו אוסף, אינו שומר ואינו מתעד מידע אישי של משתמשים.</strong></p>
         <ul>
-          <li><strong>שיחות הבוט:</strong> שיחות עם בוט הפיצויים <strong>אינן נשמרות ואינן מתועדות בשום אופן</strong> — לא בשרתינו ולא בשום מאגר מידע. השיחה מועברת לעיבוד בזמן אמת דרך Claude API של חברת Anthropic ונמחקת מיד. ראה <a href="https://www.anthropic.com/privacy" target="_blank" rel="noreferrer">מדיניות הפרטיות של Anthropic</a>.</li>
+          <li><strong>שיחות הבוט:</strong> שיחות עם בוט הפיצויים <strong>אינן נשמרות ואינן מתועדות בשום אופן</strong> — לא בשרתינו ולא בשום מאגר מידע. השיחה מועברת לעיבוד בזמן אמת דרך Claude API של חברת Anthropic ונמחקת מיד. ראה <a href="https://www.anthropic.com/privacy" target="_blank" rel="noopener noreferrer">מדיניות הפרטיות של Anthropic</a>.</li>
           <li><strong>טפסים / וואטסאפ:</strong> מידע שנמסר ביוזמתך (שם, טלפון) נשמר אצלנו לצורך טיפול בפנייה בלבד.</li>
           <li><strong>עוגיות:</strong> האתר משתמש בעוגיות לצרכי <strong>פרסום ממוקד (Remarketing) בלבד</strong> — כלומר הצגת מודעות רלוונטיות למי שביקר באתר. אין שימוש בעוגיות לצורך איסוף מידע אישי.</li>
         </ul>
@@ -29,7 +29,7 @@ export default function Privacy() {
           <li><strong>Google Ads</strong> — Remarketing ומעקב המרות בלבד</li>
         </ul>
         <p style={s}><strong>אין שימוש בעוגיות לאיסוף מידע אישי, זיהוי משתמשים, או שמירת היסטוריית שיחות.</strong></p>
-        <p style={s}>לביטול עוגיות: <a href="https://tools.google.com/dlpage/gaoptout" target="_blank" rel="noreferrer">כלי הביטול של Google</a> | הגדרות הדפדפן שלך.</p>
+        <p style={s}>לביטול עוגיות: <a href="https://tools.google.com/dlpage/gaoptout" target="_blank" rel="noopener noreferrer">כלי הביטול של Google</a> | הגדרות הדפדפן שלך.</p>
 
         <h2>4. שיתוף מידע עם צדדים שלישיים</h2>
         <p style={s}>אנחנו <strong>לא מוכרים ולא משתפים</strong> מידע אישי. מידע יועבר רק:</p>
