@@ -70,7 +70,7 @@ export default function LandingPage({ pageTitle, pageSubtitle, heroEmoji, bullet
       <header role="banner" style={{ position:"fixed", top:showBanner ? 40 : 0, right:0, left:0, zIndex:100, background:scrolled ? "#080d18f0" : "transparent", backdropFilter:scrolled ? "blur(12px)" : "none", borderBottom:scrolled ? "1px solid #1e2d4a" : "1px solid transparent", transition:"all .3s", padding:"0 24px" }}>
         <div style={{ maxWidth:1100, margin:"0 auto", height:64, display:"flex", alignItems:"center", justifyContent:"space-between" }}>
           <a href="/" aria-label="nifgati — עמוד בית" style={{ display:"flex", alignItems:"center", gap:10 }}>
-            <div style={{ background:G, color:"#060a12", fontWeight:900, fontSize:18, width:38, height:38, borderRadius:10, display:"flex", alignItems:"center", justifyContent:"center" }} aria-hidden="true">נ</div>
+            <img src="/logo.png" alt="nifgati" style={{ height:36, width:"auto" }} />
             <div><div style={{ fontWeight:900, fontSize:16, color:"#fff", lineHeight:1.1 }}>nifgati</div><div style={{ fontSize:10, color:"#7a8fa5", letterSpacing:1 }}>נפגעתי</div></div>
           </a>
           <div style={{ display:"flex", alignItems:"center", gap:12 }}>
