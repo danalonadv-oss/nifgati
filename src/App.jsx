@@ -229,7 +229,7 @@ export default function App() {
       <header role="banner" style={{ position:"fixed", top:showBanner ? 40 : 0, right:0, left:0, zIndex:100, background:scrolled ? "#080d18f0" : "transparent", backdropFilter:scrolled ? "blur(12px)" : "none", borderBottom:scrolled ? "1px solid #1e2d4a" : "1px solid transparent", transition:"all .3s", padding:"0 24px" }}>
         <div style={{ maxWidth:1100, margin:"0 auto", minHeight:80, display:"flex", alignItems:"center", justifyContent:"space-between" }}>
           <a href="/" aria-label="ניפגעתי — עמוד בית" style={{ display:"flex", alignItems:"center" }}>
-            <img src="/logo.png" alt="nifgati" style={{ height:52, width:"auto" }} />
+            <img src="/logo.png" alt="nifgati" style={{ height:40, width:"auto", borderRadius:8 }} />
           </a>
           <nav role="navigation" aria-label="ניווט ראשי" style={{ display:"flex", gap:28, alignItems:"center" }} className="hm">
             {nav.map(n => <a key={n.l} href={n.h} className="nl">{n.l}</a>)}
