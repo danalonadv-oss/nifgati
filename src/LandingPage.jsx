@@ -100,26 +100,31 @@ function getPersonalizedOpening(pageSlug, utmTerm) {
   return 'שלום 👋 נפגעת בתאונה? ספר לי מה קרה ואחשב כמה פיצוי מגיע לך.';
 }
 
+// Read utm_term synchronously so it's available on the very first render
+// (before Bot mounts and initializes its useState with the opening message)
+function readUtmTerm() {
+  const raw = new URLSearchParams(window.location.search).get("utm_term");
+  if (!raw) return "";
+  return decodeURIComponent(raw.replace(/\+/g, " ")).trim();
+}
+
 export default function LandingPage({ pageTitle, pageSubtitle, heroEmoji, bullets, ctaText, pageSlug, bannerText, socialProofAmount, socialProofLabel }) {
+  const utmTerm = readUtmTerm();
+
   const [scrolled, setScrolled]     = useState(false);
   const [cookie, setCookie]         = useState(false);
   const [showBanner, setShowBanner] = useState(true);
   const [isMobile, setIsMobile]     = useState(window.innerWidth <= 768);
 
-  const [dynamicTitle, setDynamicTitle] = useState(pageTitle);
-  const [utmTerm, setUtmTerm] = useState("");
+  const [dynamicTitle] = useState(() => {
+    if (utmTerm.length > 0 && utmTerm.length <= 40) {
+      return `נפגעת ב${utmTerm}? מגיע לך פיצוי.`;
+    }
+    return pageTitle;
+  });
 
   useEffect(() => {
     captureGclid();
-    const params = new URLSearchParams(window.location.search);
-    const raw = params.get("utm_term");
-    if (raw) {
-      const decoded = decodeURIComponent(raw.replace(/\+/g, " ")).trim();
-      setUtmTerm(decoded);
-      if (decoded.length > 0 && decoded.length <= 40) {
-        setDynamicTitle(`נפגעת ב${decoded}? מגיע לך פיצוי.`);
-      }
-    }
 
     // Analytics: inline bot loaded
     window.dataLayer = window.dataLayer || [];
@@ -127,7 +132,7 @@ export default function LandingPage({ pageTitle, pageSubtitle, heroEmoji, bullet
       event: 'bot_opened',
       bot_trigger: 'inline_page_load',
       page_slug: pageSlug || '',
-      utm_term: raw || '',
+      utm_term: utmTerm || '',
     });
   }, []);
 
