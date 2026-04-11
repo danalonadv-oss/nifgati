@@ -266,10 +266,14 @@ export default function LandingPage({ pageTitle, pageSubtitle, heroEmoji, bullet
       ],
     };
 
-    const faqItems = faqSchemas[pageSlug];
-    let faqSchema = null;
-    if (faqItems) {
-      faqSchema = {
+    const defaultFaq = [
+      { q: "כמה עולה ייצוג משפטי?", a: "שכר טרחה על בסיס הצלחה בלבד — 8%-13% מהפיצוי. אין תשלום מראש." },
+      { q: "כמה זמן לוקח לקבל פיצוי?", a: "בממוצע 6-18 חודשים, תלוי במורכבות התיק." },
+      { q: "האם מגיע לי פיצוי גם בתאונה קלה?", a: "כן. גם ללא שברים מגיע פיצוי על כאב וסבל." }
+    ];
+
+    const faqItems = faqSchemas[pageSlug] || defaultFaq;
+    const faqSchema = {
         "@context": "https://schema.org",
         "@type": "FAQPage",
         "mainEntity": faqItems.map(({ q, a }) => ({
@@ -278,10 +282,29 @@ export default function LandingPage({ pageTitle, pageSubtitle, heroEmoji, bullet
           "acceptedAnswer": { "@type": "Answer", "text": a }
         }))
       };
-    }
+
+    const breadcrumbSchema = {
+      "@context": "https://schema.org",
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        {
+          "@type": "ListItem",
+          "position": 1,
+          "name": "דף הבית",
+          "item": "https://nifgati.co.il"
+        },
+        {
+          "@type": "ListItem",
+          "position": 2,
+          "name": pageTitle,
+          "item": `https://nifgati.co.il/${pageSlug}`
+        }
+      ]
+    };
 
     const schemaId = `nifgati-lp-schema-${pageSlug}`;
     const faqId = `nifgati-lp-faq-${pageSlug}`;
+    const breadcrumbId = `nifgati-lp-breadcrumb-${pageSlug}`;
     if (!document.getElementById(schemaId)) {
       const el = document.createElement("script");
       el.type = "application/ld+json";
@@ -289,17 +312,25 @@ export default function LandingPage({ pageTitle, pageSubtitle, heroEmoji, bullet
       el.textContent = JSON.stringify(schema);
       document.head.appendChild(el);
     }
-    if (faqSchema && !document.getElementById(faqId)) {
+    if (!document.getElementById(faqId)) {
       const el = document.createElement("script");
       el.type = "application/ld+json";
       el.id = faqId;
       el.textContent = JSON.stringify(faqSchema);
       document.head.appendChild(el);
     }
+    if (!document.getElementById(breadcrumbId)) {
+      const el = document.createElement("script");
+      el.type = "application/ld+json";
+      el.id = breadcrumbId;
+      el.textContent = JSON.stringify(breadcrumbSchema);
+      document.head.appendChild(el);
+    }
 
     return () => {
       document.getElementById(schemaId)?.remove();
       document.getElementById(faqId)?.remove();
+      document.getElementById(breadcrumbId)?.remove();
     };
   }, [pageSlug]);
 
