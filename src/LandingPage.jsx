@@ -77,7 +77,7 @@ export default function LandingPage({ pageTitle, pageSubtitle, heroEmoji, bullet
       <header role="banner" style={{ position:"fixed", top:showBanner ? 40 : 0, right:0, left:0, zIndex:100, background:scrolled ? "#080d18f0" : "transparent", backdropFilter:scrolled ? "blur(12px)" : "none", borderBottom:scrolled ? "1px solid #1e2d4a" : "1px solid transparent", transition:"all .3s", padding: isMobile ? "0 8px" : "0 24px" }}>
         <div style={{ maxWidth:1100, margin:"0 auto", height: isMobile ? 52 : 64, display:"flex", alignItems:"center", justifyContent:"space-between" }}>
           <a href="/" aria-label="nifgati — עמוד בית" style={{ display:"flex", alignItems:"center", gap:10 }}>
-            <img src="/logo.png" alt="nifgati" style={{ height: isMobile ? 32 : 68, width:"auto", objectFit:"contain" }} />
+            <picture><source srcSet="/logo.webp" type="image/webp" /><img src="/logo.png" alt="nifgati" width={isMobile ? 100 : 225} height={isMobile ? 14 : 56} style={{ height: isMobile ? 28 : 56, width:"auto", objectFit:"contain" }} /></picture>
           </a>
           <div style={{ display:"flex", alignItems:"center", gap:12 }}>
             <a href="tel:0544338212" aria-label="התקשר אלינו" style={{ display:"inline-flex", alignItems:"center", justifyContent:"center", width: isMobile ? 36 : 48, height: isMobile ? 36 : 48, background:"#22c55e", borderRadius: isMobile ? 10 : 14, color:"#fff", fontSize: isMobile ? 17 : 22, textDecoration:"none", flexShrink:0, boxShadow:"0 2px 8px #22c55e55" }}>📞</a>
