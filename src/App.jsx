@@ -219,9 +219,9 @@ export default function App() {
 
       {/* URGENCY BANNER */}
       {showBanner && (
-        <div style={{ position:"fixed", top:0, right:0, left:0, zIndex:110, background:G, color:"#060a12", height:40, display:"flex", alignItems:"center", justifyContent:"center", fontSize:14, fontWeight:700, gap:8, paddingInlineStart:16, paddingInlineEnd:16 }}>
-          <span>תביעות פלת״ד — חשב ודע מיד כמה מגיע לך</span>
-          <button onClick={() => setShowBanner(false)} aria-label="סגור באנר" style={{ background:"transparent", border:"none", color:"#060a12", fontSize:18, cursor:"pointer", lineHeight:1, marginInlineStart:8, fontWeight:900 }}>✕</button>
+        <div style={{ position:"fixed", top:0, right:0, left:0, width:"100%", boxSizing:"border-box", zIndex:110, background:G, color:"#060a12", height:40, display:"flex", alignItems:"center", justifyContent:"space-between", fontSize:14, fontWeight:700, padding:"0 12px" }}>
+          <span style={{ flex:1, textAlign:"center" }}>תביעות פלת״ד — חשב ודע מיד כמה מגיע לך</span>
+          <button onClick={() => setShowBanner(false)} aria-label="סגור באנר" style={{ background:"transparent", border:"none", color:"#060a12", fontSize:18, cursor:"pointer", lineHeight:1, fontWeight:900, flexShrink:0 }}>✕</button>
         </div>
       )}
 
