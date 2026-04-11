@@ -300,13 +300,39 @@ export default function useChat() {
         conversation,
       }),
     }).catch(() => {});
+
+    // GA4 whatsapp_click with lead details
+    const roleLabel = data.role === "driver" ? "נהג" : data.role === "passenger" ? "נוסע" : data.role === "pedestrian" ? "הולך רגל" : "";
+    const params = {
+      event_category: "engagement",
+      event_label: "whatsapp_button",
+      accident_type: roleLabel || undefined,
+      was_hospitalized: data.medical != null ? (data.medical ? "כן" : "לא") : undefined,
+      compensation_estimate: calc ? `₪${calc.min.toLocaleString("he-IL")}–₪${calc.max.toLocaleString("he-IL")}` : undefined,
+    };
+    if (typeof window.gtag === "function") {
+      window.gtag("event", "whatsapp_click", params);
+    }
+    window.dataLayer = window.dataLayer || [];
+    window.dataLayer.push({ event: "whatsapp_click", ...params });
   }
 
-  // WhatsApp message
-  const roleLabel = data.role === "driver" ? "נהג" : data.role === "passenger" ? "נוסע" : "הולך רגל";
-  const waMsg = calc
-    ? `שלום, הגעתי מהבוט של ניפגעתי.\nתפקיד: ${roleLabel}\nפגיעה: ${data.injury || "לא צוין"}\nנכות: ${data.disability || "לא ידוע"}%\nגיל: ${data.age}\nתאונה: ${data.isWork ? "בדרך לעבודה" : "פרטית"}\nהערכת פיצוי: ₪${calc.min.toLocaleString("he-IL")}–₪${calc.max.toLocaleString("he-IL")}\nאשמח לבדיקה.`
-    : "שלום";
+  // WhatsApp pre-filled message with all lead details
+  const roleLabelMsg = data.role === "driver" ? "נהג" : data.role === "passenger" ? "נוסע" : data.role === "pedestrian" ? "הולך רגל" : "";
+  let waMsg = "שלום";
+  if (data.role) {
+    const lines = ["שלום דן, פנייה חדשה מהאתר:"];
+    if (data.name) lines.push(`שם: ${data.name}`);
+    lines.push(`סוג מעורבות: ${roleLabelMsg}`);
+    if (data.medical != null) lines.push(`אשפוז: ${data.medical ? "כן" : "לא"}`);
+    if (data.isWork != null) lines.push(`תאונת עבודה: ${data.isWork ? "כן" : "לא"}`);
+    if (data.age) lines.push(`גיל: ${data.age}`);
+    if (data.injury) lines.push(`פגיעה: ${data.injury}`);
+    if (data.disability != null) lines.push(`נכות: ${data.disability}%`);
+    if (calc) lines.push(`הערכת פיצוי: ₪${calc.min.toLocaleString("he-IL")} – ₪${calc.max.toLocaleString("he-IL")}`);
+    lines.push("אשמח לבדיקה מעמיקה.");
+    waMsg = lines.join("\n");
+  }
 
   return {
     msgs, inp, setInp, load, setLoad, calc, err, setErr,
