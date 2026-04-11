@@ -149,7 +149,6 @@ export default function LandingPage({ pageTitle, pageSubtitle, heroEmoji, bullet
   }, []);
 
   const G = "#c9a84c";
-  const gBtn = { background:G, color:"#060a12", border:"none", borderRadius:12, fontFamily:"inherit", fontWeight:800, fontSize:15, padding:"14px 28px", cursor:"pointer", display:"inline-flex", alignItems:"center", gap:8, transition:"all .2s" };
   const oBtn = { background:"transparent", color:G, border:`1.5px solid ${G}88`, borderRadius:12, fontFamily:"inherit", fontWeight:700, fontSize:14, padding:"12px 24px", cursor:"pointer", display:"inline-flex", alignItems:"center", gap:8 };
 
   const openingMessage = getPersonalizedOpening(pageSlug, utmTerm);
@@ -188,10 +187,7 @@ export default function LandingPage({ pageTitle, pageSubtitle, heroEmoji, bullet
           <a href="/" aria-label="nifgati — עמוד בית" style={{ display:"flex", alignItems:"center", gap:10 }}>
             <img src="/logo.png" alt="nifgati" width={isMobile ? 112 : 225} height={isMobile ? 28 : 56} style={{ height: isMobile ? 28 : 56, width:"auto", objectFit:"contain" }} />
           </a>
-          <div style={{ display:"flex", alignItems:"center", gap:12 }}>
-            <a href="tel:0544338212" aria-label="התקשר אלינו" style={{ display:"inline-flex", alignItems:"center", justifyContent:"center", width: isMobile ? 36 : 48, height: isMobile ? 36 : 48, background:"#22c55e", borderRadius: isMobile ? 10 : 14, color:"#fff", fontSize: isMobile ? 17 : 22, textDecoration:"none", flexShrink:0, boxShadow:"0 2px 8px #22c55e55" }}>📞</a>
-            <button style={{ ...gBtn, height: isMobile ? 36 : 48, padding: isMobile ? "0 12px" : "0 20px", fontSize: isMobile ? 13 : 15 }} onClick={() => document.getElementById("inline-bot")?.scrollIntoView({ behavior: "smooth" })} aria-label="בדיקת גובה הפיצוי">בדיקת פיצוי</button>
-          </div>
+          <a href="tel:0544338212" aria-label="התקשר אלינו" style={{ display:"inline-flex", alignItems:"center", justifyContent:"center", width: isMobile ? 36 : 48, height: isMobile ? 36 : 48, background:"#22c55e", borderRadius: isMobile ? 10 : 14, color:"#fff", fontSize: isMobile ? 17 : 22, textDecoration:"none", flexShrink:0, boxShadow:"0 2px 8px #22c55e55" }}>📞</a>
         </div>
       </header>
 
@@ -252,12 +248,9 @@ export default function LandingPage({ pageTitle, pageSubtitle, heroEmoji, bullet
           <div className="sect-inner" style={{ maxWidth:500, margin:"0 auto", textAlign:"center" }}>
             <h2 style={{ fontSize:28, fontWeight:900, marginBottom:12 }}>דברו איתנו עכשיו</h2>
             <p style={{ color:"#7a8fa5", fontSize:15, marginBottom:36 }}>ייעוץ ראשוני חינמי, ללא התחייבות</p>
-            <div style={{ display:"flex", flexDirection:"column", gap:12 }}>
-              <button style={{ ...gBtn, width:"100%", justifyContent:"center", fontSize:16, padding:16 }} onClick={() => document.getElementById("inline-bot")?.scrollIntoView({ behavior: "smooth" })} aria-label="גלול לבוט הפיצויים">🤖 חשב כמה מגיע לך — חינם</button>
-              <a href={`tel:${PHONE}`}>
-                <button style={{ ...oBtn, width:"100%", justifyContent:"center", fontSize:16, padding:16 }} aria-label={`התקשר: ${PHONE}`}>📞 {PHONE} — התקשר עכשיו</button>
-              </a>
-            </div>
+            <a href={`tel:${PHONE}`}>
+              <button style={{ ...oBtn, width:"100%", justifyContent:"center", fontSize:16, padding:16 }} aria-label={`התקשר: ${PHONE}`}>📞 {PHONE} — התקשר עכשיו</button>
+            </a>
             <address style={{ marginTop:36, fontSize:13, color:"#7a8fa5", lineHeight:2, fontStyle:"normal" }}>
               <div>{MY_NAME} — {MY_TITLE} | 25 שנות ניסיון</div>
               <div>חנה זמר 7, תל אביב</div>
