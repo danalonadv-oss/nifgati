@@ -1,5 +1,6 @@
 ﻿import { useState, useEffect, useRef } from "react";
 import Bot from "./Bot.jsx";
+import { openWhatsApp } from "./utils/whatsapp.js";
 
 const PHONE    = "0544338212";
 const WA       = "972544338212";
@@ -196,7 +197,7 @@ export default function LandingPage({ pageTitle, pageSubtitle, heroEmoji, bullet
       )}
 
       {/* WhatsApp float */}
-      <button className="wa-btn" onClick={() => window.open(`https://wa.me/${WA}`, "_blank", "noopener,noreferrer")} aria-label="פתח שיחת וואטסאפ">💬</button>
+      <button className="wa-btn" onClick={() => openWhatsApp(window.location.pathname)} aria-label="פתח שיחת וואטסאפ">💬</button>
 
       {/* Cookie Banner */}
       {!cookie && (

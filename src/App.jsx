@@ -1,4 +1,5 @@
 ﻿import { useState, useEffect, useRef, lazy, Suspense } from "react";
+import { openWhatsApp, getWhatsAppUrl } from "./utils/whatsapp.js";
 const Bot = lazy(() => import("./Bot.jsx"));
 
 // ╔══════════════════════════════════════╗
@@ -499,7 +500,7 @@ export default function App() {
       )}
 
       {/* WhatsApp float */}
-      <button className="wa-btn" onClick={() => { if(typeof window.gtag==='function'){window.gtag('event','whatsapp_click',{'event_category':'engagement','event_label':'whatsapp_button'});} window.dataLayer=window.dataLayer||[]; window.dataLayer.push({event:'whatsapp_click'}); window.open(`https://wa.me/${WA}`,"_blank","noopener,noreferrer"); }} aria-label="פתח שיחת וואטסאפ">💬</button>
+      <button className="wa-btn" onClick={() => openWhatsApp(window.location.pathname)} aria-label="פתח שיחת וואטסאפ">💬</button>
 
       {/* Cookie Banner */}
       {!cookie && (
@@ -518,9 +519,7 @@ export default function App() {
             <p style={{ fontSize:15, color:"#7a8fa5", marginBottom:28, lineHeight:1.6 }}>גלה כמה פיצוי מגיע לך — לוקח 60 שניות</p>
             <div style={{ display:"flex", flexDirection:"column", gap:12 }}>
               <button onClick={() => { setShowExit(false); openBot(); }} style={{ ...gBtn, width:"100%", justifyContent:"center", fontSize:16, padding:16 }} aria-label="פתח מחשבון פיצויים">⚡ פתח מחשבון פיצויים</button>
-              <a href={`https://wa.me/${WA}`} target="_blank" rel="noopener noreferrer" style={{ width:"100%" }}>
-                <button style={{ ...oBtn, width:"100%", justifyContent:"center", fontSize:16, padding:16, background:"#25d36615", borderColor:"#25d36688", color:"#25d366" }} aria-label="וואטסאפ עכשיו">💬 וואטסאפ עכשיו</button>
-              </a>
+              <button onClick={() => openWhatsApp("exit_intent")} style={{ ...oBtn, width:"100%", justifyContent:"center", fontSize:16, padding:16, background:"#25d36615", borderColor:"#25d36688", color:"#25d366" }} aria-label="וואטסאפ עכשיו">💬 וואטסאפ עכשיו</button>
             </div>
           </div>
         </div>
