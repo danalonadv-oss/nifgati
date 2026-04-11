@@ -69,6 +69,7 @@
   display: flex;
   align-items: center;
   gap: 5px;
+  animation: blink 2s ease-in-out infinite;
 }
 
 .statusDot {
@@ -529,4 +530,9 @@
 @keyframes bounce {
   0%, 100% { transform: translateY(0); }
   50% { transform: translateY(8px); }
+}
+
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.3; }
 }
