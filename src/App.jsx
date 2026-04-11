@@ -61,13 +61,15 @@ export default function App() {
     return () => window.removeEventListener('resize', handler);
   }, []);
 
-  /* ── Auto-open bot after 6 seconds, once per session ── */
+  /* ── Auto-open bot after 12 seconds, once per session ── */
   useEffect(() => {
     if (sessionStorage.getItem("botAutoOpened")) return;
     const timer = setTimeout(() => {
-      setShowBot(true);
-      sessionStorage.setItem("botAutoOpened", "1");
-    }, 6000);
+      if (document.readyState === 'complete') {
+        setShowBot(true);
+        sessionStorage.setItem("botAutoOpened", "1");
+      }
+    }, 12000);
     return () => clearTimeout(timer);
   }, []);
 
