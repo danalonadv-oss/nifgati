@@ -4,7 +4,7 @@ export default function TzlipatShot() {
     pageTitle="צליפת שוט — פיצוי גם ללא שבר"
     pageSubtitle="פגיעה בצוואר מוכרת בחוק — גם כשהתאונה נראתה קלה"
     heroEmoji="🩺"
-    bullets={["צליפת שוט מוכרת גם ללא שבר","חישוב לפי חומרת הפגיעה","ייצוג מול חברת הביטוח"]}
+    bullets={["הנתונים לא נשמרים ולא מתועדים","חישוב לפי חומרת הפגיעה","ייצוג מול חברת הביטוח"]}
     ctaText="חשב פיצוי על צליפת שוט"
     pageSlug="tzlipat-shot"
     socialProofAmount="₪85,000"
