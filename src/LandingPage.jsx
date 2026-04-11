@@ -1,4 +1,4 @@
-﻿import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef } from "react";
 import Bot from "./Bot.jsx";
 import { openWhatsApp } from "./utils/whatsapp.js";
 import { captureGclid } from "./utils/gclid.js";
@@ -8,15 +8,106 @@ const WA       = "972544338212";
 const MY_NAME  = "דן אלון";
 const MY_TITLE = "עורך דין נזיקין";
 
-export default function LandingPage({ pageTitle, pageSubtitle, heroEmoji, bullets, ctaText, pageSlug, bannerText }) {
+function getPersonalizedOpening(pageSlug, utmTerm) {
+  const t = (utmTerm || '').toLowerCase();
+  const p = (pageSlug || '').toLowerCase();
+
+  // ── /machshevon ──
+  if (p === 'machshevon') {
+    if (t.includes('כאב וסבל'))
+      return 'כאב וסבל הוא רק חלק מהפיצוי. בוא נחשב את התמונה המלאה — כולל הפסד שכר ונכות.';
+    if (t.includes('מחשבון'))
+      return 'בוא נחשב ישר — כמה שאלות קצרות ואתן לך הערכת פיצוי מיידית לפי חוק הפלת״ד.';
+    if (t.includes('כמה') || t.includes('פיצוי'))
+      return 'רוצה לדעת כמה? 3 שאלות ויש לך מספר מדויק.';
+    return 'ספר לי מה קרה בתאונה ואחשב כמה מגיע לך לפי החוק.';
+  }
+
+  // ── /taonat-drakhim ──
+  if (p === 'taonat-drakhim') {
+    if (t.includes('פיצויים תאונת דרכים'))
+      return 'חיפשת פיצויים על תאונת דרכים — ספר לי מה קרה ואחשב כמה מגיע לך.';
+    if (t.includes('נפגעתי'))
+      return 'נפגעת בתאונה? בוא נבדוק יחד כמה פיצוי מגיע לך לפי החוק.';
+    if (t.includes('ביטוח חובה'))
+      return 'מגיע לך יותר ממה שהביטוח יציע. בוא נחשב כמה באמת.';
+    if (t.includes('מה עושים'))
+      return 'נפגעת בתאונה ולא יודע מה לעשות? הצעד הראשון — לדעת כמה מגיע לך.';
+    return 'שלום 👋 ספר לי מה קרה בתאונה ואחשב כמה פיצוי מגיע לך.';
+  }
+
+  // ── /nechut ──
+  if (p === 'nechut') {
+    if (t.includes('10') || t.includes('עשר'))
+      return 'חיפשת מה שווה נכות 10%? בוא נחשב בדיוק — זה יכול להיות מאות אלפי שקלים.';
+    if (t.includes('20'))
+      return 'נכות 20% שווה פיצוי משמעותי מאוד. בוא נחשב כמה מגיע לך.';
+    if (t.includes('5') || t.includes('חמש'))
+      return 'גם נכות 5% מזכה בעשרות אלפי שקלים. בוא נחשב.';
+    if (t.includes('מחשבון'))
+      return 'בוא נחשב ישר — כמה שאלות ואתן לך הערכה מיידית לפי אחוזי הנכות שלך.';
+    return 'קיבלת אחוז נכות? כל אחוז שווה עשרות אלפי שקלים — ספר לי מה קרה.';
+  }
+
+  // ── /ofanoa ──
+  if (p === 'ofanoa') {
+    if (t.includes('כמה מקבלים'))
+      return 'רוצה לדעת כמה מקבלים על תאונת אופנוע? בוא נחשב לפי הפגיעה הספציפית שלך.';
+    return 'תאונות אופנוע מזכות לרוב בפיצוי גבוה במיוחד. ספר לי מה קרה ואחשב כמה מגיע לך.';
+  }
+
+  // ── /korkinet ──
+  if (p === 'korkinet') {
+    if (t.includes('אופניים חשמליים'))
+      return 'תאונת אופניים חשמליים מכוסה בחוק הפלת״ד. ספר לי מה קרה.';
+    return 'תאונת קורקינט? גם כלי רכב קל מכוסה בחוק. ספר לי מה קרה.';
+  }
+
+  // ── /avoda ──
+  if (p === 'avoda') {
+    if (t.includes('דרך לעבודה'))
+      return 'תאונה בדרך לעבודה מזכה בפיצוי ממספר מקורות — ביטוח לאומי וגם פלת״ד. בוא נבדוק.';
+    return 'נפגעת בתאונת עבודה? מגיע לך פיצוי ממספר מקורות. בוא נבדוק יחד כמה.';
+  }
+
+  // ── /holeh-regel ──
+  if (p === 'holeh-regel')
+    return 'הולכי רגל שנפגעו זכאים לפיצוי מלא — גם ללא אשם. ספר לי מה קרה.';
+
+  // ── /shever ──
+  if (p === 'shever') {
+    if (t.includes('ברך'))
+      return 'פגיעה בברך מזכה בפיצוי על כאב, היעדרות ונזק עתידי. מה קרה?';
+    return 'שבר בתאונה מזכה בפיצוי על כאב, היעדרות ונזק עתידי. מה נשבר?';
+  }
+
+  // ── /pritzat-disc ──
+  if (p === 'pritzat-disc') {
+    if (t.includes('גב'))
+      return 'כאבי גב אחרי תאונה מוכרים כנזק גוף. ספר לי מה קרה ואחשב כמה מגיע לך.';
+    return 'פריצת דיסק בגלל תאונה מזכה בפיצוי משמעותי. ספר לי על הפגיעה.';
+  }
+
+  // ── /tzlipat-shot ──
+  if (p === 'tzlipat-shot')
+    return 'צליפת שוט מוכרת בחוק גם ללא שבר. ספר לי מה קרה בתאונה.';
+
+  // ── /ptsd ──
+  if (p === 'ptsd')
+    return 'נזק נפשי אחרי תאונה הוא ראש נזק מוכר בחוק. ספר לי מה עברת.';
+
+  // ── default ──
+  return 'שלום 👋 נפגעת בתאונה? ספר לי מה קרה ואחשב כמה פיצוי מגיע לך.';
+}
+
+export default function LandingPage({ pageTitle, pageSubtitle, heroEmoji, bullets, ctaText, pageSlug, bannerText, socialProofAmount, socialProofLabel }) {
   const [scrolled, setScrolled]     = useState(false);
-  const [showBot, setShowBot]       = useState(false);
   const [cookie, setCookie]         = useState(false);
   const [showBanner, setShowBanner] = useState(true);
   const [isMobile, setIsMobile]     = useState(window.innerWidth <= 768);
-  const botOpenedRef = useRef(false);
 
   const [dynamicTitle, setDynamicTitle] = useState(pageTitle);
+  const [utmTerm, setUtmTerm] = useState("");
 
   useEffect(() => {
     captureGclid();
@@ -24,10 +115,20 @@ export default function LandingPage({ pageTitle, pageSubtitle, heroEmoji, bullet
     const raw = params.get("utm_term");
     if (raw) {
       const decoded = decodeURIComponent(raw.replace(/\+/g, " ")).trim();
+      setUtmTerm(decoded);
       if (decoded.length > 0 && decoded.length <= 40) {
         setDynamicTitle(`נפגעת ב${decoded}? מגיע לך פיצוי.`);
       }
     }
+
+    // Analytics: inline bot loaded
+    window.dataLayer = window.dataLayer || [];
+    window.dataLayer.push({
+      event: 'bot_opened',
+      bot_trigger: 'inline_page_load',
+      page_slug: pageSlug || '',
+      utm_term: raw || '',
+    });
   }, []);
 
   useEffect(() => {
@@ -36,30 +137,17 @@ export default function LandingPage({ pageTitle, pageSubtitle, heroEmoji, bullet
     return () => window.removeEventListener('resize', handler);
   }, []);
 
-  /* ── Auto-open bot after 2.5s, once per session ── */
-  useEffect(() => {
-    if (sessionStorage.getItem("botAutoOpened")) return;
-    const timer = setTimeout(() => {
-      setShowBot(true);
-      sessionStorage.setItem("botAutoOpened", "1");
-    }, 2500);
-    return () => clearTimeout(timer);
-  }, []);
-
   useEffect(() => {
     const fn = () => setScrolled(window.scrollY > 50);
     window.addEventListener("scroll", fn);
     return () => window.removeEventListener("scroll", fn);
   }, []);
 
-  function openBot() {
-    setShowBot(true);
-    botOpenedRef.current = true;
-  }
-
   const G = "#c9a84c";
   const gBtn = { background:G, color:"#060a12", border:"none", borderRadius:12, fontFamily:"inherit", fontWeight:800, fontSize:15, padding:"14px 28px", cursor:"pointer", display:"inline-flex", alignItems:"center", gap:8, transition:"all .2s" };
   const oBtn = { background:"transparent", color:G, border:`1.5px solid ${G}88`, borderRadius:12, fontFamily:"inherit", fontWeight:700, fontSize:14, padding:"12px 24px", cursor:"pointer", display:"inline-flex", alignItems:"center", gap:8 };
+
+  const openingMessage = getPersonalizedOpening(pageSlug, utmTerm);
 
   return (
     <div style={{ fontFamily:"'Heebo',Arial,sans-serif", direction:"rtl", background:"#080d18", color:"#e8edf2", overflowX:"hidden", minHeight:"100vh", display:"flex", flexDirection:"column" }}>
@@ -97,7 +185,7 @@ export default function LandingPage({ pageTitle, pageSubtitle, heroEmoji, bullet
           </a>
           <div style={{ display:"flex", alignItems:"center", gap:12 }}>
             <a href="tel:0544338212" aria-label="התקשר אלינו" style={{ display:"inline-flex", alignItems:"center", justifyContent:"center", width: isMobile ? 36 : 48, height: isMobile ? 36 : 48, background:"#22c55e", borderRadius: isMobile ? 10 : 14, color:"#fff", fontSize: isMobile ? 17 : 22, textDecoration:"none", flexShrink:0, boxShadow:"0 2px 8px #22c55e55" }}>📞</a>
-            <button style={{ ...gBtn, height: isMobile ? 36 : 48, padding: isMobile ? "0 12px" : "0 20px", fontSize: isMobile ? 13 : 15 }} onClick={openBot} aria-label="בדיקת גובה הפיצוי">בדיקת פיצוי</button>
+            <button style={{ ...gBtn, height: isMobile ? 36 : 48, padding: isMobile ? "0 12px" : "0 20px", fontSize: isMobile ? 13 : 15 }} onClick={() => document.getElementById("inline-bot")?.scrollIntoView({ behavior: "smooth" })} aria-label="בדיקת גובה הפיצוי">בדיקת פיצוי</button>
           </div>
         </div>
       </header>
@@ -106,17 +194,14 @@ export default function LandingPage({ pageTitle, pageSubtitle, heroEmoji, bullet
       <main id="main-content" role="main" style={{ flex:1 }}>
 
         {/* HERO */}
-        <section aria-label={dynamicTitle} style={{ minHeight:"100vh", display:"flex", alignItems:"center", position:"relative", overflow:"hidden", paddingTop:showBanner ? 120 : 80 }}>
+        <section aria-label={dynamicTitle} style={{ display:"flex", alignItems:"center", position:"relative", overflow:"hidden", paddingTop:showBanner ? 120 : 80 }}>
           <div style={{ position:"absolute", top:"20%", right:"-8%", width:500, height:500, background:"radial-gradient(circle, #c9a84c09 0%, transparent 70%)", pointerEvents:"none" }} aria-hidden="true" />
-          <div className="hero-wrap" style={{ maxWidth:900, margin:"0 auto", padding:"80px 24px", width:"100%", textAlign:"center" }}>
+          <div className="hero-wrap" style={{ maxWidth:900, margin:"0 auto", padding:"48px 24px 32px", width:"100%", textAlign:"center" }}>
 
               <h1 className="ht" style={{ fontSize:44, fontWeight:900, lineHeight:1.25, marginBottom:14 }}>
                 {dynamicTitle}
               </h1>
               <h2 className="hero-sub" style={{ fontSize:18, fontWeight:700, color:"#7a8fa5", marginBottom:24, lineHeight:1.6 }}>{pageSubtitle}</h2>
-              <div style={{ marginBottom:32 }}>
-                <button style={{ ...gBtn, fontSize:18, padding:"16px 36px" }} onClick={openBot} aria-label="חשב כעת">חשב כעת</button>
-              </div>
 
               <div className="hero-bullets" style={{ display:"inline-flex", flexDirection:"column", gap:12, marginBottom:32, textAlign:"right" }}>
                 {bullets.map((b, i) => (
@@ -127,17 +212,33 @@ export default function LandingPage({ pageTitle, pageSubtitle, heroEmoji, bullet
                 ))}
               </div>
 
-              <div style={{ display:"flex", gap:14, flexWrap:"wrap", marginBottom:40, justifyContent:"center" }}>
-                <button style={{ ...gBtn, fontSize:16, padding:"16px 32px" }} onClick={openBot} aria-label="בדיקת גובה הפיצוי">💬 {ctaText || "לבדיקת גובה הפיצוי שלי"}</button>
-              </div>
+              {socialProofAmount && (
+                <div style={{ display:"inline-flex", alignItems:"center", gap:12, background:"#141b2d", border:"1px solid #1e2d4a", borderRadius:14, padding:"12px 20px", marginBottom:24 }}>
+                  <span style={{ fontSize:24, fontWeight:900, color:G }}>{socialProofAmount}</span>
+                  <span style={{ fontSize:13, color:"#7a8fa5" }}>{socialProofLabel}</span>
+                </div>
+              )}
+          </div>
+        </section>
 
-              <div style={{ display:"flex", gap:10, fontSize:13, color:"#556070", justifyContent:"center" }}>
-                <span>🔒 אנונימי</span>
-                <span>|</span>
-                <span>⚡ תוך 60 שניות</span>
-                <span>|</span>
-                <span>₪0 מראש</span>
-              </div>
+        {/* ── INLINE BOT ── */}
+        <section id="inline-bot" style={{ padding:"0 16px 2rem" }}>
+          <div style={{ width:"100%", maxWidth:680, margin:"0 auto" }}>
+            <Bot inline={true} openingMessage={openingMessage} />
+          </div>
+
+          {/* Trust bullets */}
+          <div style={{ display:"flex", gap:16, justifyContent:"center", flexWrap:"wrap", marginTop:24 }}>
+            {[
+              { icon:"✓", text:"חינמי לחלוטין" },
+              { icon:"✓", text:"אנונימי — השיחה לא נשמרת" },
+              { icon:"✓", text:`25 שנות ניסיון — ${MY_NAME}, עו״ד נזיקין` },
+            ].map((b, i) => (
+              <span key={i} style={{ display:"inline-flex", alignItems:"center", gap:6, fontSize:13, color:"#7a8fa5" }}>
+                <span style={{ color:G, fontWeight:700 }}>{b.icon}</span>
+                {b.text}
+              </span>
+            ))}
           </div>
         </section>
 
@@ -147,7 +248,7 @@ export default function LandingPage({ pageTitle, pageSubtitle, heroEmoji, bullet
             <h2 style={{ fontSize:28, fontWeight:900, marginBottom:12 }}>דברו איתנו עכשיו</h2>
             <p style={{ color:"#7a8fa5", fontSize:15, marginBottom:36 }}>ייעוץ ראשוני חינמי, ללא התחייבות</p>
             <div style={{ display:"flex", flexDirection:"column", gap:12 }}>
-              <button style={{ ...gBtn, width:"100%", justifyContent:"center", fontSize:16, padding:16 }} onClick={openBot} aria-label="פתח מחשבון פיצויים">🤖 חשב כמה מגיע לך — חינם</button>
+              <button style={{ ...gBtn, width:"100%", justifyContent:"center", fontSize:16, padding:16 }} onClick={() => document.getElementById("inline-bot")?.scrollIntoView({ behavior: "smooth" })} aria-label="גלול לבוט הפיצויים">🤖 חשב כמה מגיע לך — חינם</button>
               <a href={`tel:${PHONE}`}>
                 <button style={{ ...oBtn, width:"100%", justifyContent:"center", fontSize:16, padding:16 }} aria-label={`התקשר: ${PHONE}`}>📞 {PHONE} — התקשר עכשיו</button>
               </a>
@@ -178,36 +279,6 @@ export default function LandingPage({ pageTitle, pageSubtitle, heroEmoji, bullet
         </p>
       </footer>
 
-      {/* Floating bot button */}
-      {!showBot && (
-        <button
-          onClick={() => setShowBot(true)}
-          style={{
-            position: "fixed",
-            bottom: 100,
-            left: 24,
-            borderRadius: 28,
-            background: "linear-gradient(135deg, #c9a84c, #f0d080)",
-            color: "#fff",
-            fontSize: 14,
-            fontWeight: 800,
-            fontFamily: "inherit",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            cursor: "pointer",
-            boxShadow: "0 4px 20px rgba(201,168,76,0.6)",
-            zIndex: 1000,
-            border: "none",
-            padding: "12px 20px",
-            whiteSpace: "nowrap",
-          }}
-          aria-label="פתח מחשבון פיצויים"
-        >
-          בוט נפגעתי
-        </button>
-      )}
-
       {/* WhatsApp float */}
       <button className="wa-btn" onClick={() => openWhatsApp(window.location.pathname)} aria-label="פתח שיחת וואטסאפ">💬</button>
 
@@ -218,9 +289,6 @@ export default function LandingPage({ pageTitle, pageSubtitle, heroEmoji, bullet
           <button style={{ background:"#c9a84c22", color:"#c9a84c", border:"1px solid #c9a84c44", borderRadius:8, fontFamily:"inherit", fontSize:11, padding:"4px 10px", cursor:"pointer", flexShrink:0 }} onClick={() => setCookie(true)}>אישור ✓</button>
         </div>
       )}
-
-      {/* Bot */}
-      {showBot && <Bot onClose={() => setShowBot(false)} />}
     </div>
   );
 }

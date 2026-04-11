@@ -1,12 +1,14 @@
 import LandingPage from "../LandingPage.jsx";
 export default function HolehRegel() {
   return <LandingPage
-    pageTitle="נפגעת כהולך רגל בתאונה?"
-    pageSubtitle="הולכי רגל זכאים לפיצוי מלא — גם ללא אשם"
+    pageTitle="הולך רגל שנפגע בתאונה — זכאי לפיצוי מלא"
+    pageSubtitle="חוק הפלת״ד מגן עליך — גם ללא אשם"
     heroEmoji="🚶"
-    bullets={["אחריות מוחלטת של הרכב כלפי הולך הרגל","פיצוי על כל ראשי הנזק","חישוב מיידי ללא התחייבות"]}
-    ctaText="בדוק פיצוי להולך רגל"
+    bullets={["פיצוי מלא גם ללא אשם","חישוב מיידי לפי חוק הפלת״ד","ייצוג מול כל חברות הביטוח"]}
+    ctaText="בדוק פיצוי כהולך רגל"
     pageSlug="holeh-regel"
-    bannerText="נפגעת כהולך רגל — חשב ודע מיד כמה מגיע לך"
+    socialProofAmount="₪320,000"
+    socialProofLabel="נכות 15% — הולך רגל"
+    bannerText="הולך רגל — חשב ודע מיד כמה מגיע לך"
   />;
 }

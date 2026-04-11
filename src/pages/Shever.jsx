@@ -1,12 +1,14 @@
 import LandingPage from "../LandingPage.jsx";
 export default function Shever() {
   return <LandingPage
-    pageTitle="שבר בתאונה? מגיע לך פיצוי"
-    pageSubtitle="שברים מזכים בפיצוי על כאב, היעדרות ונזק עתידי"
-    heroEmoji="🦾"
-    bullets={["שבר פשוט: נכות 0-5% | עם מגבלה: 5-15%","פיצוי על ימי אשפוז והיעדרות מעבודה","חישוב מיידי לפי סוג השבר"]}
-    ctaText="בדוק פיצוי על שבר"
+    pageTitle="שבר בתאונה — כמה פיצוי מגיע לך?"
+    pageSubtitle="שבר ביד, ברגל, בברך — פיצוי על כאב, היעדרות ונזק עתידי"
+    heroEmoji="🦴"
+    bullets={["שבר = פיצוי על כאב וסבל + הפסד שכר","חישוב לפי סוג השבר ואחוז הנכות","תוצאה מיידית — חינם ואנונימי"]}
+    ctaText="חשב פיצוי על שבר בתאונה"
     pageSlug="shever"
+    socialProofAmount="₪140,000"
+    socialProofLabel="שבר + נכות 8%"
     bannerText="שבר בתאונה — חשב ודע מיד כמה מגיע לך"
   />;
 }

@@ -23,6 +23,24 @@
   position: relative;
 }
 
+/* ── Inline mode ─────────────────────────── */
+.inlineWrap {
+  width: 100%;
+  direction: rtl;
+}
+
+.inlineContainer {
+  background: #0a0f1e;
+  border: 1px solid #1e2d4a;
+  border-radius: 20px;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  min-height: 420px;
+  max-height: 600px;
+}
+
 /* ── Header ──────────────────────────────── */
 .header {
   background: #070c18;

@@ -1,12 +1,14 @@
 import LandingPage from "../LandingPage.jsx";
 export default function PritzatDisc() {
   return <LandingPage
-    pageTitle="פריצת דיסק בגלל תאונה?"
-    pageSubtitle="פריצת דיסק מזכה בפיצוי משמעותי — בדוק כמה מגיע לך"
-    heroEmoji="🦴"
-    bullets={["נכות 10-25% בהתאם לחומרת הפגיעה","פיצוי על אובדן כושר עבודה עתידי","ניסיון בתביעות עמוד שדרה"]}
-    ctaText="בדוק פיצוי על פריצת דיסק"
+    pageTitle="פריצת דיסק בגלל תאונה — פיצוי משמעותי מחכה לך"
+    pageSubtitle="כאבי גב וצוואר אחרי תאונה מוכרים כנזק גוף"
+    heroEmoji="🔬"
+    bullets={["פריצת דיסק מוכרת כנזק גוף בחוק","חישוב לפי אחוז הנכות שנקבע","ייצוג מלא מול חברות הביטוח"]}
+    ctaText="חשב פיצוי על פריצת דיסק"
     pageSlug="pritzat-disc"
+    socialProofAmount="₪230,000"
+    socialProofLabel="פריצת דיסק — נכות 12%"
     bannerText="פריצת דיסק — חשב ודע מיד כמה מגיע לך"
   />;
 }

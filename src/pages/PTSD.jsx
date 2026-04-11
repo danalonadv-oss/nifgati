@@ -1,12 +1,14 @@
 import LandingPage from "../LandingPage.jsx";
 export default function PTSD() {
   return <LandingPage
-    pageTitle="PTSD ונזק נפשי אחרי תאונה?"
-    pageSubtitle="גם נזק נפשי מזכה בפיצוי — בדוק את זכויותיך"
+    pageTitle="נזק נפשי אחרי תאונה — זכאי לפיצוי"
+    pageSubtitle="PTSD, חרדה, פחד נהיגה — ראשי נזק מוכרים בחוק הפלת״ד"
     heroEmoji="🧠"
-    bullets={["PTSD מוכר כנזק גוף לפי פלת״ד","חישוב פיצוי על נכות נפשית","ניסיון בתביעות טראומה ונזק נפשי"]}
+    bullets={["נזק נפשי = ראש נזק מוכר בחוק","חישוב לפי חומרת הפגיעה הנפשית","ייצוג מלא ללא תשלום מראש"]}
     ctaText="בדוק פיצוי על נזק נפשי"
     pageSlug="ptsd"
-    bannerText="נזק נפשי — חשב ודע מיד כמה מגיע לך"
+    socialProofAmount="₪180,000"
+    socialProofLabel="PTSD אחרי תאונה"
+    bannerText="PTSD — חשב ודע מיד כמה מגיע לך"
   />;
 }

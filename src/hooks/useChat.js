@@ -145,9 +145,9 @@ function getPersonalizedOpening() {
   return 'שלום 👋 נפגעת בתאונה? בוא נבדוק ב-60 שניות כמה פיצוי מגיע לך — חינם, ללא התחייבות.';
 }
 
-function getInitialMsgs() {
+function getInitialMsgs(customOpening) {
   return [
-    { role: "assistant", content: getPersonalizedOpening(), privacy: true },
+    { role: "assistant", content: customOpening || getPersonalizedOpening(), privacy: true },
     { role: "assistant", content: ROLE_QUESTION },
   ];
 }
@@ -188,8 +188,8 @@ function buildSummary(data, calc) {
 }
 
 
-export default function useChat() {
-  const [msgs, setMsgs] = useState([...getInitialMsgs()]);
+export default function useChat(customOpening) {
+  const [msgs, setMsgs] = useState([...getInitialMsgs(customOpening)]);
   const [inp, setInp] = useState("");
   const [load, setLoad] = useState(false);
   const [calc, setCalc] = useState(null);
@@ -203,7 +203,7 @@ export default function useChat() {
   useEffect(() => { if (!err) return; const t = setTimeout(() => setErr(""), 6000); return () => clearTimeout(t); }, [err]);
 
   function restart() {
-    setMsgs([...getInitialMsgs()]);
+    setMsgs([...getInitialMsgs(customOpening)]);
     setCalc(null);
     setInp("");
     setErr("");

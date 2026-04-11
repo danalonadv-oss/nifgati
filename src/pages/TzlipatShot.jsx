@@ -1,12 +1,14 @@
 import LandingPage from "../LandingPage.jsx";
 export default function TzlipatShot() {
   return <LandingPage
-    pageTitle="סובל מצליפת שוט אחרי תאונה?"
-    pageSubtitle="צליפת שוט מזכה בפיצוי — גם ללא שבר. בדוק כמה"
-    heroEmoji="🩻"
-    bullets={["כאבי צוואר וגב מוכרים כנזק גוף","אחוזי נכות 5-20% בהתאם לחומרה","חישוב פיצוי מיידי לפי גיל ושכר"]}
-    ctaText="בדוק פיצוי על צליפת שוט"
+    pageTitle="צליפת שוט — פיצוי גם ללא שבר"
+    pageSubtitle="פגיעה בצוואר מוכרת בחוק — גם כשהתאונה נראתה קלה"
+    heroEmoji="🩺"
+    bullets={["צליפת שוט מוכרת גם ללא שבר","חישוב לפי חומרת הפגיעה","ייצוג מול חברת הביטוח"]}
+    ctaText="חשב פיצוי על צליפת שוט"
     pageSlug="tzlipat-shot"
+    socialProofAmount="₪85,000"
+    socialProofLabel="צליפת שוט — נכות 5%"
     bannerText="צליפת שוט — חשב ודע מיד כמה מגיע לך"
   />;
 }
