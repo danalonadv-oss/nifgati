@@ -1,5 +1,4 @@
 {
-  "regions": ["tlv1"],
   "buildCommand": "vite build",
   "outputDirectory": "dist",
   "redirects": [
