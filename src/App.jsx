@@ -227,15 +227,15 @@ export default function App() {
 
       {/* HEADER */}
       <header role="banner" style={{ position:"fixed", top:showBanner ? 40 : 0, right:0, left:0, zIndex:100, background:scrolled ? "#080d18f0" : "transparent", backdropFilter:scrolled ? "blur(12px)" : "none", borderBottom:scrolled ? "1px solid #1e2d4a" : "1px solid transparent", transition:"all .3s", padding:"0 24px" }}>
-        <div style={{ maxWidth:1100, margin:"0 auto", minHeight:80, display:"flex", alignItems:"center", justifyContent:"space-between" }}>
+        <div style={{ maxWidth:1100, margin:"0 auto", minHeight: window.innerWidth <= 768 ? 52 : 80, display:"flex", alignItems:"center", justifyContent:"space-between" }}>
           <a href="/" aria-label="ניפגעתי — עמוד בית" style={{ display:"flex", alignItems:"center" }}>
-            <img src="/logo.png" alt="nifgati" style={{ height:68, width:"auto", objectFit:"contain" }} />
+            <img src="/logo.png" alt="nifgati" style={{ height: window.innerWidth <= 768 ? 32 : 68, width:"auto", objectFit:"contain" }} />
           </a>
           <nav role="navigation" aria-label="ניווט ראשי" style={{ display:"flex", gap:28, alignItems:"center" }} className="hm">
             {nav.map(n => <a key={n.l} href={n.h} className="nl">{n.l}</a>)}
           </nav>
           <div style={{ display:"flex", alignItems:"center", gap:12 }}>
-            <a href="tel:0544338212" aria-label="התקשר אלינו" onClick={() => { if(typeof window.gtag==='function'){window.gtag('event','phone_click',{'event_category':'engagement','event_label':'phone_button'});} window.dataLayer=window.dataLayer||[]; window.dataLayer.push({event:'phone_click'}); }} style={{ display:"inline-flex", alignItems:"center", justifyContent:"center", width:48, height:48, background:"#22c55e", borderRadius:14, color:"#fff", fontSize:22, textDecoration:"none", flexShrink:0, boxShadow:"0 2px 8px #22c55e55" }}>📞</a>
+            <a href="tel:0544338212" aria-label="התקשר אלינו" onClick={() => { if(typeof window.gtag==='function'){window.gtag('event','phone_click',{'event_category':'engagement','event_label':'phone_button'});} window.dataLayer=window.dataLayer||[]; window.dataLayer.push({event:'phone_click'}); }} style={{ display:"inline-flex", alignItems:"center", justifyContent:"center", width: window.innerWidth <= 768 ? 36 : 48, height: window.innerWidth <= 768 ? 36 : 48, background:"#22c55e", borderRadius: window.innerWidth <= 768 ? 10 : 14, color:"#fff", fontSize: window.innerWidth <= 768 ? 18 : 22, textDecoration:"none", flexShrink:0, boxShadow:"0 2px 8px #22c55e55" }}>📞</a>
             <button style={gBtn} onClick={openBot} aria-label="בדיקת גובה הפיצוי">בדיקת פיצוי</button>
           </div>
         </div>
