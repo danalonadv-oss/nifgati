@@ -7,7 +7,7 @@ export default defineConfig({
     proxy: { "/api": "http://localhost:3000" }
   },
   build: {
-    target: "es2015",
+    target: ["es2020", "chrome80", "firefox78", "safari14"],
     minify: "esbuild",
     modulePreload: {
       polyfill: false,
@@ -16,10 +16,10 @@ export default defineConfig({
     rollupOptions: {
       output: {
         manualChunks(id) {
-          if (id.includes("node_modules/react") || id.includes("node_modules/react-dom")) {
-            return "react-vendor";
-          }
           if (id.includes("node_modules/react-router")) {
+            return "router";
+          }
+          if (id.includes("node_modules/react") || id.includes("node_modules/react-dom")) {
             return "react-vendor";
           }
           if (id.includes("Bot.jsx")) {
@@ -27,6 +27,9 @@ export default defineConfig({
           }
           if (id.includes("Privacy.jsx") || id.includes("Accessibility.jsx")) {
             return "pages";
+          }
+          if (id.includes("/pages/")) {
+            return "landing-pages";
           }
         },
       },
