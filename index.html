@@ -1,26 +1,35 @@
 <!DOCTYPE html>
 <html lang="he" dir="rtl">
   <head>
-    <!-- Google Tag Manager -->
-    <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
-    new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
-    j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
-    'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
-    })(window,document,'script','dataLayer','GTM-5MJM9DVJ');</script>
-    <!-- End Google Tag Manager -->
-
-    <!-- Google tag (gtag.js) -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-NPHZ1VS3LY"></script>
+    <!-- Deferred GTM + GA4 — loads 3s after page ready for better LCP -->
     <script>
       window.dataLayer = window.dataLayer || [];
       function gtag(){dataLayer.push(arguments);}
       gtag('js', new Date());
       gtag('config', 'G-NPHZ1VS3LY');
+      window.addEventListener('load', function() {
+        setTimeout(function() {
+          var s = document.createElement('script');
+          s.src = 'https://www.googletagmanager.com/gtm.js?id=GTM-5MJM9DVJ';
+          s.async = true;
+          document.head.appendChild(s);
+          window.dataLayer.push({'gtm.start': new Date().getTime(), event:'gtm.js'});
+        }, 3000);
+      });
     </script>
-    <!-- End Google tag -->
 
     <meta charset="UTF-8" />
-    <script defer src="https://cdn.userway.org/widget.js" data-account="3mwptfd5K2"></script>
+    <script>
+      window.addEventListener('load', function() {
+        setTimeout(function() {
+          var s = document.createElement('script');
+          s.src = 'https://cdn.userway.org/widget.js';
+          s.dataset.account = '3mwptfd5K2';
+          s.async = true;
+          document.head.appendChild(s);
+        }, 5000);
+      });
+    </script>
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="description" content="נפגעת בתאונה? בדוק כמה פיצוי מגיע לך — חינם, תוך דקות. דן אלון, עורך דין נזיקין." />
     <meta name="robots" content="index, follow" />
