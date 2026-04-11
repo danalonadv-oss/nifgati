@@ -191,8 +191,13 @@ export default function App() {
     "זמינות אישית ישירה לכל לקוח",
   ];
 
+  console.log("isMobile value:", isMobile, "window.innerWidth:", window.innerWidth);
+
   return (
     <div style={{ fontFamily:"'Heebo',Arial,sans-serif", direction:"rtl", background:"#080d18", color:"#e8edf2", overflowX:"hidden" }}>
+      <div style={{ position:"fixed", bottom:0, left:0, right:0, background:"red", color:"white", fontSize:20, fontWeight:900, textAlign:"center", zIndex:9999, padding:8 }}>
+        isMobile={String(isMobile)} | w={window.innerWidth}
+      </div>
       <style>{`
         *{box-sizing:border-box;margin:0;padding:0}
         html{scroll-behavior:smooth}
