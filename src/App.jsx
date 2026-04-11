@@ -246,7 +246,7 @@ export default function App() {
           </nav>
           <div style={{ display:"flex", alignItems:"center", gap:12 }}>
             <a href="tel:0544338212" aria-label="התקשר אלינו" onClick={() => { if(typeof window.gtag==='function'){window.gtag('event','phone_click',{'event_category':'engagement','event_label':'phone_button'});} window.dataLayer=window.dataLayer||[]; window.dataLayer.push({event:'phone_click'}); }} style={{ display:"inline-flex", alignItems:"center", justifyContent:"center", width: isMobile ? 36 : 48, height: isMobile ? 36 : 48, background:"#22c55e", borderRadius: isMobile ? 10 : 14, color:"#fff", fontSize: isMobile ? 17 : 22, textDecoration:"none", flexShrink:0, boxShadow:"0 2px 8px #22c55e55" }}>📞</a>
-            <button style={gBtn} onClick={openBot} aria-label="בדיקת גובה הפיצוי">בדיקת פיצוי</button>
+            <button style={{ ...gBtn, height: isMobile ? 36 : 48, padding: isMobile ? "0 12px" : "0 20px", fontSize: isMobile ? 13 : 15 }} onClick={openBot} aria-label="בדיקת גובה הפיצוי">בדיקת פיצוי</button>
           </div>
         </div>
       </header>
@@ -259,22 +259,19 @@ export default function App() {
           <div style={{ position:"absolute", top:"20%", right:"-8%", width:500, height:500, background:"radial-gradient(circle, #c9a84c09 0%, transparent 70%)", pointerEvents:"none" }} aria-hidden="true" />
           <div className="hero-wrap" style={{ maxWidth:900, margin:"0 auto", padding:"80px 24px", width:"100%", textAlign:"center" }}>
 
-              <div style={{ marginBottom:28 }}>
-                <div style={{ fontSize:15, fontWeight:700, color:"#e8edf2" }}>דן אלון, עו״ד נזיקין</div>
-                <div style={{ fontSize:13, color:"#7a8fa5" }}>25 שנות ניסיון</div>
-              </div>
-
               <h1 className="ht" style={{ fontSize:48, fontWeight:900, lineHeight:1.25, marginBottom:14 }}>
                 נפגעת בתאונה?<br />
                 <span style={{ color:G }}>מגיע לך פיצוי.</span>
               </h1>
-              <p className="hero-sub" style={{ fontSize:18, color:"#7a8fa5", marginBottom:32, lineHeight:1.6 }}>גלה כמה — תוך 60 שניות, בחינם.</p>
+              <p className="hero-sub" style={{ fontSize:18, color:"#7a8fa5", marginBottom:24, lineHeight:1.6 }}>גלה כמה — תוך 60 שניות, בחינם.</p>
+              <div style={{ marginBottom:32 }}>
+                <button style={{ ...gBtn, fontSize:18, padding:"16px 36px" }} onClick={openBot} aria-label="חשב כעת">חשב כעת</button>
+              </div>
 
               <div className="hero-bullets" style={{ display:"inline-flex", flexDirection:"column", gap:10, marginBottom:32, textAlign:"right" }}>
                 {[
                   { icon:"🔒", text:"בדיקה אנונימית: ללא צורך בשם או תעודת זהות." },
                   { icon:"🤫", text:"דיסקרטיות מלאה: המידע אינו נשמר במערכת ואינו מתועד." },
-                  { icon:"✅", text:"ללא סיכון כלכלי: שכר הטרחה משולם רק על בסיס הצלחה מהפיצוי שתקבל." },
                   { icon:"⚡", text:"תשובה מיידית: קבלת אינדיקציה ראשונית בתוך פחות מ-2 דקות." },
                 ].map(b => (
                   <div key={b.icon} style={{ display:"flex", gap:10, alignItems:"flex-start", fontSize:15, color:"#bcc8d4", lineHeight:1.6 }}>
@@ -476,12 +473,12 @@ export default function App() {
             position: "fixed",
             bottom: 100,
             left: 24,
-            width: 64,
-            height: 64,
-            borderRadius: "50%",
+            borderRadius: 28,
             background: "linear-gradient(135deg, #c9a84c, #f0d080)",
-            color: "#080d18",
-            fontSize: 26,
+            color: "#fff",
+            fontSize: 14,
+            fontWeight: 800,
+            fontFamily: "inherit",
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
@@ -489,13 +486,12 @@ export default function App() {
             boxShadow: "0 4px 20px rgba(201,168,76,0.6)",
             zIndex: 1000,
             border: "none",
-            flexDirection: "column",
-            gap: 2
+            padding: "12px 20px",
+            whiteSpace: "nowrap",
           }}
           aria-label="פתח מחשבון פיצויים"
         >
-          🧮
-          <span style={{ fontSize: 9, fontWeight: 800 }}>חשב פיצוי</span>
+          בוט נפגעתי
         </button>
       )}
 
