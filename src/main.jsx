@@ -40,7 +40,7 @@ ReactDOM.createRoot(document.getElementById("root")).render(
   <React.StrictMode>
     <ErrorBoundary>
       <BrowserRouter>
-        <Suspense fallback={null}>
+        <Suspense fallback={<div style={{background:'#080d18',minHeight:'100vh'}} />}>
           <Routes>
             <Route path="/" element={<App />} />
             <Route path="/privacy" element={<Privacy />} />

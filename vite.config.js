@@ -11,7 +11,6 @@ export default defineConfig({
     minify: "esbuild",
     modulePreload: {
       polyfill: false,
-      resolveDependencies: () => [],
     },
     rollupOptions: {
       output: {
