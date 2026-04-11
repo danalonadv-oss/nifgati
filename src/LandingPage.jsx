@@ -1,6 +1,7 @@
 ﻿import { useState, useEffect, useRef } from "react";
 import Bot from "./Bot.jsx";
 import { openWhatsApp } from "./utils/whatsapp.js";
+import { captureGclid } from "./utils/gclid.js";
 
 const PHONE    = "0544338212";
 const WA       = "972544338212";
@@ -14,6 +15,8 @@ export default function LandingPage({ pageTitle, pageSubtitle, heroEmoji, bullet
   const [showBanner, setShowBanner] = useState(true);
   const [isMobile, setIsMobile]     = useState(window.innerWidth <= 768);
   const botOpenedRef = useRef(false);
+
+  useEffect(() => { captureGclid(); }, []);
 
   useEffect(() => {
     const handler = () => setIsMobile(window.innerWidth <= 768);

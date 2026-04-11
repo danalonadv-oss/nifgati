@@ -49,7 +49,7 @@ async function getAccessToken(clientEmail, privateKey) {
 
 // ── Append row to Google Sheets ──
 async function appendRow(accessToken, spreadsheetId, sheetName, values) {
-  const range = encodeURIComponent(`${sheetName}!A:L`);
+  const range = encodeURIComponent(`${sheetName}!A:M`);
   const url = `https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}/values/${range}:append?valueInputOption=USER_ENTERED&insertDataOption=INSERT_ROWS`;
   const res = await fetch(url, {
     method: "POST",
@@ -84,7 +84,7 @@ export default async function handler(req, res) {
 
   const {
     name, phone, accidentType, hospitalized, workAccident,
-    age, disability, compensationRange, page, whatsappClick, utmSource,
+    age, disability, compensationRange, page, whatsappClick, utmSource, gclid,
   } = req.body || {};
 
   // At minimum need some lead data
@@ -116,6 +116,7 @@ export default async function handler(req, res) {
     page || "",                                      // J: דף נחיתה
     whatsappClick ? "כן" : "לא",                     // K: לחץ WhatsApp
     utmSource || "",                                 // L: מקור
+    gclid || "",                                     // M: GCLID
   ];
 
   try {

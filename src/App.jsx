@@ -1,5 +1,6 @@
 ﻿import { useState, useEffect, useRef, lazy, Suspense } from "react";
 import { openWhatsApp, getWhatsAppUrl } from "./utils/whatsapp.js";
+import { captureGclid } from "./utils/gclid.js";
 const Bot = lazy(() => import("./Bot.jsx"));
 
 // ╔══════════════════════════════════════╗
@@ -55,6 +56,8 @@ export default function App() {
   const [isMobile, setIsMobile]       = useState(window.innerWidth <= 768);
   const botOpenedRef = useRef(false);
   const exitSentRef  = useRef(false);
+
+  useEffect(() => { captureGclid(); }, []);
 
   useEffect(() => {
     const handler = () => setIsMobile(window.innerWidth <= 768);
