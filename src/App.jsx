@@ -74,7 +74,7 @@ export default function App() {
   /* ── TRIGGER 1: 30s dwell time passive lead ── */
   /* ── TRIGGER: Exit intent (desktop: mouseY<50, mobile: 45s inactivity) ── */
   useEffect(() => {
-    const isMobile = "ontouchstart" in window || navigator.maxTouchPoints > 0;
+    const isMobileDevice = "ontouchstart" in window || navigator.maxTouchPoints > 0;
 
     function fireExitIntent() {
       if (exitSentRef.current || sessionStorage.getItem("exitShown")) return;
@@ -83,7 +83,7 @@ export default function App() {
       setShowExit(true);
     }
 
-    if (isMobile) {
+    if (isMobileDevice) {
       let timer = setTimeout(fireExitIntent, 45000);
       const reset = () => { clearTimeout(timer); timer = setTimeout(fireExitIntent, 45000); };
       window.addEventListener("touchstart", reset);
