@@ -198,8 +198,9 @@ export default function useChat(customOpening) {
   const [state, setState] = useState(STATE_ROLE);
   const [data, setData] = useState({ role: null, medical: null, isWork: null, injury: null, disability: null, monthsOff: null, age: null });
   const endRef = useRef(null);
+  const hasInteracted = useRef(false);
 
-  useEffect(() => { endRef.current?.scrollIntoView({ behavior: "smooth" }); }, [msgs, load]);
+  useEffect(() => { if (hasInteracted.current) endRef.current?.scrollIntoView({ behavior: "smooth" }); }, [msgs, load]);
   useEffect(() => { if (!err) return; const t = setTimeout(() => setErr(""), 6000); return () => clearTimeout(t); }, [err]);
 
   function restart() {
@@ -214,6 +215,7 @@ export default function useChat(customOpening) {
 
   function send(txt) {
     if (!txt.trim() || load) return;
+    hasInteracted.current = true;
     setErr("");
     setInp("");
 

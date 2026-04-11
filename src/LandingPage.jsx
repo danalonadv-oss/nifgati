@@ -124,6 +124,7 @@ export default function LandingPage({ pageTitle, pageSubtitle, heroEmoji, bullet
   });
 
   useEffect(() => {
+    window.scrollTo({ top: 0, behavior: 'instant' });
     captureGclid();
 
     // Analytics: inline bot loaded
