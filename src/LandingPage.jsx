@@ -16,7 +16,19 @@ export default function LandingPage({ pageTitle, pageSubtitle, heroEmoji, bullet
   const [isMobile, setIsMobile]     = useState(window.innerWidth <= 768);
   const botOpenedRef = useRef(false);
 
-  useEffect(() => { captureGclid(); }, []);
+  const [dynamicTitle, setDynamicTitle] = useState(pageTitle);
+
+  useEffect(() => {
+    captureGclid();
+    const params = new URLSearchParams(window.location.search);
+    const raw = params.get("utm_term");
+    if (raw) {
+      const decoded = decodeURIComponent(raw.replace(/\+/g, " ")).trim();
+      if (decoded.length > 0 && decoded.length <= 40) {
+        setDynamicTitle(`נפגעת ב${decoded}? מגיע לך פיצוי.`);
+      }
+    }
+  }, []);
 
   useEffect(() => {
     const handler = () => setIsMobile(window.innerWidth <= 768);
@@ -94,12 +106,12 @@ export default function LandingPage({ pageTitle, pageSubtitle, heroEmoji, bullet
       <main id="main-content" role="main" style={{ flex:1 }}>
 
         {/* HERO */}
-        <section aria-label={pageTitle} style={{ minHeight:"100vh", display:"flex", alignItems:"center", position:"relative", overflow:"hidden", paddingTop:showBanner ? 120 : 80 }}>
+        <section aria-label={dynamicTitle} style={{ minHeight:"100vh", display:"flex", alignItems:"center", position:"relative", overflow:"hidden", paddingTop:showBanner ? 120 : 80 }}>
           <div style={{ position:"absolute", top:"20%", right:"-8%", width:500, height:500, background:"radial-gradient(circle, #c9a84c09 0%, transparent 70%)", pointerEvents:"none" }} aria-hidden="true" />
           <div className="hero-wrap" style={{ maxWidth:900, margin:"0 auto", padding:"80px 24px", width:"100%", textAlign:"center" }}>
 
               <h1 className="ht" style={{ fontSize:44, fontWeight:900, lineHeight:1.25, marginBottom:14 }}>
-                {pageTitle}
+                {dynamicTitle}
               </h1>
               <h2 className="hero-sub" style={{ fontSize:18, fontWeight:700, color:"#7a8fa5", marginBottom:24, lineHeight:1.6 }}>{pageSubtitle}</h2>
               <div style={{ marginBottom:32 }}>
