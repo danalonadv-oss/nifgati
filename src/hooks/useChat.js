@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from "react";
+import { sendToCrm } from "../utils/crm.js";
 
 const WA = "972544338212";
 
@@ -81,6 +82,24 @@ function getUrlParams() {
     term: params.get('utm_term'),
     content: params.get('utm_content'),
     page: window.location.pathname
+  };
+}
+
+function buildCrmPayload(data, calc, whatsappClick) {
+  const { source, page } = getUrlParams();
+  const roleLabel = data.role === "driver" ? "נהג" : data.role === "passenger" ? "נוסע" : data.role === "pedestrian" ? "הולך רגל" : "";
+  return {
+    name: data.name || "",
+    phone: data.phone || "",
+    accidentType: roleLabel,
+    hospitalized: data.medical,
+    workAccident: data.isWork,
+    age: data.age || "",
+    disability: data.disability,
+    compensationRange: calc ? `₪${calc.min.toLocaleString("he-IL")} – ₪${calc.max.toLocaleString("he-IL")}` : "",
+    page,
+    whatsappClick: !!whatsappClick,
+    utmSource: source || "",
   };
 }
 
@@ -275,6 +294,8 @@ export default function useChat() {
         setState(STATE_DONE);
         window.dataLayer = window.dataLayer || [];
         window.dataLayer.push({ event: "calculation_complete", value_min: c.min, value_max: c.max });
+        // CRM: qualified lead (bot completed)
+        sendToCrm(buildCrmPayload(newData, c, false));
       }
     } else if (state === STATE_DONE) {
       botMsgs.push({ role: "assistant", content: "לחץ על הכפתור למטה כדי לשוחח עם עו\"ד דן אלון בוואטסאפ." });
@@ -300,6 +321,9 @@ export default function useChat() {
         conversation,
       }),
     }).catch(() => {});
+
+    // CRM: WhatsApp clicked from bot
+    sendToCrm(buildCrmPayload(data, calc, true));
 
     // GA4 whatsapp_click with lead details
     const roleLabel = data.role === "driver" ? "נהג" : data.role === "passenger" ? "נוסע" : data.role === "pedestrian" ? "הולך רגל" : "";
