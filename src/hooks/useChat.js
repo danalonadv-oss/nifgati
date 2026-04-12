@@ -30,7 +30,7 @@ const WORK_RE = /עבודה|בדרך ל|בחזרה מ|עובד|נסיעה לעב
 
 const INJURY_QUESTION = "מה סוג הפגיעה? (למשל: צליפת שוט, שבר, פריצת דיסק, חבלת ראש, PTSD, פגיעה רכה)";
 const DISABILITY_QUESTION = "האם נקבעו לך אחוזי נכות?";
-const MONTHS_OFF_QUESTION = "כמה חודשים לא עבדת (או צפוי שלא תעבוד) בגלל התאונה?";
+const MONTHS_OFF_QUESTION = "כמה ימים לא עבדת (או צפוי שלא תעבוד) בגלל התאונה?";
 const AGE_QUESTION = "בן כמה אתה בערך?";
 
 // ── Injury → estimated disability mapping ──
@@ -333,6 +333,23 @@ export default function useChat(customOpening) {
       return;
     }
 
+    // Detect age question
+    if (inEither('בן כמה') || inEither('בת כמה') || inEither('הגיל שלך') || inEither('גיל')) {
+      const lastUserMsg = msgs.filter(m => m.role === "user").slice(-1)[0];
+      const userAnsweredAbsence = lastUserMsg && /\d/.test(lastUserMsg.content) && (inEither('ימים') || inEither('חודשים'));
+      if (userAnsweredAbsence || inEither('בן כמה') || inEither('בת כמה')) {
+        setQuickReplies([
+          { label: "עד 25", value: "הגיל שלי: 22." },
+          { label: "26\u201335", value: "הגיל שלי: 30." },
+          { label: "36\u201345", value: "הגיל שלי: 40." },
+          { label: "46\u201355", value: "הגיל שלי: 50." },
+          { label: "56\u201365", value: "הגיל שלי: 60." },
+          { label: "מעל 65", value: "הגיל שלי: 68." },
+        ]);
+        return;
+      }
+    }
+
     // Detect salary question
     if (/משתכר|שכר|הכנסה|מרוויח/.test(content) || /משתכר|שכר|הכנסה|מרוויח/.test(prevContent)) {
       setQuickReplies([
@@ -369,13 +386,21 @@ export default function useChat(customOpening) {
   function send(txt) {
     if (!txt.trim() || load) return;
 
-    // Handle gender selection
+    // Handle gender selection — show in chat history
     if (txt.trim().startsWith("GENDER:")) {
       const g = txt.trim().replace("GENDER:", "");
       setGender(g);
-      setQuickReplies(ACCIDENT_QUICK_REPLIES);
       setInp("");
       hasInteracted.current = true;
+      const genderLabel = g === "female" ? "\u{1F469} אני אישה" : "\u{1F468} אני גבר";
+      const greeting = g === "female"
+        ? "ספרי לי מה קרה — איזו תאונה עברת?"
+        : "ספר לי מה קרה — איזו תאונה עברת?";
+      setMsgs(prev => [...prev,
+        { role: "user", content: genderLabel },
+        { role: "assistant", content: greeting },
+      ]);
+      setQuickReplies(ACCIDENT_QUICK_REPLIES);
       return;
     }
 
@@ -476,10 +501,10 @@ export default function useChat(customOpening) {
     } else if (state === STATE_MONTHS_OFF) {
       const monthMatch = txt.match(/(\d+)/);
       if (!monthMatch) {
-        botMsgs.push({ role: "assistant", content: "כמה חודשים לא עבדת? כתוב מספר (למשל: 3)." });
+        botMsgs.push({ role: "assistant", content: "כמה ימים לא עבדת? כתוב מספר." });
       } else {
         newData.monthsOff = parseInt(monthMatch[1]);
-        botMsgs.push({ role: "assistant", content: `${newData.monthsOff} חודשים — זה ייכלל בחישוב הפסדי השכר.` });
+        botMsgs.push({ role: "assistant", content: `${newData.monthsOff} ימים — זה ייכלל בחישוב הפסדי השכר.` });
         botMsgs.push({ role: "assistant", content: AGE_QUESTION });
         setState(STATE_AGE);
         trackStep(5, "age_asked");
