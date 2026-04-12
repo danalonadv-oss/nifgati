@@ -509,7 +509,7 @@ export default function useChat(customOpening) {
       trackStep(4, "work_related");
     } else if (state === STATE_INJURY) {
       newData.injury = txt.trim();
-      const cleanInjury = txt.trim().replace(/\.$/, "");
+      const cleanInjury = txt.trim().replace(/^סוג הפגיעה:\s*/, "").replace(/\.$/, "");
       botMsgs.push({ role: "assistant", content: `הבנתי — ${cleanInjury}. חשוב לתעד את זה.` });
       // Social proof — show once based on injury type
       if (!shownSocialProof.current) {
@@ -527,7 +527,7 @@ export default function useChat(customOpening) {
         botMsgs.push({ role: "assistant", content: `${newData.disability}% נכות — זה משמעותי מבחינת הפיצוי.` });
       } else if (dontKnow) {
         newData.disability = estimateDisability(newData.injury);
-        botMsgs.push({ role: "assistant", content: `הבנתי. לפי סוג הפגיעה אני מעריך בערך ${newData.disability}% נכות לצורך החישוב. עו״ד אלון יוכל לתת הערכה מדויקת יותר.` });
+        botMsgs.push({ role: "assistant", content: `סטטיסטית, תיקים דומים מסתיימים בממוצע עם כ-${newData.disability}% נכות. אשתמש בזה לצורך ההערכה — עו״ד דן אלון יוכל לספק הערכה מדויקת יותר לאחר עיון במסמכים הרפואיים.` });
       } else {
         botMsgs.push({ role: "assistant", content: "כמה אחוזי נכות נקבעו לך? כתוב מספר, או ״לא יודע״." });
         setData(newData);
@@ -537,6 +537,14 @@ export default function useChat(customOpening) {
       botMsgs.push({ role: "assistant", content: MONTHS_OFF_QUESTION });
       setState(STATE_MONTHS_OFF);
       setProgress(75);
+      setQuickReplies([
+        { label: "0 ימים", value: "0" },
+        { label: "7 ימים", value: "7" },
+        { label: "14 ימים", value: "14" },
+        { label: "30 ימים", value: "30" },
+        { label: "60 ימים", value: "60" },
+        { label: "90+ ימים", value: "90" },
+      ]);
     } else if (state === STATE_MONTHS_OFF) {
       const monthMatch = txt.match(/(\d+)/);
       if (!monthMatch) {
@@ -573,7 +581,7 @@ export default function useChat(customOpening) {
     }
 
     // Urgency message — after 3+ messages without calc
-    if (userMsgCount.current >= 3 && !calc && !shownUrgency.current && state !== STATE_DONE) {
+    if (userMsgCount.current >= 5 && !calc && !shownUrgency.current && state !== STATE_DONE) {
       shownUrgency.current = true;
       botMsgs.push({ role: "assistant", content: URGENCY_MSG });
     }
