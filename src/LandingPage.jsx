@@ -8,11 +8,6 @@ const WA       = "972544338212";
 const MY_NAME  = "דן אלון";
 const MY_TITLE = "עורך דין נזיקין";
 
-const PAIN_RE = /כאב|וסבל/;
-const CALC_RE = /מחשבון|חישוב|פיצוי/;
-const BODY_PARTS = /צוואר|גב|ראש|רגל|יד|ברך|דיסק|שוט/;
-const ACCIDENT_TYPES = /אופנוע|קורקינט|הולך רגל|עבודה|אוטובוס/;
-
 function getPersonalizedOpening(pageSlug, utmTerm) {
   const t = (utmTerm || '').toLowerCase();
   const p = (pageSlug || '').toLowerCase();
@@ -101,35 +96,16 @@ function getPersonalizedOpening(pageSlug, utmTerm) {
   if (p === 'ptsd')
     return 'נזק נפשי אחרי תאונה הוא ראש נזק מוכר בחוק. ספר לי מה עברת.';
 
-  // ── utm_term-based fallback (no page-specific match) ──
-  if (t && PAIN_RE.test(t))
-    return 'חיפשת פיצוי על כאב וסבל — בוא נחשב את התמונה המלאה כולל הפסד שכר ונכות.';
-  if (t && CALC_RE.test(t))
-    return 'בוא נחשב ישר — כמה שאלות קצרות ואתן לך הערכת פיצוי מיידית.';
-  if (t && BODY_PARTS.test(t))
-    return `נפגעת ב${utmTerm}? ספר לי מה קרה ואחשב כמה פיצוי מגיע לך.`;
-  if (t && ACCIDENT_TYPES.test(t))
-    return `נפגעת בתאונת ${utmTerm}? ספר לי מה קרה ואחשב כמה מגיע לך.`;
-
   // ── default ──
   return 'שלום 👋 נפגעת בתאונה? ספר לי מה קרה ואחשב כמה פיצוי מגיע לך.';
 }
 
 // Read utm_term synchronously so it's available on the very first render
+// (before Bot mounts and initializes its useState with the opening message)
 function readUtmTerm() {
   const raw = new URLSearchParams(window.location.search).get("utm_term");
   if (!raw) return "";
   return decodeURIComponent(raw.replace(/\+/g, " ")).trim();
-}
-
-function buildDynamicTitle(utmTerm, pageTitle) {
-  if (!utmTerm) return pageTitle;
-  const t = utmTerm;
-  if (PAIN_RE.test(t)) return 'נפגעת בתאונה? חשב פיצוי כאב וסבל כעת';
-  if (CALC_RE.test(t)) return 'חשב את הפיצוי המגיע לך — בחינם, תוך דקות';
-  if (BODY_PARTS.test(t)) return `נפגעת ב${t}? מגיע לך פיצוי`;
-  if (ACCIDENT_TYPES.test(t)) return `נפגעת בתאונת ${t}? מגיע לך פיצוי`;
-  return pageTitle;
 }
 
 export default function LandingPage({ pageTitle, pageSubtitle, heroEmoji, bullets, ctaText, pageSlug, bannerText, socialProofAmount, socialProofLabel }) {
@@ -140,7 +116,12 @@ export default function LandingPage({ pageTitle, pageSubtitle, heroEmoji, bullet
   const [showBanner, setShowBanner] = useState(true);
   const [isMobile, setIsMobile]     = useState(window.innerWidth <= 768);
 
-  const [dynamicTitle] = useState(() => buildDynamicTitle(utmTerm, pageTitle));
+  const [dynamicTitle] = useState(() => {
+    if (utmTerm.length > 0 && utmTerm.length <= 40) {
+      return `נפגעת ב${utmTerm}? מגיע לך פיצוי.`;
+    }
+    return pageTitle;
+  });
 
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: 'instant' });
