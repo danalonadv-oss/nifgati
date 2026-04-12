@@ -17,7 +17,8 @@ const STATE_DONE = 9;
 const DRIVER_RE = /נהג|נהגת|הנהג/i;
 const PASSENGER_RE = /נוסע|נוסעת|יושב/i;
 const PEDESTRIAN_RE = /הולך|הולכת|רגל|חצ/i;
-const MOTORCYCLE_RE = /אופנוע|קורקינט|אופניים חשמליים/i;
+const MOTORCYCLE_RE = /אופנוע/i;
+const SCOOTER_RE = /קורקינט|אופניים חשמליים/i;
 const CAR_RE = /תאונת רכב|ברכב/i;
 const WORK_ACCIDENT_RE = /תאונת עבודה|בעבודה/i;
 const QUICK_REPLY_PREFIX_RE = /סוג התאונה שלי:/;
@@ -150,7 +151,7 @@ function getPersonalizedOpening() {
   if (p.includes('avoda'))
     return 'שלום 👋 נפגעת בתאונת עבודה? מגיע לך פיצוי מביטוח לאומי ומהמעסיק. בוא נבדוק יחד כמה.';
   if (p.includes('korkinet'))
-    return 'שלום 👋 תאונת קורקינט או אופניים חשמליים? גם זה מכוסה בחוק. ספר לי מה קרה.';
+    return 'שלום 👋 נפגעת בתאונת קורקינט או אופניים חשמליים? החוק מגן עליך — ספר לי מה קרה.';
   if (p.includes('tzlipat-shot'))
     return 'שלום 👋 צליפת שוט היא פגיעה מוכרת שמזכה בפיצוי — גם ללא שבר. בוא נחשב כמה מגיע לך.';
   if (p.includes('pritzat-disc'))
@@ -180,6 +181,7 @@ function getInitialMsgs(customOpening) {
 }
 
 function classifyRole(txt) {
+  if (SCOOTER_RE.test(txt)) return "scooter";
   if (MOTORCYCLE_RE.test(txt)) return "motorcycle";
   if (PEDESTRIAN_RE.test(txt)) return "pedestrian";
   if (WORK_ACCIDENT_RE.test(txt)) return "work";
@@ -192,14 +194,15 @@ function classifyRole(txt) {
 }
 
 function roleToLabel(role) {
-  const map = { driver: "נהג", passenger: "נוסע", pedestrian: "הולך רגל", motorcycle: "רוכב אופנוע", car: "נוסע/נהג ברכב", work: "תאונת עבודה" };
+  const map = { driver: "נהג", passenger: "נוסע", pedestrian: "הולך רגל", motorcycle: "רוכב אופנוע", scooter: "נפגע קורקינט/אופניים חשמליים", car: "נוסע/נהג ברכב", work: "תאונת עבודה" };
   return map[role] || "";
 }
 
 function roleResponse(role) {
   if (role === "driver") return "הבנתי. חברת הביטוח של הנהג האחר אחראית.";
   if (role === "passenger") return "הבנתי. אתה יכול לתבוע גם את חברת הביטוח של הנהג וגם של הרכב שלך.";
-  if (role === "motorcycle") return "הבנתי. תאונות אופנוע וקורקינט מזכות לרוב בפיצוי גבוה.";
+  if (role === "motorcycle") return "הבנתי. תאונות אופנוע מזכות לרוב בפיצוי גבוה במיוחד — חברת הביטוח של הרכב הפוגע אחראית לפצות אותך.";
+  if (role === "scooter") return "הבנתי. גם נפגעי קורקינט זכאים לפיצוי — הכל תלוי בנסיבות התאונה.";
   if (role === "car") return "הבנתי. חברת הביטוח של הרכב המעורב אחראית לפצות אותך.";
   if (role === "work") return "הבנתי. תאונת עבודה — נבדוק את הזכויות שלך.";
   return "הבנתי. זה דורש הוכחה אבל יש לך זכויות.";
@@ -236,7 +239,8 @@ const INITIAL_QUICK_REPLIES = [
 
 const ACCIDENT_QUICK_REPLIES = [
   { label: "\u{1F697} \u200Fתאונת רכב", value: "סוג התאונה שלי: תאונת רכב." },
-  { label: "\u{1F3CD}\uFE0F \u200Fאופנוע / קורקינט", value: "סוג התאונה שלי: תאונת אופנוע או קורקינט." },
+  { label: "\u{1F3CD}\uFE0F \u200Fאופנוע", value: "סוג התאונה שלי: תאונת אופנוע." },
+  { label: "\u{1F6F4} \u200Fקורקינט / אופניים חשמליים", value: "סוג התאונה שלי: תאונת קורקינט או אופניים חשמליים." },
   { label: "\u{1F6B6} \u200Fהולך/ת רגל", value: "סוג התאונה שלי: נפגעתי כהולך רגל." },
   { label: "\u{1F3D7}\uFE0F \u200Fתאונת עבודה", value: "סוג התאונה שלי: תאונת עבודה." },
 ];
