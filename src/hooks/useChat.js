@@ -362,7 +362,12 @@ export default function useChat(customOpening) {
     // Handle free input option
     if (txt.trim() === "OPEN_INPUT") {
       setQuickReplies([]);
-      setMsgs(prev => [...prev, { role: "assistant", content: "ספר/י לי בחופשיות — תוכל/י להקליד, לדבר \uD83C\uDF99\uFE0F או להעלות מסמך רפואי \uD83D\uDCCE" }]);
+      const openMsg = gender === "female"
+        ? "ספרי לי בחופשיות — תוכלי להקליד, לדבר \uD83C\uDF99\uFE0F או להעלות מסמך רפואי \uD83D\uDCCE"
+        : gender === "male"
+        ? "ספר לי בחופשיות — תוכל להקליד, לדבר \uD83C\uDF99\uFE0F או להעלות מסמך רפואי \uD83D\uDCCE"
+        : "ספר/י לי בחופשיות — תוכל/י להקליד, לדבר \uD83C\uDF99\uFE0F או להעלות מסמך רפואי \uD83D\uDCCE";
+      setMsgs(prev => [...prev, { role: "assistant", content: openMsg }]);
       return;
     }
 
