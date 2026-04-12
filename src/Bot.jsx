@@ -21,13 +21,9 @@ export default function Bot({ onClose, inline = false, openingMessage }) {
   const messagesContainerRef = useRef(null);
 
   useEffect(() => {
-    if (messagesContainerRef.current) {
-      const container = messagesContainerRef.current;
-      const lastBotBubble = container.querySelectorAll('[class*="msgRowBot"]');
-      if (lastBotBubble.length > 0) {
-        lastBotBubble[lastBotBubble.length - 1].scrollIntoView({ behavior: "smooth", block: "nearest" });
-      }
-    }
+    if (!messagesContainerRef.current) return;
+    const container = messagesContainerRef.current;
+    setTimeout(() => { container.scrollTop = container.scrollHeight; }, 100);
   }, [msgs, load]);
 
   async function handleFile(file) {

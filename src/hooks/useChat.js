@@ -392,7 +392,8 @@ export default function useChat(customOpening) {
     }
 
     // Detect salary question
-    if (/משתכר|שכר|הכנסה|מרוויח/.test(content) || /משתכר|שכר|הכנסה|מרוויח/.test(prevContent)) {
+    const salaryAnswered = userMsgs.some(m => m.content.includes("שקל בחודש") || m.content.includes("לא עובד") || m.content.includes("לא רלוונטי"));
+    if (!salaryAnswered && (/משתכר|שכר|הכנסה|מרוויח/.test(content) || /משתכר|שכר|הכנסה|מרוויח/.test(prevContent))) {
       setQuickReplies([
         { label: "עד \u20AA10,000", value: "אני מרוויח עד 10,000 שקל בחודש" },
         { label: "\u20AA10,000 – \u20AA20,000", value: "אני מרוויח בין 10,000 ל-20,000 שקל בחודש" },
@@ -573,8 +574,7 @@ export default function useChat(customOpening) {
     } else if (state === STATE_SALARY) {
       // Salary answered — now calculate
       const c = calculateCompensation(newData, [...msgs, userMsg]);
-      const summary = buildSummary(newData, c);
-      botMsgs.push({ role: "assistant", content: summary });
+      botMsgs.push({ role: "assistant", content: "על בסיס הנתונים שלך:" });
       setCalc(c);
       setShowReferral(true);
       setState(STATE_DONE);
