@@ -404,10 +404,10 @@ export default function useChat(customOpening) {
     // Handle free input option
     if (txt.trim() === "OPEN_INPUT") {
       const openMsg = gender === "female"
-        ? "ספרי לי בחופשיות — תוכלי להקליד, לדבר \uD83C\uDF99\uFE0F או להעלות מסמך רפואי \uD83D\uDCCE"
+        ? "ספרי לי מה קרה — תוכלי להקליד, לדבר \uD83C\uDF99\uFE0F או להעלות מסמך רפואי \uD83D\uDCCE"
         : gender === "male"
-        ? "ספר לי בחופשיות — תוכל להקליד, לדבר \uD83C\uDF99\uFE0F או להעלות מסמך רפואי \uD83D\uDCCE"
-        : "ספר/י לי בחופשיות — תוכל/י להקליד, לדבר \uD83C\uDF99\uFE0F או להעלות מסמך רפואי \uD83D\uDCCE";
+        ? "ספר לי מה קרה — תוכל להקליד, לדבר \uD83C\uDF99\uFE0F או להעלות מסמך רפואי \uD83D\uDCCE"
+        : "ספר/י לי מה קרה — תוכל/י להקליד, לדבר \uD83C\uDF99\uFE0F או להעלות מסמך רפואי \uD83D\uDCCE";
       setMsgs(prev => [...prev, { role: "assistant", content: openMsg }]);
       return;
     }
