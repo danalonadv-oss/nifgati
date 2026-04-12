@@ -1,4 +1,4 @@
-import { useRef } from "react";
+import { useRef, useEffect } from "react";
 import useChat from "./hooks/useChat";
 import useFileUpload from "./hooks/useFileUpload";
 import useSpeechRecognition from "./hooks/useSpeechRecognition";
@@ -18,6 +18,13 @@ export default function Bot({ onClose, inline = false, openingMessage }) {
 
   const { mic, toggleMic } = useSpeechRecognition({ setInp, setErr });
   const inpRef = useRef(null);
+  const messagesContainerRef = useRef(null);
+
+  useEffect(() => {
+    if (messagesContainerRef.current) {
+      messagesContainerRef.current.scrollTop = messagesContainerRef.current.scrollHeight;
+    }
+  }, [msgs, load]);
 
   async function handleFile(file) {
     if (load) return;
@@ -67,7 +74,7 @@ export default function Bot({ onClose, inline = false, openingMessage }) {
           )}
 
           {/* ── Messages ── */}
-          <div className={s.messages}>
+          <div ref={messagesContainerRef} className={s.messages}>
             {msgs.map((m, i) => (
               <div key={i} className={`${s.msgRow} ${m.role === "user" ? s.msgRowUser : s.msgRowBot}`}>
                 <div className={`${s.bubble} ${m.role === "user" ? s.bubbleUser : s.bubbleBot}`}>{m.content}</div>
@@ -210,7 +217,7 @@ export default function Bot({ onClose, inline = false, openingMessage }) {
         )}
 
         {/* ── Messages ── */}
-        <div className={s.messages}>
+        <div ref={messagesContainerRef} className={s.messages}>
           {msgs.map((m, i) => (
             <div key={i} className={`${s.msgRow} ${m.role === "user" ? s.msgRowUser : s.msgRowBot}`}>
               <div className={`${s.bubble} ${m.role === "user" ? s.bubbleUser : s.bubbleBot}`}>{m.content}</div>
