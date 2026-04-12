@@ -145,16 +145,19 @@ function getPersonalizedOpening() {
   return 'שלום 👋 נפגעת בתאונה? בוא נבדוק ב-60 שניות כמה פיצוי מגיע לך — חינם, ללא התחייבות.';
 }
 
-const DEFAULT_OPENING = "שלום 👋 אני הבוט של עו״ד דן אלון — 25 שנות ניסיון בנזיקין ותאונות דרכים.\nספר לי מה קרה — תוכל להקליד, לדבר למיקרופון 🎙️ או להעלות מסמך רפואי 📎\nאחשב כמה פיצוי מגיע לך תוך דקה — חינם, ללא התחייבות.";
-const ATTORNEY_SUFFIX = " — הבוט של עו״ד דן אלון, 25 שנות ניסיון בנזיקין.";
+const ATTORNEY_LINE = '\n\n🏛️ הבוט של עו״ד דן אלון — מומחה נזיקין | 25+ שנות ניסיון';
 
 function getInitialMsgs(customOpening) {
-  let opening = DEFAULT_OPENING;
-  if (customOpening) {
-    opening = customOpening + ATTORNEY_SUFFIX;
-  }
+  const baseOpening = customOpening || getPersonalizedOpening();
+
+  // Remove any existing attorney line if already appended
+  const cleanOpening = baseOpening
+    .replace(/\s*[—-]\s*הבוט של.*$/g, '')
+    .replace(/\n\n🏛️.*$/g, '')
+    .trim();
+
   return [
-    { role: "assistant", content: opening, privacy: true },
+    { role: "assistant", content: cleanOpening + ATTORNEY_LINE, privacy: true },
   ];
 }
 
