@@ -381,6 +381,7 @@ export default function useChat(customOpening) {
 
   function send(txt) {
     if (!txt.trim() || load) return;
+    setQuickReplies([]); // Always clear immediately on any interaction
 
     // Handle gender selection — show in chat history
     if (txt.trim().startsWith("GENDER:")) {
@@ -402,7 +403,6 @@ export default function useChat(customOpening) {
 
     // Handle free input option
     if (txt.trim() === "OPEN_INPUT") {
-      setQuickReplies([]);
       const openMsg = gender === "female"
         ? "ספרי לי בחופשיות — תוכלי להקליד, לדבר \uD83C\uDF99\uFE0F או להעלות מסמך רפואי \uD83D\uDCCE"
         : gender === "male"
@@ -415,7 +415,6 @@ export default function useChat(customOpening) {
     if (!hasInteracted.current) trackStep(1, "bot_opened");
     hasInteracted.current = true;
     userMsgCount.current++;
-    setQuickReplies([]);
     setErr("");
     setInp("");
 
