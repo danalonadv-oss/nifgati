@@ -285,7 +285,7 @@ export default function useChat(customOpening) {
     }
 
     // Detect injury type question
-    if (content.includes('סוג הפגיעה') || content.includes('איזו פגיעה') || content.includes('מה הפגיעה') || content.includes('צליפת שוט') || content.includes('סוג הפציעה')) {
+    if (content.includes('סוג הפגיע') || (content.includes('פגיע') && content.includes('למשל')) || (content.includes('שבר') && content.includes('למשל')) || (content.includes('צליפת שוט') && content.includes('למשל')) || content.includes('חבלת ראש') || (content.includes('פריצת דיסק') && content.includes('למשל'))) {
       setQuickReplies([
         { label: "שבר", value: "סוג הפגיעה: שבר." },
         { label: "צליפת שוט / כאבי צוואר", value: "סוג הפגיעה: צליפת שוט וכאבי צוואר." },
