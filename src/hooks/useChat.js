@@ -298,6 +298,7 @@ export default function useChat(customOpening) {
         { label: "חבלת ראש / PTSD", value: "סוג הפגיעה: חבלת ראש או PTSD." },
         { label: "פגיעה בברך / מפרק", value: "סוג הפגיעה: פגיעה בברך או מפרק." },
         { label: "פגיעה רכה / חבורות", value: "סוג הפגיעה: פגיעה רכה וחבורות." },
+        { label: "אחר — אקליד בעצמי", value: "OPEN_INPUT" },
       ]);
       return;
     }
@@ -349,6 +350,13 @@ export default function useChat(customOpening) {
         ? "ספרי לי מה קרה — איזו תאונה עברת?"
         : "ספר לי מה קרה — איזו תאונה עברת?";
       setMsgs(prev => [...prev, { role: "assistant", content: greeting }]);
+      return;
+    }
+
+    // Handle free input option
+    if (txt.trim() === "OPEN_INPUT") {
+      setQuickReplies([]);
+      setMsgs(prev => [...prev, { role: "assistant", content: "ספר/י לי בחופשיות — תוכל/י להקליד, לדבר \uD83C\uDF99\uFE0F או להעלות מסמך רפואי \uD83D\uDCCE" }]);
       return;
     }
 
