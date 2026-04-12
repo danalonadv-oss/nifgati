@@ -22,7 +22,11 @@ export default function Bot({ onClose, inline = false, openingMessage }) {
 
   useEffect(() => {
     if (messagesContainerRef.current) {
-      messagesContainerRef.current.scrollTop = messagesContainerRef.current.scrollHeight;
+      const container = messagesContainerRef.current;
+      const lastBotBubble = container.querySelectorAll('[class*="msgRowBot"]');
+      if (lastBotBubble.length > 0) {
+        lastBotBubble[lastBotBubble.length - 1].scrollIntoView({ behavior: "smooth", block: "nearest" });
+      }
     }
   }, [msgs, load]);
 

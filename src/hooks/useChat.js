@@ -309,6 +309,30 @@ export default function useChat(customOpening) {
       return;
     }
 
+    // Detect disability question
+    if (inEither('אחוזי נכות') || (inEither('נכות') && (inEither('נקבעו') || inEither('קבעו')))) {
+      setQuickReplies([
+        { label: "כן, נקבעו לי אחוזי נכות", value: "כן, נקבעו לי אחוזי נכות." },
+        { label: "לא נקבעו עדיין", value: "לא נקבעו לי אחוזי נכות עדיין." },
+        { label: "בתהליך קביעה", value: "אני בתהליך קביעת אחוזי נכות." },
+      ]);
+      return;
+    }
+
+    // Detect user confirmed disability — show percentage buttons
+    const lastUserMsg = msgs.filter(m => m.role === "user").slice(-1)[0];
+    if (lastUserMsg && lastUserMsg.content.includes("נקבעו לי אחוזי נכות") && lastUserMsg.content.includes("כן")) {
+      setQuickReplies([
+        { label: "5%", value: "אחוזי הנכות שלי: 5%." },
+        { label: "10%", value: "אחוזי הנכות שלי: 10%." },
+        { label: "15%", value: "אחוזי הנכות שלי: 15%." },
+        { label: "20%", value: "אחוזי הנכות שלי: 20%." },
+        { label: "25%+", value: "אחוזי הנכות שלי: 25% ומעלה." },
+        { label: "אחר", value: "OPEN_INPUT" },
+      ]);
+      return;
+    }
+
     // Detect salary question
     if (/משתכר|שכר|הכנסה|מרוויח/.test(content) || /משתכר|שכר|הכנסה|מרוויח/.test(prevContent)) {
       setQuickReplies([
