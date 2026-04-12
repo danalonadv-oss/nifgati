@@ -100,6 +100,7 @@ export default function Bot({ onClose, inline = false, openingMessage }) {
                 <div className={s.calcLabel}>הערכת פיצוי ראשונית</div>
                 <div className={s.calcAmount}>₪{calc.min.toLocaleString("he-IL")} – ₪{calc.max.toLocaleString("he-IL")}</div>
                 <div className={s.calcFee}>לפני שכ"ט (8%–13%)</div>
+                <p style={{ fontSize:11, color:"#7a8fa5", textAlign:"center", margin:"8px 0 12px", lineHeight:1.5 }}>* הערכה זו אינה מהווה ייעוץ משפטי ואינה תחליף לו.<br/>ייעוץ משפטי מחייב יינתן על ידי עו״ד דן אלון בלבד.</p>
                 <div className={s.bounceArrow}>👇</div>
                 <button onClick={() => { notifyWhatsApp(); window.location.href = waHref; }} aria-label="שלח את החישוב לעורך דין בוואטסאפ" className={s.ctaBtn}>
                   💬 שלח את החישוב לעו"ד בוואטסאפ
