@@ -235,7 +235,7 @@ export default function useChat(customOpening) {
     if (!hasInteracted.current) return;
     const lastMsg = msgs[msgs.length - 1];
     if (lastMsg?.role === "user") endRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [msgs, load]);
+  }, [msgs]);
   useEffect(() => { if (!err) return; const t = setTimeout(() => setErr(""), 6000); return () => clearTimeout(t); }, [err]);
 
   // Detect salary question in latest bot message and show salary quick replies
