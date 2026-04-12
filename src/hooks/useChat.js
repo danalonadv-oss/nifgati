@@ -48,12 +48,31 @@ function estimateDisability(injuryText) {
   return 10; // default
 }
 
+// ── Extract salary from user messages ──
+function extractSalary(msgs) {
+  const salaryMsg = (msgs || [])
+    .filter(m => m.role === "user")
+    .reverse()
+    .find(m => /שכר|מרוויח|משתכר|שקל בחודש/.test(m.content));
+  if (!salaryMsg) return 13566; // default: avg salary 2026
+  const c = salaryMsg.content;
+  if (c.includes("10,000 ל-20,000") || c.includes("10,000") && c.includes("20,000")) return 15000;
+  if (c.includes("20,000 ל-30,000") || c.includes("20,000") && c.includes("30,000")) return 25000;
+  if (c.includes("30,000 ל-50,000") || c.includes("30,000") && c.includes("50,000")) return 40000;
+  if (c.includes("מעל 50,000") || c.includes("מעל")) return 55000;
+  if (c.includes("עד 10,000")) return 8000;
+  if (c.includes("לא עובד") || c.includes("לא רלוונטי")) return 0;
+  const numMatch = c.match(/(\d[\d,]*)/);
+  if (numMatch) return parseInt(numMatch[1].replace(/,/g, "")) || 13566;
+  return 13566;
+}
+
 // ── Paltad-based calculation ──
-function calculateCompensation(data) {
+function calculateCompensation(data, msgs) {
   const ageNum = parseInt(data.age) || 30;
   const disability = data.disability || 10;
   const monthsOff = data.monthsOff || 3;
-  const salary = 11000; // default average salary
+  const salary = extractSalary(msgs) || 13566;
 
   // Age factor: younger = higher multiplier (more years of suffering)
   const ageFactor = ageNum <= 25 ? 1.3 : ageNum <= 40 ? 1.1 : ageNum <= 55 ? 1.0 : 0.85;
@@ -167,6 +186,7 @@ function classifyRole(txt) {
   if (DRIVER_RE.test(txt)) return "driver";
   if (PASSENGER_RE.test(txt)) return "passenger";
   if (QUICK_REPLY_PREFIX_RE.test(txt)) return "car"; // fallback for quick reply
+  if (/נפגעתי|תאונה|תאונת דרכים/.test(txt)) return "car"; // general accident fallback
   return null;
 }
 
@@ -501,7 +521,7 @@ export default function useChat(customOpening) {
       setProgress(50);
     } else if (state === STATE_DISABILITY) {
       const pctMatch = txt.match(/(\d+)\s*%?/);
-      const dontKnow = /לא יודע|לא נקבע|אין|טרם|עדיין לא/.test(txt);
+      const dontKnow = /לא יודע|לא נקבע|אין|טרם|עדיין לא|בתהליך/.test(txt);
       if (pctMatch) {
         newData.disability = Math.min(parseInt(pctMatch[1]), 100);
         botMsgs.push({ role: "assistant", content: `${newData.disability}% נכות — זה משמעותי מבחינת הפיצוי.` });
@@ -534,7 +554,7 @@ export default function useChat(customOpening) {
         botMsgs.push({ role: "assistant", content: "בן כמה אתה? כתוב מספר." });
       } else {
         newData.age = ageMatch[1];
-        const c = calculateCompensation(newData);
+        const c = calculateCompensation(newData, [...msgs, userMsg]);
         const summary = buildSummary(newData, c);
         botMsgs.push({ role: "assistant", content: summary });
         setCalc(c);
