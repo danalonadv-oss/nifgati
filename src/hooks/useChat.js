@@ -334,20 +334,16 @@ export default function useChat(customOpening) {
     }
 
     // Detect age question
-    if (inEither('בן כמה') || inEither('בת כמה') || inEither('הגיל שלך') || inEither('גיל')) {
-      const lastUserMsg = msgs.filter(m => m.role === "user").slice(-1)[0];
-      const userAnsweredAbsence = lastUserMsg && /\d/.test(lastUserMsg.content) && (inEither('ימים') || inEither('חודשים'));
-      if (userAnsweredAbsence || inEither('בן כמה') || inEither('בת כמה')) {
-        setQuickReplies([
-          { label: "עד 25", value: "הגיל שלי: 22." },
-          { label: "26\u201335", value: "הגיל שלי: 30." },
-          { label: "36\u201345", value: "הגיל שלי: 40." },
-          { label: "46\u201355", value: "הגיל שלי: 50." },
-          { label: "56\u201365", value: "הגיל שלי: 60." },
-          { label: "מעל 65", value: "הגיל שלי: 68." },
-        ]);
-        return;
-      }
+    if (inEither('בן כמה') || inEither('בת כמה') || (inEither('גיל') && (inEither('בן') || inEither('בת') || inEither('כמה')))) {
+      setQuickReplies([
+        { label: "עד 25", value: "הגיל שלי: 22." },
+        { label: "26\u201335", value: "הגיל שלי: 30." },
+        { label: "36\u201345", value: "הגיל שלי: 40." },
+        { label: "46\u201355", value: "הגיל שלי: 50." },
+        { label: "56\u201365", value: "הגיל שלי: 60." },
+        { label: "מעל 65", value: "הגיל שלי: 68." },
+      ]);
+      return;
     }
 
     // Detect salary question
