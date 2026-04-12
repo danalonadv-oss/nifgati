@@ -13,8 +13,6 @@ const STATE_MONTHS_OFF = 6;
 const STATE_AGE = 7;
 const STATE_DONE = 8;
 
-const ROLE_QUESTION = "חוק הפיצויים לנפגעי תאונות דרכים בישראל מבטיח פיצוי כמעט בכל מקרה של פציעה. זה לא תלוי בזה מי אשם.\n\nהיית הנהג, נוסע, או הולך רגל בתאונה?";
-
 const DRIVER_RE = /נהג|נהגת|הנהג/i;
 const PASSENGER_RE = /נוסע|נוסעת|יושב/i;
 const PEDESTRIAN_RE = /הולך|הולכת|רגל|חצ/i;
