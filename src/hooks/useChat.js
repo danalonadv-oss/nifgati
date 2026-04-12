@@ -213,8 +213,17 @@ export default function useChat(customOpening) {
     setData({ role: null, medical: null, isWork: null, injury: null, disability: null, monthsOff: null, age: null });
   }
 
+  function trackStep(stepNumber, stepName) {
+    if (typeof window.gtag === "function") {
+      window.gtag("event", "bot_step", { step_number: stepNumber, step_name: stepName });
+    }
+    window.dataLayer = window.dataLayer || [];
+    window.dataLayer.push({ event: "bot_step", step_number: stepNumber, step_name: stepName });
+  }
+
   function send(txt) {
     if (!txt.trim() || load) return;
+    if (!hasInteracted.current) trackStep(1, "bot_opened");
     hasInteracted.current = true;
     setErr("");
     setInp("");
@@ -232,6 +241,7 @@ export default function useChat(customOpening) {
         botMsgs.push({ role: "assistant", content: roleResponse(role) });
         botMsgs.push({ role: "assistant", content: MEDICAL_QUESTION });
         setState(STATE_MEDICAL);
+        trackStep(2, "accident_type");
       }
     } else if (state === STATE_MEDICAL) {
       const yes = YES_RE.test(txt);
@@ -243,6 +253,7 @@ export default function useChat(customOpening) {
         botMsgs.push({ role: "assistant", content: medicalResponse(yes) });
         botMsgs.push({ role: "assistant", content: CONTEXT_QUESTION });
         setState(STATE_CONTEXT);
+        trackStep(3, "hospitalized");
       }
     } else if (state === STATE_CONTEXT) {
       const isWork = WORK_RE.test(txt);
@@ -250,6 +261,7 @@ export default function useChat(customOpening) {
       botMsgs.push({ role: "assistant", content: contextResponse(isWork) });
       botMsgs.push({ role: "assistant", content: INJURY_QUESTION });
       setState(STATE_INJURY);
+      trackStep(4, "work_related");
     } else if (state === STATE_INJURY) {
       newData.injury = txt.trim();
       botMsgs.push({ role: "assistant", content: `הבנתי — ${txt.trim()}. חשוב לתעד את זה.` });
@@ -281,6 +293,7 @@ export default function useChat(customOpening) {
         botMsgs.push({ role: "assistant", content: `${newData.monthsOff} חודשים — זה ייכלל בחישוב הפסדי השכר.` });
         botMsgs.push({ role: "assistant", content: AGE_QUESTION });
         setState(STATE_AGE);
+        trackStep(5, "age_asked");
       }
     } else if (state === STATE_AGE) {
       const ageMatch = txt.match(/(\d+)/);
@@ -296,6 +309,8 @@ export default function useChat(customOpening) {
         setState(STATE_DONE);
         window.dataLayer = window.dataLayer || [];
         window.dataLayer.push({ event: "calculation_complete", value_min: c.min, value_max: c.max });
+        trackStep(6, "calculation_shown");
+        trackStep(7, "cta_shown");
         // CRM: qualified lead (bot completed)
         sendToCrm(buildCrmPayload(newData, c, false));
       }
