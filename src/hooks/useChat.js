@@ -281,6 +281,7 @@ export default function useChat(customOpening) {
     const injuryAnswered = userMsgs.some(m => m.content.includes("סוג הפגיעה:"));
     const disabilityAnswered = userMsgs.some(m => m.content.includes("נקבעו לי אחוזי נכות") || m.content.includes("אחוזי הנכות שלי:") || m.content.includes("בתהליך קביעת"));
     const ageAnswered = userMsgs.some(m => m.content.includes("הגיל שלי:"));
+    const lastUserMsg = userMsgs.slice(-1)[0];
 
     function inEither(term) { return content.includes(term) || prevContent.includes(term); }
     function bothInEither(a, b) { return (content.includes(a) && content.includes(b)) || (prevContent.includes(a) && prevContent.includes(b)); }
@@ -328,7 +329,6 @@ export default function useChat(customOpening) {
     }
 
     // Detect user confirmed disability — show percentage buttons
-    const lastUserMsg = msgs.filter(m => m.role === "user").slice(-1)[0];
     const pctAnswered = userMsgs.some(m => m.content.includes("אחוזי הנכות שלי:"));
     if (!pctAnswered && lastUserMsg && lastUserMsg.content.includes("נקבעו לי אחוזי נכות") && lastUserMsg.content.includes("כן")) {
       setQuickReplies([
@@ -338,6 +338,20 @@ export default function useChat(customOpening) {
         { label: "20%", value: "אחוזי הנכות שלי: 20%." },
         { label: "25%+", value: "אחוזי הנכות שלי: 25% ומעלה." },
         { label: "אחר", value: "OPEN_INPUT" },
+      ]);
+      return;
+    }
+
+    // Detect age question
+    // Detect absence answer → show age buttons proactively
+    if (!ageAnswered && lastUserMsg && /^\d+$/.test(lastUserMsg.content.trim()) && (inEither('ימים') || inEither('חודשים'))) {
+      setQuickReplies([
+        { label: "עד 25", value: "הגיל שלי: 22." },
+        { label: "26\u201335", value: "הגיל שלי: 30." },
+        { label: "36\u201345", value: "הגיל שלי: 40." },
+        { label: "46\u201355", value: "הגיל שלי: 50." },
+        { label: "56\u201365", value: "הגיל שלי: 60." },
+        { label: "מעל 65", value: "הגיל שלי: 68." },
       ]);
       return;
     }
@@ -475,7 +489,8 @@ export default function useChat(customOpening) {
       trackStep(4, "work_related");
     } else if (state === STATE_INJURY) {
       newData.injury = txt.trim();
-      botMsgs.push({ role: "assistant", content: `הבנתי — ${txt.trim()}. חשוב לתעד את זה.` });
+      const cleanInjury = txt.trim().replace(/\.$/, "");
+      botMsgs.push({ role: "assistant", content: `הבנתי — ${cleanInjury}. חשוב לתעד את זה.` });
       // Social proof — show once based on injury type
       if (!shownSocialProof.current) {
         shownSocialProof.current = true;
