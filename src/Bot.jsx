@@ -83,10 +83,10 @@ export default function Bot({ onClose, inline = false, openingMessage }) {
 
             {/* ── Quick Reply Buttons ── */}
             {quickReplies.length > 0 && !load && (
-              <div style={{ display:"flex", flexWrap:"wrap", gap:8, padding:"8px 0" }}>
+              <div style={{ display:"flex", flexWrap:"wrap", gap:8, padding:"8px 0", justifyContent:"center" }}>
                 {quickReplies.map((qr, i) => (
                   <button key={i} onClick={() => handleQuickReply(qr.value)}
-                    style={{ background:"#0d1425", border:"1px solid #c9a84c", borderRadius:20, color:"#c9a84c", padding:"8px 16px", fontSize:13, fontWeight:700, cursor:"pointer", fontFamily:"inherit" }}>
+                    style={{ flex:"0 0 auto", maxWidth:"calc(50% - 4px)", background:"#0d1425", border:"1px solid #c9a84c", borderRadius:20, color:"#c9a84c", padding:"8px 16px", fontSize:13, fontWeight:700, cursor:"pointer", fontFamily:"inherit" }}>
                     {qr.label}
                   </button>
                 ))}
