@@ -11,7 +11,8 @@ const STATE_INJURY = 4;
 const STATE_DISABILITY = 5;
 const STATE_MONTHS_OFF = 6;
 const STATE_AGE = 7;
-const STATE_DONE = 8;
+const STATE_SALARY = 8;
+const STATE_DONE = 9;
 
 const DRIVER_RE = /נהג|נהגת|הנהג/i;
 const PASSENGER_RE = /נוסע|נוסעת|יושב/i;
@@ -222,8 +223,9 @@ function buildSummary(data, calc) {
   const roleLabel = roleToLabel(role) || "לא צוין";
   const contextLabel = isWork ? "תאונה בדרך לעבודה (זכאות כפולה — ביטוח + ביטוח לאומי)" : "תאונה פרטית";
   const medLabel = medical ? "פנה למיון — ראיה רפואית חזקה" : "לא פנה למיון";
+  const cleanInjury = (injury || "לא צוין").replace(/^סוג הפגיעה:\s*/i, "").replace(/\.$/, "");
 
-  return `סיכום:\n• תפקיד: ${roleLabel}\n• ${medLabel}\n• ${contextLabel}\n• פגיעה: ${injury || "לא צוין"}\n• אחוזי נכות: ${disability}%\n• חודשי היעדרות: ${monthsOff}\n• גיל: ${ageNum}\n\nהערכת פיצוי ראשונית: ₪${calc.min.toLocaleString("he-IL")} – ₪${calc.max.toLocaleString("he-IL")}\n\nזוהי הערכה ראשונית בלבד לפי נוסחת הפלת״ד. לחץ על הכפתור למטה כדי לדבר עם עו"ד דן אלון בוואטסאפ ולקבל הערכה מדויקת.`;
+  return `סיכום:\n• תפקיד: ${roleLabel}\n• ${medLabel}\n• ${contextLabel}\n• פגיעה: ${cleanInjury}\n• אחוזי נכות: ${disability}%\n• ימי היעדרות: ${monthsOff}\n• גיל: ${ageNum}\n\nהערכת פיצוי ראשונית: ₪${calc.min.toLocaleString("he-IL")} – ₪${calc.max.toLocaleString("he-IL")}\n\nזוהי הערכה ראשונית בלבד לפי נוסחת הפלת״ד. לחץ על הכפתור למטה כדי לדבר עם עו"ד דן אלון בוואטסאפ ולקבל הערכה מדויקת.`;
 }
 
 
@@ -562,20 +564,27 @@ export default function useChat(customOpening) {
         botMsgs.push({ role: "assistant", content: "בן כמה אתה? כתוב מספר." });
       } else {
         newData.age = ageMatch[1];
-        const c = calculateCompensation(newData, [...msgs, userMsg]);
-        const summary = buildSummary(newData, c);
-        botMsgs.push({ role: "assistant", content: summary });
-        setCalc(c);
-        setShowReferral(true);
-        setState(STATE_DONE);
-        setProgress(100);
-        window.dataLayer = window.dataLayer || [];
-        window.dataLayer.push({ event: "calculation_complete", value_min: c.min, value_max: c.max });
-        trackStep(6, "calculation_shown");
-        trackStep(7, "cta_shown");
-        // CRM: qualified lead (bot completed)
-        sendToCrm(buildCrmPayload(newData, c, false));
+        const salaryQ = gender === "female"
+          ? "כמה את משתכרת בחודש? (משפיע ישירות על חישוב הפסד השכר)"
+          : "כמה אתה משתכר בחודש? (משפיע ישירות על חישוב הפסד השכר)";
+        botMsgs.push({ role: "assistant", content: salaryQ });
+        setState(STATE_SALARY);
       }
+    } else if (state === STATE_SALARY) {
+      // Salary answered — now calculate
+      const c = calculateCompensation(newData, [...msgs, userMsg]);
+      const summary = buildSummary(newData, c);
+      botMsgs.push({ role: "assistant", content: summary });
+      setCalc(c);
+      setShowReferral(true);
+      setState(STATE_DONE);
+      setProgress(100);
+      window.dataLayer = window.dataLayer || [];
+      window.dataLayer.push({ event: "calculation_complete", value_min: c.min, value_max: c.max });
+      trackStep(6, "calculation_shown");
+      trackStep(7, "cta_shown");
+      // CRM: qualified lead (bot completed)
+      sendToCrm(buildCrmPayload(newData, c, false));
     } else if (state === STATE_DONE) {
       botMsgs.push({ role: "assistant", content: "לחץ על הכפתור למטה כדי לשוחח עם עו\"ד דן אלון בוואטסאפ." });
     }
