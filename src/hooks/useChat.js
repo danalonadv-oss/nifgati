@@ -234,6 +234,22 @@ export default function useChat(customOpening) {
   useEffect(() => { if (hasInteracted.current) endRef.current?.scrollIntoView({ behavior: "smooth" }); }, [msgs, load]);
   useEffect(() => { if (!err) return; const t = setTimeout(() => setErr(""), 6000); return () => clearTimeout(t); }, [err]);
 
+  // Detect salary question in latest bot message and show salary quick replies
+  useEffect(() => {
+    const lastBotMsg = msgs.filter(m => m.role === "assistant").slice(-1)[0];
+    if (lastBotMsg && quickReplies.length === 0 &&
+        /משתכר|שכר|הכנסה|מרוויח/.test(lastBotMsg.content)) {
+      setQuickReplies([
+        { label: "עד \u20AA10,000", value: "אני מרוויח עד 10,000 שקל בחודש" },
+        { label: "\u20AA10,000 – \u20AA20,000", value: "אני מרוויח בין 10,000 ל-20,000 שקל בחודש" },
+        { label: "\u20AA20,000 – \u20AA30,000", value: "אני מרוויח בין 20,000 ל-30,000 שקל בחודש" },
+        { label: "\u20AA30,000 – \u20AA50,000", value: "אני מרוויח בין 30,000 ל-50,000 שקל בחודש" },
+        { label: "מעל \u20AA50,000", value: "אני מרוויח מעל 50,000 שקל בחודש" },
+        { label: "לא עובד / לא רלוונטי", value: "אני לא עובד או שהשכר לא רלוונטי" },
+      ]);
+    }
+  }, [msgs]);
+
   function restart() {
     setMsgs([...getInitialMsgs(customOpening)]);
     setCalc(null);
