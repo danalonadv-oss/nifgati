@@ -214,9 +214,6 @@ export default function useChat(customOpening) {
   }
 
   function trackStep(stepNumber, stepName) {
-    if (typeof window.gtag === "function") {
-      window.gtag("event", "bot_step", { step_number: stepNumber, step_name: stepName });
-    }
     window.dataLayer = window.dataLayer || [];
     window.dataLayer.push({ event: "bot_step", step_number: stepNumber, step_name: stepName });
   }
@@ -351,9 +348,6 @@ export default function useChat(customOpening) {
       was_hospitalized: data.medical != null ? (data.medical ? "כן" : "לא") : undefined,
       compensation_estimate: calc ? `₪${calc.min.toLocaleString("he-IL")}–₪${calc.max.toLocaleString("he-IL")}` : undefined,
     };
-    if (typeof window.gtag === "function") {
-      window.gtag("event", "whatsapp_click", params);
-    }
     window.dataLayer = window.dataLayer || [];
     window.dataLayer.push({ event: "whatsapp_click", ...params });
   }
