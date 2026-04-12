@@ -284,6 +284,19 @@ export default function useChat(customOpening) {
       return;
     }
 
+    // Detect injury type question
+    if (content.includes('סוג הפגיעה') || content.includes('איזו פגיעה') || content.includes('מה הפגיעה') || content.includes('צליפת שוט') || content.includes('סוג הפציעה')) {
+      setQuickReplies([
+        { label: "שבר", value: "סוג הפגיעה: שבר." },
+        { label: "צליפת שוט / כאבי צוואר", value: "סוג הפגיעה: צליפת שוט וכאבי צוואר." },
+        { label: "פריצת דיסק / כאבי גב", value: "סוג הפגיעה: פריצת דיסק או כאבי גב." },
+        { label: "חבלת ראש / PTSD", value: "סוג הפגיעה: חבלת ראש או PTSD." },
+        { label: "פגיעה בברך / מפרק", value: "סוג הפגיעה: פגיעה בברך או מפרק." },
+        { label: "פגיעה רכה / חבורות", value: "סוג הפגיעה: פגיעה רכה וחבורות." },
+      ]);
+      return;
+    }
+
     // Detect salary question
     if (/משתכר|שכר|הכנסה|מרוויח/.test(content)) {
       setQuickReplies([
