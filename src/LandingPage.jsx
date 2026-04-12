@@ -117,7 +117,11 @@ export default function LandingPage({ pageTitle, pageSubtitle, heroEmoji, bullet
   const [isMobile, setIsMobile]     = useState(window.innerWidth <= 768);
 
   const [dynamicTitle] = useState(() => {
-    if (utmTerm.length > 0 && utmTerm.length <= 40) {
+    if (utmTerm.length > 0 && utmTerm.length <= 15 &&
+        !utmTerm.includes('מחשבון') &&
+        !utmTerm.includes('תאונת') &&
+        !utmTerm.includes('פיצוי') &&
+        !utmTerm.includes('חישוב')) {
       return `נפגעת ב${utmTerm}? מגיע לך פיצוי.`;
     }
     return pageTitle;
