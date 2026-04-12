@@ -260,14 +260,19 @@ export default function useChat(customOpening) {
   }, [msgs]);
   useEffect(() => { if (!err) return; const t = setTimeout(() => setErr(""), 6000); return () => clearTimeout(t); }, [err]);
 
-  // Detect bot questions and show contextual quick replies
+  // Detect bot questions and show contextual quick replies (check last 2 bot messages)
   useEffect(() => {
-    const lastBotMsg = msgs.filter(m => m.role === "assistant").slice(-1)[0];
+    const botMsgs = msgs.filter(m => m.role === "assistant");
+    const lastBotMsg = botMsgs.slice(-1)[0];
     if (!lastBotMsg || quickReplies.length > 0) return;
-    const content = lastBotMsg.content;
+    const content = lastBotMsg.content || "";
+    const prevContent = (botMsgs.slice(-2, -1)[0] || {}).content || "";
+
+    function inEither(term) { return content.includes(term) || prevContent.includes(term); }
+    function bothInEither(a, b) { return (content.includes(a) && content.includes(b)) || (prevContent.includes(a) && prevContent.includes(b)); }
 
     // Detect hospital question
-    if (content.includes('מיון') || content.includes('בית חולים') || content.includes('פנית לטיפול') || content.includes('טיפול רפואי')) {
+    if (inEither('מיון') || inEither('בית חולים') || inEither('פנית לטיפול') || inEither('טיפול רפואי')) {
       setQuickReplies([
         { label: "כן, פניתי למיון / בית חולים", value: "כן, פניתי למיון או לבית חולים." },
         { label: "לא פניתי לטיפול רפואי", value: "לא, לא פניתי לטיפול רפואי." },
@@ -276,7 +281,7 @@ export default function useChat(customOpening) {
     }
 
     // Detect work route question
-    if (content.includes('דרך לעבודה') || content.includes('בחזרה ממנה') || content.includes('שעות פנויות') || content.includes('בדרך לעבודה')) {
+    if (inEither('דרך לעבודה') || inEither('בחזרה ממנה') || inEither('שעות פנויות')) {
       setQuickReplies([
         { label: "כן, בדרך לעבודה או חזרה", value: "התאונה קרתה בדרך לעבודה או בחזרה ממנה." },
         { label: "לא, בשעות פנויות", value: "התאונה קרתה בשעות פנויות, לא בדרך לעבודה." },
@@ -285,7 +290,7 @@ export default function useChat(customOpening) {
     }
 
     // Detect injury type question
-    if (content.includes('סוג הפגיע') || (content.includes('פגיע') && content.includes('למשל')) || (content.includes('שבר') && content.includes('למשל')) || (content.includes('צליפת שוט') && content.includes('למשל')) || content.includes('חבלת ראש') || (content.includes('פריצת דיסק') && content.includes('למשל'))) {
+    if (inEither('סוג הפגיע') || bothInEither('פגיע', 'למשל') || bothInEither('שבר', 'למשל') || bothInEither('צליפת שוט', 'למשל') || inEither('חבלת ראש') || bothInEither('פריצת דיסק', 'למשל')) {
       setQuickReplies([
         { label: "שבר", value: "סוג הפגיעה: שבר." },
         { label: "צליפת שוט / כאבי צוואר", value: "סוג הפגיעה: צליפת שוט וכאבי צוואר." },
@@ -298,7 +303,7 @@ export default function useChat(customOpening) {
     }
 
     // Detect salary question
-    if (/משתכר|שכר|הכנסה|מרוויח/.test(content)) {
+    if (/משתכר|שכר|הכנסה|מרוויח/.test(content) || /משתכר|שכר|הכנסה|מרוויח/.test(prevContent)) {
       setQuickReplies([
         { label: "עד \u20AA10,000", value: "אני מרוויח עד 10,000 שקל בחודש" },
         { label: "\u20AA10,000 – \u20AA20,000", value: "אני מרוויח בין 10,000 ל-20,000 שקל בחודש" },
