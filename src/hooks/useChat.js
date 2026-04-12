@@ -145,10 +145,16 @@ function getPersonalizedOpening() {
   return 'שלום 👋 נפגעת בתאונה? בוא נבדוק ב-60 שניות כמה פיצוי מגיע לך — חינם, ללא התחייבות.';
 }
 
+const DEFAULT_OPENING = "שלום 👋 אני הבוט של עו״ד דן אלון — 25 שנות ניסיון בנזיקין ותאונות דרכים.\nספר לי מה קרה — תוכל להקליד, לדבר למיקרופון 🎙️ או להעלות מסמך רפואי 📎\nאחשב כמה פיצוי מגיע לך תוך דקה — חינם, ללא התחייבות.";
+const ATTORNEY_SUFFIX = " — הבוט של עו״ד דן אלון, 25 שנות ניסיון בנזיקין.";
+
 function getInitialMsgs(customOpening) {
+  let opening = DEFAULT_OPENING;
+  if (customOpening) {
+    opening = customOpening + ATTORNEY_SUFFIX;
+  }
   return [
-    { role: "assistant", content: customOpening || getPersonalizedOpening(), privacy: true },
-    { role: "assistant", content: ROLE_QUESTION },
+    { role: "assistant", content: opening, privacy: true },
   ];
 }
 
