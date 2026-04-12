@@ -16,6 +16,10 @@ const STATE_DONE = 8;
 const DRIVER_RE = /נהג|נהגת|הנהג/i;
 const PASSENGER_RE = /נוסע|נוסעת|יושב/i;
 const PEDESTRIAN_RE = /הולך|הולכת|רגל|חצ/i;
+const MOTORCYCLE_RE = /אופנוע|קורקינט|אופניים חשמליים/i;
+const CAR_RE = /תאונת רכב|ברכב/i;
+const WORK_ACCIDENT_RE = /תאונת עבודה|בעבודה/i;
+const QUICK_REPLY_PREFIX_RE = /סוג התאונה שלי:/;
 
 const MEDICAL_QUESTION = "האם פונית למיון או לבית חולים?";
 const YES_RE = /כן|בטח|פונ|מיון|בית.?חולים|אמבולנס|ניתוח|אשפוז/i;
@@ -85,7 +89,7 @@ function getUrlParams() {
 
 function buildCrmPayload(data, calc, whatsappClick) {
   const { source, page } = getUrlParams();
-  const roleLabel = data.role === "driver" ? "נהג" : data.role === "passenger" ? "נוסע" : data.role === "pedestrian" ? "הולך רגל" : "";
+  const roleLabel = roleToLabel(data.role);
   return {
     name: data.name || "",
     phone: data.phone || "",
@@ -156,15 +160,27 @@ function getInitialMsgs(customOpening) {
 }
 
 function classifyRole(txt) {
+  if (MOTORCYCLE_RE.test(txt)) return "motorcycle";
+  if (PEDESTRIAN_RE.test(txt)) return "pedestrian";
+  if (WORK_ACCIDENT_RE.test(txt)) return "work";
+  if (CAR_RE.test(txt)) return "car";
   if (DRIVER_RE.test(txt)) return "driver";
   if (PASSENGER_RE.test(txt)) return "passenger";
-  if (PEDESTRIAN_RE.test(txt)) return "pedestrian";
+  if (QUICK_REPLY_PREFIX_RE.test(txt)) return "car"; // fallback for quick reply
   return null;
+}
+
+function roleToLabel(role) {
+  const map = { driver: "נהג", passenger: "נוסע", pedestrian: "הולך רגל", motorcycle: "רוכב אופנוע", car: "נוסע/נהג ברכב", work: "תאונת עבודה" };
+  return map[role] || "";
 }
 
 function roleResponse(role) {
   if (role === "driver") return "הבנתי. חברת הביטוח של הנהג האחר אחראית.";
   if (role === "passenger") return "הבנתי. אתה יכול לתבוע גם את חברת הביטוח של הנהג וגם של הרכב שלך.";
+  if (role === "motorcycle") return "הבנתי. תאונות אופנוע וקורקינט מזכות לרוב בפיצוי גבוה.";
+  if (role === "car") return "הבנתי. חברת הביטוח של הרכב המעורב אחראית לפצות אותך.";
+  if (role === "work") return "הבנתי. תאונת עבודה מזכה בפיצוי ממספר מקורות — ביטוח לאומי וגם פלת״ד.";
   return "הבנתי. זה דורש הוכחה אבל יש לך זכויות.";
 }
 
@@ -183,7 +199,7 @@ function contextResponse(isWork) {
 function buildSummary(data, calc) {
   const { role, medical, isWork, age, injury, disability, monthsOff } = data;
   const ageNum = parseInt(age) || 30;
-  const roleLabel = role === "driver" ? "נהג" : role === "passenger" ? "נוסע" : "הולך רגל";
+  const roleLabel = roleToLabel(role) || "לא צוין";
   const contextLabel = isWork ? "תאונה בדרך לעבודה (זכאות כפולה — ביטוח + ביטוח לאומי)" : "תאונה פרטית";
   const medLabel = medical ? "פנה למיון — ראיה רפואית חזקה" : "לא פנה למיון";
 
@@ -303,6 +319,11 @@ export default function useChat(customOpening) {
         setState(STATE_MEDICAL);
         setProgress(25);
         trackStep(2, "accident_type");
+        // Show hospital yes/no quick replies
+        setQuickReplies([
+          { label: "כן, פניתי למיון / בית חולים", value: "כן, פניתי למיון או לבית חולים." },
+          { label: "לא פניתי לטיפול רפואי", value: "לא, לא פניתי לטיפול רפואי." },
+        ]);
       }
     } else if (state === STATE_MEDICAL) {
       const yes = YES_RE.test(txt);
@@ -418,7 +439,7 @@ export default function useChat(customOpening) {
     sendToCrm(buildCrmPayload(data, calc, true));
 
     // GA4 whatsapp_click with lead details
-    const roleLabel = data.role === "driver" ? "נהג" : data.role === "passenger" ? "נוסע" : data.role === "pedestrian" ? "הולך רגל" : "";
+    const roleLabel = roleToLabel(data.role);
     const params = {
       event_category: "engagement",
       event_label: "whatsapp_button",
@@ -431,7 +452,7 @@ export default function useChat(customOpening) {
   }
 
   // WhatsApp pre-filled message with all lead details
-  const roleLabelMsg = data.role === "driver" ? "נהג" : data.role === "passenger" ? "נוסע" : data.role === "pedestrian" ? "הולך רגל" : "";
+  const roleLabelMsg = roleToLabel(data.role);
   let waMsg = "שלום";
   if (data.role) {
     const lines = ["שלום דן, פנייה חדשה מהאתר:"];
