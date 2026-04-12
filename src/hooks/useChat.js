@@ -192,10 +192,10 @@ function buildSummary(data, calc) {
 
 
 const INITIAL_QUICK_REPLIES = [
-  { label: "\u{1F697} \u200Fתאונת רכב", value: "נפגעתי בתאונת רכב" },
-  { label: "\u{1F3CD}\uFE0F \u200Fאופנוע / קורקינט", value: "נפגעתי בתאונת אופנוע או קורקינט" },
-  { label: "\u{1F6B6} \u200Fהולך רגל", value: "נפגעתי כהולך רגל" },
-  { label: "\u{1F3D7}\uFE0F \u200Fתאונת עבודה", value: "נפגעתי בתאונת עבודה" },
+  { label: "\u{1F697} \u200Fתאונת רכב", value: "סוג התאונה שלי: תאונת רכב." },
+  { label: "\u{1F3CD}\uFE0F \u200Fאופנוע / קורקינט", value: "סוג התאונה שלי: תאונת אופנוע או קורקינט." },
+  { label: "\u{1F6B6} \u200Fהולך רגל", value: "סוג התאונה שלי: נפגעתי כהולך רגל." },
+  { label: "\u{1F3D7}\uFE0F \u200Fתאונת עבודה", value: "סוג התאונה שלי: תאונת עבודה." },
 ];
 
 const EARLY_ESTIMATE_MSG = "נפגעי תאונות דרכים מקבלים בממוצע בין \u20AA50,000 ל-\u20AA500,000 בהתאם לחומרת הפציעה. בוא נחשב את הסכום המדויק שלך — כמה שאלות קצרות ואגיע למספר.";
@@ -231,7 +231,11 @@ export default function useChat(customOpening) {
   const shownSocialProof = useRef(false);
   const userMsgCount = useRef(0);
 
-  useEffect(() => { if (hasInteracted.current) endRef.current?.scrollIntoView({ behavior: "smooth" }); }, [msgs, load]);
+  useEffect(() => {
+    if (!hasInteracted.current) return;
+    const lastMsg = msgs[msgs.length - 1];
+    if (lastMsg?.role === "user") endRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [msgs, load]);
   useEffect(() => { if (!err) return; const t = setTimeout(() => setErr(""), 6000); return () => clearTimeout(t); }, [err]);
 
   // Detect salary question in latest bot message and show salary quick replies
