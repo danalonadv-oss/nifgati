@@ -117,12 +117,38 @@ export default function LandingPage({ pageTitle, pageSubtitle, heroEmoji, bullet
   const [isMobile, setIsMobile]     = useState(window.innerWidth <= 768);
 
   const [dynamicTitle] = useState(() => {
-    if (utmTerm.length > 0 && utmTerm.length <= 15 &&
-        !utmTerm.includes('מחשבון') &&
-        !utmTerm.includes('תאונת') &&
-        !utmTerm.includes('פיצוי') &&
-        !utmTerm.includes('חישוב')) {
-      return `נפגעת ב${utmTerm}? מגיע לך פיצוי.`;
+    if (!utmTerm) return pageTitle;
+    const termTitleMap = {
+      'צליפת שוט': 'צליפת שוט מתאונה? מגיע לך פיצוי.',
+      'שבר ביד': 'שברת את היד בתאונה? מגיע לך פיצוי.',
+      'שבר': 'שברת עצם בתאונה? מגיע לך פיצוי.',
+      'פגיעה בברך': 'נפגעת בברך בתאונה? מגיע לך פיצוי.',
+      'ברך': 'נפגעת בברך בתאונה? מגיע לך פיצוי.',
+      'פריצת דיסק': 'פריצת דיסק מתאונה? מגיע לך פיצוי.',
+      'כאבי גב': 'כאבי גב אחרי תאונה? מגיע לך פיצוי.',
+      'PTSD': 'אובחנת כסובל מ-PTSD? מגיע לך פיצוי.',
+      'ptsd': 'אובחנת כסובל מ-PTSD? מגיע לך פיצוי.',
+      'נכות 10': 'נקבעה לך נכות של 10%? גלה כמה מגיע לך.',
+      'נכות 20': 'נקבעה לך נכות של 20%? גלה כמה מגיע לך.',
+      'נכות 5': 'נקבעה לך נכות של 5%? גלה כמה מגיע לך.',
+      'נכות': 'נקבעו לך אחוזי נכות? גלה כמה מגיע לך.',
+      'אופנוע': 'נפגעת בתאונת אופנוע? מגיע לך פיצוי.',
+      'קורקינט': 'נפגעת מקורקינט? מגיע לך פיצוי.',
+      'אופניים חשמליים': 'נפגעת מאופניים חשמליים? מגיע לך פיצוי.',
+      'הולך רגל': 'נפגעת כהולך רגל? מגיע לך פיצוי.',
+      'כאב וסבל': 'מגיע לך פיצוי על כאב וסבל — גלה כמה.',
+      'מחשבון': null,
+      'פיצוי': null,
+      'חישוב': null,
+      'תאונת דרכים': null,
+      'זכויות': null,
+    };
+    // Check exact match first, then partial (longest match wins)
+    const lower = utmTerm.toLowerCase();
+    if (termTitleMap.hasOwnProperty(utmTerm)) return termTitleMap[utmTerm] || pageTitle;
+    if (termTitleMap.hasOwnProperty(lower)) return termTitleMap[lower] || pageTitle;
+    for (const [key, title] of Object.entries(termTitleMap)) {
+      if (lower.includes(key.toLowerCase())) return title || pageTitle;
     }
     return pageTitle;
   });
