@@ -376,10 +376,6 @@ export default function useChat(customOpening) {
       setQuickReplies(ACCIDENT_QUICK_REPLIES);
       setInp("");
       hasInteracted.current = true;
-      const greeting = g === "female"
-        ? "ספרי לי מה קרה — איזו תאונה עברת?"
-        : "ספר לי מה קרה — איזו תאונה עברת?";
-      setMsgs(prev => [...prev, { role: "assistant", content: greeting }]);
       return;
     }
 
