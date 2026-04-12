@@ -274,11 +274,19 @@ export default function useChat(customOpening) {
     const content = lastBotMsg.content || "";
     const prevContent = (botMsgs.slice(-2, -1)[0] || {}).content || "";
 
+    // Track which questions were already answered to prevent re-triggering
+    const userMsgs = msgs.filter(m => m.role === "user");
+    const hospitalAnswered = userMsgs.some(m => m.content.includes("פניתי למיון") || m.content.includes("לא פניתי"));
+    const workAnswered = userMsgs.some(m => m.content.includes("בדרך לעבודה") || m.content.includes("שעות פנויות"));
+    const injuryAnswered = userMsgs.some(m => m.content.includes("סוג הפגיעה:"));
+    const disabilityAnswered = userMsgs.some(m => m.content.includes("נקבעו לי אחוזי נכות") || m.content.includes("אחוזי הנכות שלי:") || m.content.includes("בתהליך קביעת"));
+    const ageAnswered = userMsgs.some(m => m.content.includes("הגיל שלי:"));
+
     function inEither(term) { return content.includes(term) || prevContent.includes(term); }
     function bothInEither(a, b) { return (content.includes(a) && content.includes(b)) || (prevContent.includes(a) && prevContent.includes(b)); }
 
     // Detect hospital question
-    if (inEither('מיון') || inEither('בית חולים') || inEither('פנית לטיפול') || inEither('טיפול רפואי')) {
+    if (!hospitalAnswered && (inEither('מיון') || inEither('בית חולים') || inEither('פנית לטיפול') || inEither('טיפול רפואי'))) {
       setQuickReplies([
         { label: "כן, פניתי למיון / בית חולים", value: "כן, פניתי למיון או לבית חולים." },
         { label: "לא פניתי לטיפול רפואי", value: "לא, לא פניתי לטיפול רפואי." },
@@ -287,7 +295,7 @@ export default function useChat(customOpening) {
     }
 
     // Detect work route question
-    if (inEither('דרך לעבודה') || inEither('בחזרה ממנה') || inEither('שעות פנויות')) {
+    if (!workAnswered && (inEither('דרך לעבודה') || inEither('בחזרה ממנה') || inEither('שעות פנויות'))) {
       setQuickReplies([
         { label: "כן, בדרך לעבודה או חזרה", value: "התאונה קרתה בדרך לעבודה או בחזרה ממנה." },
         { label: "לא, בשעות פנויות", value: "התאונה קרתה בשעות פנויות, לא בדרך לעבודה." },
@@ -296,7 +304,7 @@ export default function useChat(customOpening) {
     }
 
     // Detect injury type question
-    if (inEither('סוג הפגיע') || bothInEither('פגיע', 'למשל') || bothInEither('שבר', 'למשל') || bothInEither('צליפת שוט', 'למשל') || inEither('חבלת ראש') || bothInEither('פריצת דיסק', 'למשל')) {
+    if (!injuryAnswered && (inEither('סוג הפגיע') || bothInEither('פגיע', 'למשל') || bothInEither('שבר', 'למשל') || bothInEither('צליפת שוט', 'למשל') || inEither('חבלת ראש') || bothInEither('פריצת דיסק', 'למשל'))) {
       setQuickReplies([
         { label: "שבר", value: "סוג הפגיעה: שבר." },
         { label: "צליפת שוט / כאבי צוואר", value: "סוג הפגיעה: צליפת שוט וכאבי צוואר." },
@@ -310,7 +318,7 @@ export default function useChat(customOpening) {
     }
 
     // Detect disability question
-    if (inEither('אחוזי נכות') || (inEither('נכות') && (inEither('נקבעו') || inEither('קבעו')))) {
+    if (!disabilityAnswered && (inEither('אחוזי נכות') || (inEither('נכות') && (inEither('נקבעו') || inEither('קבעו'))))) {
       setQuickReplies([
         { label: "כן, נקבעו לי אחוזי נכות", value: "כן, נקבעו לי אחוזי נכות." },
         { label: "לא נקבעו עדיין", value: "לא נקבעו לי אחוזי נכות עדיין." },
@@ -321,7 +329,8 @@ export default function useChat(customOpening) {
 
     // Detect user confirmed disability — show percentage buttons
     const lastUserMsg = msgs.filter(m => m.role === "user").slice(-1)[0];
-    if (lastUserMsg && lastUserMsg.content.includes("נקבעו לי אחוזי נכות") && lastUserMsg.content.includes("כן")) {
+    const pctAnswered = userMsgs.some(m => m.content.includes("אחוזי הנכות שלי:"));
+    if (!pctAnswered && lastUserMsg && lastUserMsg.content.includes("נקבעו לי אחוזי נכות") && lastUserMsg.content.includes("כן")) {
       setQuickReplies([
         { label: "5%", value: "אחוזי הנכות שלי: 5%." },
         { label: "10%", value: "אחוזי הנכות שלי: 10%." },
@@ -334,7 +343,7 @@ export default function useChat(customOpening) {
     }
 
     // Detect age question
-    if (inEither('בן כמה') || inEither('בת כמה') || (inEither('גיל') && (inEither('בן') || inEither('בת') || inEither('כמה')))) {
+    if (!ageAnswered && (inEither('בן כמה') || inEither('בת כמה') || (inEither('גיל') && (inEither('בן') || inEither('בת') || inEither('כמה'))))) {
       setQuickReplies([
         { label: "עד 25", value: "הגיל שלי: 22." },
         { label: "26\u201335", value: "הגיל שלי: 30." },
