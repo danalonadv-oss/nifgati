@@ -208,9 +208,14 @@ function buildSummary(data, calc) {
 
 
 const INITIAL_QUICK_REPLIES = [
+  { label: "\u{1F468} אני גבר", value: "GENDER:male" },
+  { label: "\u{1F469} אני אישה", value: "GENDER:female" },
+];
+
+const ACCIDENT_QUICK_REPLIES = [
   { label: "\u{1F697} \u200Fתאונת רכב", value: "סוג התאונה שלי: תאונת רכב." },
   { label: "\u{1F3CD}\uFE0F \u200Fאופנוע / קורקינט", value: "סוג התאונה שלי: תאונת אופנוע או קורקינט." },
-  { label: "\u{1F6B6} \u200Fהולך רגל", value: "סוג התאונה שלי: נפגעתי כהולך רגל." },
+  { label: "\u{1F6B6} \u200Fהולך/ת רגל", value: "סוג התאונה שלי: נפגעתי כהולך רגל." },
   { label: "\u{1F3D7}\uFE0F \u200Fתאונת עבודה", value: "סוג התאונה שלי: תאונת עבודה." },
 ];
 
@@ -240,6 +245,7 @@ export default function useChat(customOpening) {
   const [data, setData] = useState({ role: null, medical: null, isWork: null, injury: null, disability: null, monthsOff: null, age: null });
   const [quickReplies, setQuickReplies] = useState(INITIAL_QUICK_REPLIES);
   const [progress, setProgress] = useState(0);
+  const [gender, setGender] = useState(null);
   const endRef = useRef(null);
   const hasInteracted = useRef(false);
   const shownEarlyEstimate = useRef(false);
@@ -313,6 +319,21 @@ export default function useChat(customOpening) {
 
   function send(txt) {
     if (!txt.trim() || load) return;
+
+    // Handle gender selection
+    if (txt.trim().startsWith("GENDER:")) {
+      const g = txt.trim().replace("GENDER:", "");
+      setGender(g);
+      setQuickReplies(ACCIDENT_QUICK_REPLIES);
+      setInp("");
+      hasInteracted.current = true;
+      const greeting = g === "female"
+        ? "ספרי לי מה קרה — איזו תאונה עברת?"
+        : "ספר לי מה קרה — איזו תאונה עברת?";
+      setMsgs(prev => [...prev, { role: "assistant", content: greeting }]);
+      return;
+    }
+
     if (!hasInteracted.current) trackStep(1, "bot_opened");
     hasInteracted.current = true;
     userMsgCount.current++;
@@ -492,6 +513,6 @@ export default function useChat(customOpening) {
   return {
     msgs, inp, setInp, load, setLoad, calc, err, setErr,
     showReferral, send, sendDoc, restart, waMsg, endRef, WA, notifyWhatsApp,
-    quickReplies, handleQuickReply, progress,
+    quickReplies, handleQuickReply, progress, gender,
   };
 }
