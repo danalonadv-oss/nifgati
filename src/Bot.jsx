@@ -8,6 +8,7 @@ export default function Bot({ onClose, inline = false, openingMessage }) {
   const {
     msgs, inp, setInp, load, setLoad, calc, err, setErr,
     showReferral, send, sendDoc, waMsg, endRef, WA, notifyWhatsApp,
+    quickReplies, handleQuickReply, progress,
   } = useChat(openingMessage);
 
   const {
@@ -52,6 +53,19 @@ export default function Bot({ onClose, inline = false, openingMessage }) {
             </div>
           </div>
 
+          {/* ── Progress Bar ── */}
+          {progress > 0 && (
+            <div style={{ padding:"8px 12px 0" }}>
+              <div style={{ display:"flex", justifyContent:"space-between", fontSize:11, color:"#7a8fa5", marginBottom:4 }}>
+                <span>התקדמות החישוב</span>
+                <span>{progress}%</span>
+              </div>
+              <div style={{ background:"#1e2d4a", borderRadius:4, height:4 }}>
+                <div style={{ background:"#c9a84c", height:4, borderRadius:4, width:`${progress}%`, transition:"width 0.5s ease" }} />
+              </div>
+            </div>
+          )}
+
           {/* ── Messages ── */}
           <div className={s.messages}>
             {msgs.map((m, i) => (
@@ -59,6 +73,18 @@ export default function Bot({ onClose, inline = false, openingMessage }) {
                 <div className={`${s.bubble} ${m.role === "user" ? s.bubbleUser : s.bubbleBot}`}>{m.content}</div>
               </div>
             ))}
+
+            {/* ── Quick Reply Buttons ── */}
+            {quickReplies.length > 0 && !load && (
+              <div style={{ display:"flex", flexWrap:"wrap", gap:8, padding:"8px 0" }}>
+                {quickReplies.map((qr, i) => (
+                  <button key={i} onClick={() => handleQuickReply(qr.value)}
+                    style={{ background:"#0d1425", border:"1px solid #c9a84c", borderRadius:20, color:"#c9a84c", padding:"8px 16px", fontSize:13, fontWeight:700, cursor:"pointer", fontFamily:"inherit" }}>
+                    {qr.label}
+                  </button>
+                ))}
+              </div>
+            )}
 
             {load && (
               <div className={s.loadWrap}>
@@ -119,6 +145,14 @@ export default function Bot({ onClose, inline = false, openingMessage }) {
             </div>
           )}
 
+          {/* ── Persistent WhatsApp Button ── */}
+          <div style={{ padding:"6px 12px", borderTop:"1px solid #ffffff11", display:"flex", justifyContent:"center" }}>
+            <a href={waHref} onClick={() => notifyWhatsApp()}
+              style={{ display:"inline-flex", alignItems:"center", gap:8, background:"#25D366", color:"#fff", borderRadius:20, padding:"8px 20px", fontSize:13, fontWeight:700, textDecoration:"none", fontFamily:"inherit" }}>
+              💬 דבר עם דן עכשיו — חינם
+            </a>
+          </div>
+
           {/* ── Input Bar ── */}
           <div className={s.inputBar}>
             <div className={s.inputRow}>
@@ -161,6 +195,19 @@ export default function Bot({ onClose, inline = false, openingMessage }) {
           </div>
         </div>
 
+        {/* ── Progress Bar ── */}
+        {progress > 0 && (
+          <div style={{ padding:"8px 12px 0" }}>
+            <div style={{ display:"flex", justifyContent:"space-between", fontSize:11, color:"#7a8fa5", marginBottom:4 }}>
+              <span>התקדמות החישוב</span>
+              <span>{progress}%</span>
+            </div>
+            <div style={{ background:"#1e2d4a", borderRadius:4, height:4 }}>
+              <div style={{ background:"#c9a84c", height:4, borderRadius:4, width:`${progress}%`, transition:"width 0.5s ease" }} />
+            </div>
+          </div>
+        )}
+
         {/* ── Messages ── */}
         <div className={s.messages}>
           {msgs.map((m, i) => (
@@ -168,6 +215,18 @@ export default function Bot({ onClose, inline = false, openingMessage }) {
               <div className={`${s.bubble} ${m.role === "user" ? s.bubbleUser : s.bubbleBot}`}>{m.content}</div>
             </div>
           ))}
+
+          {/* ── Quick Reply Buttons ── */}
+          {quickReplies.length > 0 && !load && (
+            <div style={{ display:"flex", flexWrap:"wrap", gap:8, padding:"8px 0" }}>
+              {quickReplies.map((qr, i) => (
+                <button key={i} onClick={() => handleQuickReply(qr.value)}
+                  style={{ background:"#0d1425", border:"1px solid #c9a84c", borderRadius:20, color:"#c9a84c", padding:"8px 16px", fontSize:13, fontWeight:700, cursor:"pointer", fontFamily:"inherit" }}>
+                  {qr.label}
+                </button>
+              ))}
+            </div>
+          )}
 
           {load && (
             <div className={s.loadWrap}>
@@ -227,6 +286,14 @@ export default function Bot({ onClose, inline = false, openingMessage }) {
             </div>
           </div>
         )}
+
+        {/* ── Persistent WhatsApp Button ── */}
+        <div style={{ padding:"6px 12px", borderTop:"1px solid #ffffff11", display:"flex", justifyContent:"center" }}>
+          <a href={waHref} onClick={() => notifyWhatsApp()}
+            style={{ display:"inline-flex", alignItems:"center", gap:8, background:"#25D366", color:"#fff", borderRadius:20, padding:"8px 20px", fontSize:13, fontWeight:700, textDecoration:"none", fontFamily:"inherit" }}>
+            💬 דבר עם דן עכשיו — חינם
+          </a>
+        </div>
 
         {/* ── Input Bar ── */}
         <div className={s.inputBar}>

@@ -193,6 +193,28 @@ function buildSummary(data, calc) {
 }
 
 
+const INITIAL_QUICK_REPLIES = [
+  { label: "\u{1F697} \u200Fתאונת רכב", value: "נפגעתי בתאונת רכב" },
+  { label: "\u{1F3CD}\uFE0F \u200Fאופנוע / קורקינט", value: "נפגעתי בתאונת אופנוע או קורקינט" },
+  { label: "\u{1F6B6} \u200Fהולך רגל", value: "נפגעתי כהולך רגל" },
+  { label: "\u{1F3D7}\uFE0F \u200Fתאונת עבודה", value: "נפגעתי בתאונת עבודה" },
+];
+
+const EARLY_ESTIMATE_MSG = "נפגעי תאונות דרכים מקבלים בממוצע בין \u20AA50,000 ל-\u20AA500,000 בהתאם לחומרת הפציעה. בוא נחשב את הסכום המדויק שלך — כמה שאלות קצרות ואגיע למספר.";
+
+const URGENCY_MSG = "\u{1F4A1} תביעות פלת\u05F4ד מתיישנות תוך 7 שנים מיום התאונה. עדיף לבדוק את זכויותיך עכשיו — זה חינם ולא מחייב.";
+
+function getSocialProof(txt) {
+  const t = (txt || "").toLowerCase();
+  if (/אופנוע/.test(t))
+    return "לקוח שלנו עם פציעה דומה בתאונת אופנוע קיבל \u20AA680,000 — בוא נבדוק מה מגיע לך.";
+  if (/קורקינט/.test(t))
+    return "לקוח שלנו שנפל מקורקינט קיבל \u20AA185,000 — בוא נבדוק מה מגיע לך.";
+  if (/הולך רגל/.test(t))
+    return "הולכי רגל שנפגעו בתאונה מקבלים פיצוי מלא — לקוח שלנו קיבל \u20AA320,000.";
+  return "לקוחות שלנו עם פציעות דומות קיבלו בין \u20AA150,000 ל-\u20AA680,000 — בוא נחשב את הסכום המדויק שלך.";
+}
+
 export default function useChat(customOpening) {
   const [msgs, setMsgs] = useState([...getInitialMsgs(customOpening)]);
   const [inp, setInp] = useState("");
@@ -202,8 +224,14 @@ export default function useChat(customOpening) {
   const [showReferral, setShowReferral] = useState(false);
   const [state, setState] = useState(STATE_ROLE);
   const [data, setData] = useState({ role: null, medical: null, isWork: null, injury: null, disability: null, monthsOff: null, age: null });
+  const [quickReplies, setQuickReplies] = useState(INITIAL_QUICK_REPLIES);
+  const [progress, setProgress] = useState(0);
   const endRef = useRef(null);
   const hasInteracted = useRef(false);
+  const shownEarlyEstimate = useRef(false);
+  const shownUrgency = useRef(false);
+  const shownSocialProof = useRef(false);
+  const userMsgCount = useRef(0);
 
   useEffect(() => { if (hasInteracted.current) endRef.current?.scrollIntoView({ behavior: "smooth" }); }, [msgs, load]);
   useEffect(() => { if (!err) return; const t = setTimeout(() => setErr(""), 6000); return () => clearTimeout(t); }, [err]);
@@ -223,10 +251,17 @@ export default function useChat(customOpening) {
     window.dataLayer.push({ event: "bot_step", step_number: stepNumber, step_name: stepName });
   }
 
+  function handleQuickReply(value) {
+    setQuickReplies([]);
+    send(value);
+  }
+
   function send(txt) {
     if (!txt.trim() || load) return;
     if (!hasInteracted.current) trackStep(1, "bot_opened");
     hasInteracted.current = true;
+    userMsgCount.current++;
+    setQuickReplies([]);
     setErr("");
     setInp("");
 
@@ -241,8 +276,14 @@ export default function useChat(customOpening) {
       } else {
         newData.role = role;
         botMsgs.push({ role: "assistant", content: roleResponse(role) });
+        // Early estimate — show once after first answer
+        if (!shownEarlyEstimate.current) {
+          shownEarlyEstimate.current = true;
+          botMsgs.push({ role: "assistant", content: EARLY_ESTIMATE_MSG });
+        }
         botMsgs.push({ role: "assistant", content: MEDICAL_QUESTION });
         setState(STATE_MEDICAL);
+        setProgress(25);
         trackStep(2, "accident_type");
       }
     } else if (state === STATE_MEDICAL) {
@@ -267,8 +308,14 @@ export default function useChat(customOpening) {
     } else if (state === STATE_INJURY) {
       newData.injury = txt.trim();
       botMsgs.push({ role: "assistant", content: `הבנתי — ${txt.trim()}. חשוב לתעד את זה.` });
+      // Social proof — show once based on injury type
+      if (!shownSocialProof.current) {
+        shownSocialProof.current = true;
+        botMsgs.push({ role: "assistant", content: getSocialProof(txt) });
+      }
       botMsgs.push({ role: "assistant", content: DISABILITY_QUESTION });
       setState(STATE_DISABILITY);
+      setProgress(50);
     } else if (state === STATE_DISABILITY) {
       const pctMatch = txt.match(/(\d+)\s*%?/);
       const dontKnow = /לא יודע|לא נקבע|אין|טרם|עדיין לא/.test(txt);
@@ -286,6 +333,7 @@ export default function useChat(customOpening) {
       }
       botMsgs.push({ role: "assistant", content: MONTHS_OFF_QUESTION });
       setState(STATE_MONTHS_OFF);
+      setProgress(75);
     } else if (state === STATE_MONTHS_OFF) {
       const monthMatch = txt.match(/(\d+)/);
       if (!monthMatch) {
@@ -309,6 +357,7 @@ export default function useChat(customOpening) {
         setCalc(c);
         setShowReferral(true);
         setState(STATE_DONE);
+        setProgress(100);
         window.dataLayer = window.dataLayer || [];
         window.dataLayer.push({ event: "calculation_complete", value_min: c.min, value_max: c.max });
         trackStep(6, "calculation_shown");
@@ -318,6 +367,12 @@ export default function useChat(customOpening) {
       }
     } else if (state === STATE_DONE) {
       botMsgs.push({ role: "assistant", content: "לחץ על הכפתור למטה כדי לשוחח עם עו\"ד דן אלון בוואטסאפ." });
+    }
+
+    // Urgency message — after 3+ messages without calc
+    if (userMsgCount.current >= 3 && !calc && !shownUrgency.current && state !== STATE_DONE) {
+      shownUrgency.current = true;
+      botMsgs.push({ role: "assistant", content: URGENCY_MSG });
     }
 
     setData(newData);
@@ -377,5 +432,6 @@ export default function useChat(customOpening) {
   return {
     msgs, inp, setInp, load, setLoad, calc, err, setErr,
     showReferral, send, sendDoc, restart, waMsg, endRef, WA, notifyWhatsApp,
+    quickReplies, handleQuickReply, progress,
   };
 }
