@@ -71,7 +71,7 @@ export default async function handler(req, res) {
   if (ALLOWED_ORIGINS.includes(origin)) {
     res.setHeader("Access-Control-Allow-Origin", origin);
   } else if (process.env.NODE_ENV === "development" && !process.env.VERCEL) {
-    res.setHeader("Access-Control-Allow-Origin", "*");
+    res.setHeader("Access-Control-Allow-Origin", "http://localhost:5173");
   }
   res.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
   res.setHeader("Access-Control-Allow-Headers", "Content-Type");
@@ -80,6 +80,8 @@ export default async function handler(req, res) {
   if (req.method !== "POST")   return res.status(405).json({ error: "Method not allowed" });
 
   // ── Rate limit ────────────────────────────
+  // Vercel sets x-forwarded-for reliably — safe to trust first IP
+  // Do NOT deploy outside Vercel without updating this logic
   const ip = (req.headers["x-forwarded-for"] || "unknown").split(",")[0].trim();
   if (!checkRate(ip, res)) {
     return res.status(429).json({ error: "יותר מדי בקשות. נסה שוב בעוד דקה." });
@@ -146,7 +148,8 @@ export default async function handler(req, res) {
 
   // ── Prompt injection sanitization ──────
   // Strip sequences that could manipulate system prompt behavior
-  const INJECTION_RE = /\b(system|SYSTEM|<\/?system>|<\/?instructions>|ignore previous|forget your|you are now|new instructions|override|disregard)\b/gi;
+  // English + Hebrew prompt injection patterns
+  const INJECTION_RE = /\b(system|SYSTEM|<\/?system>|<\/?instructions>|ignore previous|forget your|you are now|new instructions|override|disregard)\b|\u05D4\u05EA\u05E2\u05DC\u05DD \u05DE|\u05E9\u05DB\u05D7 \u05D0\u05EA|\u05D0\u05EA\u05D4 \u05E2\u05DB\u05E9\u05D9\u05D5|\u05D4\u05D5\u05E8\u05D0\u05D5\u05EA \u05D7\u05D3\u05E9\u05D5\u05EA|\u05E2\u05E7\u05D5\u05E3|\u05D4\u05EA\u05E2\u05DC\u05DE\u05D5\u05EA|\u05D4\u05D5\u05E8\u05D0\u05D5\u05EA \u05E7\u05D5\u05D3\u05DE\u05D5\u05EA|\u05D0\u05EA\u05D4 \u05D1\u05D5\u05D8 \u05D0\u05D7\u05E8|\u05EA\u05EA\u05E0\u05D4\u05D2 \u05DB|\u05E9\u05E0\u05D4 \u05D0\u05EA \u05D4\u05D5\u05E8\u05D0\u05D5\u05EA/gi;
   const sanitized = merged.map(m => {
     if (m.role !== "user") return m;
     if (typeof m.content === "string") {

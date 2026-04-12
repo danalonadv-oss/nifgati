@@ -66,6 +66,31 @@ async function appendRow(accessToken, spreadsheetId, sheetName, values) {
   return res.json();
 }
 
+// Rate limiting (in-memory — resets on cold start)
+const rateMap = new Map();
+const RATE_LIMIT = 20;
+const RATE_WINDOW = 60_000;
+
+function checkRate(ip) {
+  const now = Date.now();
+  const entry = rateMap.get(ip);
+  if (!entry || now - entry.start > RATE_WINDOW) {
+    rateMap.set(ip, { count: 1, start: now });
+    return true;
+  }
+  if (entry.count >= RATE_LIMIT) return false;
+  entry.count++;
+  return true;
+}
+
+// Prevent CSV/formula injection in Google Sheets
+function sanitizeCell(val) {
+  if (val === null || val === undefined) return "";
+  const str = String(val);
+  if (/^[=+\-@\t\r]/.test(str)) return "'" + str;
+  return str;
+}
+
 export default async function handler(req, res) {
   res.setHeader("X-Content-Type-Options", "nosniff");
 
@@ -74,13 +99,17 @@ export default async function handler(req, res) {
   if (ALLOWED_ORIGINS.includes(origin)) {
     res.setHeader("Access-Control-Allow-Origin", origin);
   } else if (process.env.NODE_ENV === "development" && !process.env.VERCEL) {
-    res.setHeader("Access-Control-Allow-Origin", "*");
+    res.setHeader("Access-Control-Allow-Origin", "http://localhost:5173");
   }
   res.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
   res.setHeader("Access-Control-Allow-Headers", "Content-Type");
 
   if (req.method === "OPTIONS") return res.status(200).end();
   if (req.method !== "POST") return res.status(405).json({ error: "Method not allowed" });
+
+  // Rate limit
+  const ip = (req.headers["x-forwarded-for"] || "unknown").split(",")[0].trim();
+  if (!checkRate(ip)) return res.status(429).json({ error: "Too many requests" });
 
   const {
     name, phone, accidentType, hospitalized, workAccident,
@@ -104,19 +133,19 @@ export default async function handler(req, res) {
   const ts = new Date().toLocaleString("he-IL", { timeZone: "Asia/Jerusalem" });
 
   const row = [
-    ts,                                              // A: תאריך ושעה
-    name || "",                                      // B: שם
-    phone || "",                                     // C: טלפון
-    accidentType || "",                              // D: סוג תאונה
-    hospitalized != null ? (hospitalized ? "כן" : "לא") : "",  // E: אושפז
-    workAccident != null ? (workAccident ? "כן" : "לא") : "",  // F: תאונת עבודה
-    age || "",                                       // G: גיל
-    disability != null ? `${disability}%` : "",      // H: אחוזי נכות
-    compensationRange || "",                         // I: טווח פיצוי
-    page || "",                                      // J: דף נחיתה
-    whatsappClick ? "כן" : "לא",                     // K: לחץ WhatsApp
-    utmSource || "",                                 // L: מקור
-    gclid || "",                                     // M: GCLID
+    ts,                                                                          // A: תאריך ושעה
+    sanitizeCell(name),                                                          // B: שם
+    sanitizeCell(phone),                                                         // C: טלפון
+    sanitizeCell(accidentType),                                                  // D: סוג תאונה
+    hospitalized != null ? (hospitalized ? "כן" : "לא") : "",                    // E: אושפז
+    workAccident != null ? (workAccident ? "כן" : "לא") : "",                    // F: תאונת עבודה
+    sanitizeCell(age),                                                           // G: גיל
+    disability != null ? `${disability}%` : "",                                  // H: אחוזי נכות
+    sanitizeCell(compensationRange),                                             // I: טווח פיצוי
+    sanitizeCell(page),                                                          // J: דף נחיתה
+    whatsappClick ? "כן" : "לא",                                                 // K: לחץ WhatsApp
+    sanitizeCell(utmSource),                                                     // L: מקור
+    sanitizeCell(gclid),                                                         // M: GCLID
   ];
 
   try {

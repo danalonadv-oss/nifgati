@@ -11,6 +11,23 @@ const ALLOWED_ORIGINS = [
   "https://www.nifgati.co.il",
 ];
 
+// Rate limiting (in-memory — resets on cold start)
+const rateMap = new Map();
+const RATE_LIMIT = 10;
+const RATE_WINDOW = 60_000;
+
+function checkRate(ip) {
+  const now = Date.now();
+  const entry = rateMap.get(ip);
+  if (!entry || now - entry.start > RATE_WINDOW) {
+    rateMap.set(ip, { count: 1, start: now });
+    return true;
+  }
+  if (entry.count >= RATE_LIMIT) return false;
+  entry.count++;
+  return true;
+}
+
 export default async function handler(req, res) {
   res.setHeader("X-Content-Type-Options", "nosniff");
 
@@ -19,13 +36,17 @@ export default async function handler(req, res) {
   if (ALLOWED_ORIGINS.includes(origin)) {
     res.setHeader("Access-Control-Allow-Origin", origin);
   } else if (process.env.NODE_ENV === "development" && !process.env.VERCEL) {
-    res.setHeader("Access-Control-Allow-Origin", "*");
+    res.setHeader("Access-Control-Allow-Origin", "http://localhost:5173");
   }
   res.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
   res.setHeader("Access-Control-Allow-Headers", "Content-Type");
 
   if (req.method === "OPTIONS") return res.status(200).end();
   if (req.method !== "POST") return res.status(405).json({ error: "Method not allowed" });
+
+  // Rate limit
+  const ip = (req.headers["x-forwarded-for"] || "unknown").split(",")[0].trim();
+  if (!checkRate(ip)) return res.status(429).json({ error: "Too many requests" });
 
   // Validate
   const { summary, calculation, conversation } = req.body || {};
