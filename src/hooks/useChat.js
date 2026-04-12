@@ -393,7 +393,8 @@ export default function useChat(customOpening) {
         trackStep(3, "hospitalized");
       }
     } else if (state === STATE_CONTEXT) {
-      const isWork = WORK_RE.test(txt);
+      const NOT_WORK_RE = /לא בדרך לעבודה|שעות פנויות|לא בעבודה|פרטי/i;
+      const isWork = NOT_WORK_RE.test(txt) ? false : WORK_RE.test(txt);
       newData.isWork = isWork;
       botMsgs.push({ role: "assistant", content: contextResponse(isWork) });
       botMsgs.push({ role: "assistant", content: INJURY_QUESTION });
