@@ -21,6 +21,8 @@
   flex-direction: column;
   overflow: hidden;
   position: relative;
+  direction: rtl;
+  text-align: right;
 }
 
 /* ── Inline mode ─────────────────────────── */
@@ -39,6 +41,8 @@
   overflow: hidden;
   min-height: 420px;
   max-height: 600px;
+  direction: rtl;
+  text-align: right;
 }
 
 /* ── Header ──────────────────────────────── */
@@ -114,6 +118,7 @@
   display: flex;
   flex-direction: column;
   gap: 12px;
+  direction: rtl;
 }
 
 .msgRow {
@@ -136,6 +141,9 @@
   font-size: 14px;
   line-height: 1.75;
   white-space: pre-wrap;
+  text-align: right;
+  direction: rtl;
+  unicode-bidi: embed;
 }
 
 .bubbleUser {
