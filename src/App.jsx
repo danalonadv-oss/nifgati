@@ -258,33 +258,23 @@ export default function App() {
       <main id="main-content" role="main">
 
         {/* HERO */}
-        <section id="hero" aria-label="עמוד ראשי" style={{ minHeight:"100vh", display:"flex", alignItems:"center", position:"relative", overflow:"hidden", paddingTop:showBanner ? 120 : 80 }}>
+        <section id="hero" aria-label="עמוד ראשי" style={{ display:"flex", alignItems:"center", position:"relative", overflow:"hidden", paddingTop:showBanner ? 120 : 80 }}>
           <div style={{ position:"absolute", top:"20%", right:"-8%", width:500, height:500, background:"radial-gradient(circle, #c9a84c09 0%, transparent 70%)", pointerEvents:"none" }} aria-hidden="true" />
-          <div className="hero-wrap" style={{ maxWidth:900, margin:"0 auto", padding:"80px 24px", width:"100%", textAlign:"center" }}>
+          <div className="hero-wrap" style={{ maxWidth:900, margin:"0 auto", padding:"48px 24px 24px", width:"100%", textAlign:"center" }}>
 
-              <h1 className="ht" style={{ fontSize:48, fontWeight:900, lineHeight:1.25, marginBottom:14 }}>
+              <h1 className="ht" style={{ fontSize:48, fontWeight:900, lineHeight:1.25, marginBottom:18 }}>
                 נפגעת בתאונה?<br />
                 <span style={{ color:G }}>מגיע לך פיצוי.</span>
               </h1>
-              <p className="hero-sub" style={{ fontSize:18, color:"#7a8fa5", marginBottom:24, lineHeight:1.6 }}>גלה כמה — תוך 60 שניות, בחינם.</p>
-              <div style={{ marginBottom:32 }}>
-                <button style={{ ...gBtn, fontSize:18, padding:"16px 36px" }} onClick={openBot} aria-label="חשב כעת">חשב כעת</button>
+
+              <div style={{ marginBottom:12 }}>
+                <button style={{ ...gBtn, fontSize:18, padding:"16px 36px" }} onClick={openBot} aria-label="חשב כעת">חשב כעת — חינם</button>
               </div>
 
-              <div className="hero-bullets" style={{ display:"inline-flex", flexDirection:"column", gap:10, marginBottom:32, textAlign:"right" }}>
-                {[
-                  { icon:"🔒", text:"בדיקה אנונימית: ללא צורך בשם או תעודת זהות." },
-                  { icon:"🤫", text:"דיסקרטיות מלאה: המידע אינו נשמר במערכת ואינו מתועד." },
-                  { icon:"⚡", text:"תשובה מיידית: קבלת אינדיקציה ראשונית בתוך פחות מ-2 דקות." },
-                ].map(b => (
-                  <div key={b.icon} style={{ display:"flex", gap:10, alignItems:"flex-start", fontSize:15, color:"#bcc8d4", lineHeight:1.6 }}>
-                    <span style={{ fontSize:18, flexShrink:0, marginTop:2 }}>{b.icon}</span>
-                    <span>{b.text}</span>
-                  </div>
-                ))}
-              </div>
-              <div style={{ display:"flex", gap:14, flexWrap:"wrap", marginBottom:40, justifyContent:"center" }}>
-                <button style={{ ...gBtn, fontSize:16, padding:"16px 32px" }} onClick={openBot} aria-label="בדיקת גובה הפיצוי">💬 לבדיקת גובה הפיצוי שלי</button>
+              <div style={{ display:"flex", gap:16, justifyContent:"center", fontSize:13, color:"#7a8fa5", margin:"8px 0 24px" }}>
+                <span>🔒 אנונימי</span>
+                <span>🤫 לא נשמר</span>
+                <span>⚡ תוך 2 דקות</span>
               </div>
           </div>
         </section>
@@ -468,35 +458,7 @@ export default function App() {
         </p>
       </footer>
 
-      {/* Floating bot button */}
-      {!showBot && (
-        <button
-          onClick={() => setShowBot(true)}
-          style={{
-            position: "fixed",
-            bottom: 100,
-            left: 24,
-            borderRadius: 28,
-            background: "linear-gradient(135deg, #c9a84c, #f0d080)",
-            color: "#fff",
-            fontSize: 14,
-            fontWeight: 800,
-            fontFamily: "inherit",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            cursor: "pointer",
-            boxShadow: "0 4px 20px rgba(201,168,76,0.6)",
-            zIndex: 1000,
-            border: "none",
-            padding: "12px 20px",
-            whiteSpace: "nowrap",
-          }}
-          aria-label="פתח מחשבון פיצויים"
-        >
-          בוט נפגעתי
-        </button>
-      )}
+      {/* Floating bot button removed — bot opens via hero CTA */}
 
       {/* WhatsApp float */}
       <button className="wa-btn" onClick={() => openWhatsApp(window.location.pathname)} aria-label="פתח שיחת וואטסאפ">💬</button>
