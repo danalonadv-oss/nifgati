@@ -61,6 +61,7 @@ export default function Bot({ onClose, inline = false, openingMessage }) {
   const { mic, toggleMic } = useSpeechRecognition({ setInp, setErr });
   const inpRef = useRef(null);
   const messagesContainerRef = useRef(null);
+  const calcRef = useRef(null);
 
   useEffect(() => {
     if (!messagesContainerRef.current) return;
@@ -68,8 +69,16 @@ export default function Bot({ onClose, inline = false, openingMessage }) {
     setTimeout(() => { container.scrollTop = container.scrollHeight; }, 100);
   }, [msgs, load]);
 
+  useEffect(() => {
+    if (calc && calcRef.current) {
+      setTimeout(() => {
+        calcRef.current.scrollIntoView({ behavior: "smooth", block: "center" });
+      }, 300);
+    }
+  }, [calc]);
+
   const resultsCard = calc && !load && (
-    <div style={{ background:"linear-gradient(135deg, #1a2744, #0f1a30)", border:"1px solid #c9a84c55", borderRadius:16, padding:"20px 18px" }}>
+    <div ref={calcRef} style={{ background:"linear-gradient(135deg, #1a2744, #0f1a30)", border:"1px solid #c9a84c55", borderRadius:16, padding:"20px 18px" }}>
       {/* Estimate amount */}
       <div style={{ fontSize:11, color:"#c9a84c", letterSpacing:1, marginBottom:6, fontWeight:700 }}>הפיצוי המשוער שלך</div>
       <div style={{ fontSize:28, fontWeight:900, color:"#fff", marginBottom:4 }}>₪{calc.min.toLocaleString("he-IL")} – ₪{calc.max.toLocaleString("he-IL")}</div>
