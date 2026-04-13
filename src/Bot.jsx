@@ -105,7 +105,7 @@ export default function Bot({ onClose, inline = false, openingMessage }) {
         <div style={{ background:"#0d1425", border:"2px solid #22c55e", borderRadius:14, padding:16, marginBottom:12, textAlign:"center" }}>
           <div style={{ fontSize:20, marginBottom:6 }}>✅</div>
           <div style={{ fontSize:14, fontWeight:700, color:"#22c55e", marginBottom:4 }}>קיבלנו את פרטייך!</div>
-          <div style={{ fontSize:12, color:"#7a8fa5" }}>נחזור אליך תוך שעה בשעות הפעילות.</div>
+          <div style={{ fontSize:12, color:"#7a8fa5" }}>נחזור אליך מייד</div>
         </div>
       )}
 
