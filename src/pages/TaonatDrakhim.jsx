@@ -22,6 +22,34 @@ const faqItems = [
   { q: "מה לעשות מיד אחרי תאונה?", a: "1. צלם 2. קבל טיפול רפואי 3. רשום פרטי נהג 4. פנה לעו״ד" },
 ];
 
+const statsExamples = [
+  { emoji: "🚗", detail: "נכות 15% | גיל 35", amount: "₪320,000" },
+  { emoji: "🏍️", detail: "נכות 25% | גיל 28", amount: "₪680,000" },
+  { emoji: "🚶", detail: "נכות 10% | גיל 52", amount: "₪185,000" },
+];
+
+const cardStyle = {
+  background: "rgba(184,149,58,0.15)",
+  border: "1px solid rgba(184,149,58,0.4)",
+  borderRadius: "12px",
+  padding: "12px 16px",
+  textAlign: "center",
+  minWidth: "140px",
+};
+
+function StatsRow() {
+  return (
+    <div style={{ display: "flex", gap: "12px", flexWrap: "wrap", justifyContent: "center", margin: "16px 0", direction: "rtl" }}>
+      {statsExamples.map((s, i) => (
+        <div key={i} style={cardStyle}>
+          <div style={{ fontSize: "13px", color: "#aaa" }}>{s.emoji} {s.detail}</div>
+          <div style={{ fontSize: "20px", fontWeight: "bold", color: "#b8953a" }}>{s.amount}</div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
 function FaqItem({ q, a }) {
   const [open, setOpen] = useState(false);
   return (
@@ -80,14 +108,17 @@ function ExtraContent() {
 
 export default function TaonatDrakhim() {
   return <LandingPage
-    pageTitle="חישוב כאב וסבל פלת״ד — גלה כמה מגיע לך"
-    pageSubtitle="מחשבון פיצויים חינמי לפי נוסחת פלת״ד — כאב וסבל, הפסד שכר, אובדן כושר עתידי"
+    pageTitle="דוגמאות לפיצויים בתאונות דרכים"
+    pageSubtitle="תוצאות אמיתיות של לקוחות עו״ד דן אלון:"
+    metaTitle="דוגמאות לפיצויים תאונות דרכים | כמה מגיע לך?"
+    metaDescription="דוגמאות אמיתיות לפיצויים בתאונות דרכים — ₪185,000 עד ₪680,000. חשב כמה מגיע לך חינם תוך 60 שניות."
     heroEmoji="🚗"
     bullets={["הנתונים לא נשמרים ולא מתועדים","אנונימי לחלוטין — השיחה לא נשמרת","ייצוג מלא מול חברות הביטוח"]}
     ctaText="חשב פיצוי על תאונת דרכים"
     pageSlug="taonat-drakhim"
     socialProofLabel="נכות 15% — תאונת דרכים"
     bannerText="תאונת דרכים — חשב ודע מיד כמה מגיע לך"
+    heroExtra={<StatsRow />}
     extraContent={<ExtraContent />}
   />;
 }

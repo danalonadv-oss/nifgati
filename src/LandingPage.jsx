@@ -108,7 +108,7 @@ function readUtmTerm() {
   return decodeURIComponent(raw.replace(/\+/g, " ")).trim();
 }
 
-export default function LandingPage({ pageTitle, pageSubtitle, heroEmoji, bullets, ctaText, pageSlug, bannerText, socialProofAmount, socialProofLabel, extraContent }) {
+export default function LandingPage({ pageTitle, pageSubtitle, heroEmoji, bullets, ctaText, pageSlug, bannerText, socialProofAmount, socialProofLabel, extraContent, heroExtra, metaTitle, metaDescription }) {
   const utmTerm = readUtmTerm();
 
   const [scrolled, setScrolled]     = useState(false);
@@ -166,6 +166,19 @@ export default function LandingPage({ pageTitle, pageSubtitle, heroEmoji, bullet
       utm_term: utmTerm || '',
     });
   }, []);
+
+  useEffect(() => {
+    if (metaTitle) document.title = metaTitle;
+    if (metaDescription) {
+      const el = document.querySelector('meta[name="description"]');
+      if (el) el.setAttribute("content", metaDescription);
+    }
+    return () => {
+      document.title = "nifgati | נפגעתי — דן אלון עורך דין נזיקין";
+      const el = document.querySelector('meta[name="description"]');
+      if (el) el.setAttribute("content", "נפגעת בתאונה? בדוק כמה פיצוי מגיע לך — חינם, תוך דקות. דן אלון, עורך דין נזיקין.");
+    };
+  }, [metaTitle, metaDescription]);
 
   // ── Schema.org structured data per landing page ──
   useEffect(() => {
@@ -452,6 +465,8 @@ export default function LandingPage({ pageTitle, pageSubtitle, heroEmoji, bullet
                   <span style={{ fontSize:13, color:"#7a8fa5" }}>{socialProofLabel} — פוצה בהצלחה</span>
                 </div>
               )}
+
+              {heroExtra}
           </div>
         </section>
 
