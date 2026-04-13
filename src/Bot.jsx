@@ -1,4 +1,4 @@
-import { useRef, useEffect } from "react";
+import { useRef, useEffect, useState } from "react";
 import useChat from "./hooks/useChat";
 import useFileUpload from "./hooks/useFileUpload";
 import useSpeechRecognition from "./hooks/useSpeechRecognition";
@@ -8,8 +8,39 @@ export default function Bot({ onClose, inline = false, openingMessage }) {
   const {
     msgs, inp, setInp, load, setLoad, calc, err, setErr,
     showReferral, send, sendDoc, waMsg, endRef, WA, notifyWhatsApp,
-    quickReplies, handleQuickReply, progress,
+    quickReplies, handleQuickReply, progress, data,
   } = useChat(openingMessage);
+
+  const [leadName, setLeadName] = useState("");
+  const [leadPhone, setLeadPhone] = useState("");
+  const [leadSending, setLeadSending] = useState(false);
+  const [leadSubmitted, setLeadSubmitted] = useState(false);
+
+  async function submitLead() {
+    if (!leadPhone) return;
+    setLeadSending(true);
+    try {
+      await fetch("/api/notify", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          summary: "ליד מטופס: " + leadName + " | " + leadPhone,
+          calculation: calc,
+          conversation: [
+            "שם: " + leadName,
+            "טלפון: " + leadPhone,
+            "סוג תאונה: " + (data.role || ""),
+            "גיל: " + (data.age || ""),
+            "נכות: " + (data.disability || "") + "%",
+          ],
+        }),
+      });
+      setLeadSubmitted(true);
+      window.dataLayer = window.dataLayer || [];
+      window.dataLayer.push({ event: "lead_form_submit", form_name: "bot_lead_form", page_slug: window.location.pathname });
+    } catch (e) { setLeadSubmitted(true); }
+    setLeadSending(false);
+  }
 
   const {
     docName, setDocName, showFilePicker, setShowFilePicker,
@@ -108,10 +139,24 @@ export default function Bot({ onClose, inline = false, openingMessage }) {
                 <div className={s.calcAmount}>₪{calc.min.toLocaleString("he-IL")} – ₪{calc.max.toLocaleString("he-IL")}</div>
                 <div className={s.calcFee}>לפני שכ"ט (8%–13%)</div>
                 <p style={{ fontSize:11, color:"#7a8fa5", textAlign:"center", margin:"8px 0 12px", lineHeight:1.5 }}>* הערכה זו אינה מהווה ייעוץ משפטי ואינה תחליף לו.<br/>ייעוץ משפטי מחייב יינתן על ידי עו״ד דן אלון בלבד.</p>
-                <div className={s.bounceArrow}>👇</div>
+                {!leadSubmitted ? (
+                  <div style={{ background:"#0d1425", border:"2px solid #c9a84c", borderRadius:14, padding:14, margin:"12px 0" }}>
+                    <div style={{ fontSize:13, fontWeight:800, color:"#c9a84c", marginBottom:8, textAlign:"center" }}>רוצים שנחזור אליכם?</div>
+                    <input value={leadName} onChange={e => setLeadName(e.target.value)} placeholder="שם מלא" style={{ width:"100%", background:"#141b2d", border:"1px solid #1e2d4a", borderRadius:10, color:"#fff", fontFamily:"inherit", fontSize:14, padding:"10px 14px", marginBottom:8, direction:"rtl", boxSizing:"border-box" }} />
+                    <input value={leadPhone} onChange={e => setLeadPhone(e.target.value)} placeholder="טלפון" type="tel" style={{ width:"100%", background:"#141b2d", border:"1px solid #1e2d4a", borderRadius:10, color:"#fff", fontFamily:"inherit", fontSize:14, padding:"10px 14px", marginBottom:8, direction:"ltr", boxSizing:"border-box" }} />
+                    <button onClick={submitLead} disabled={leadSending} style={{ width:"100%", background:"#c9a84c", color:"#060a12", border:"none", borderRadius:12, fontFamily:"inherit", fontWeight:800, fontSize:15, padding:"13px", cursor:"pointer" }}>{leadSending ? "שולח..." : "חזרו אליי בבקשה \u2190"}</button>
+                  </div>
+                ) : (
+                  <div style={{ background:"#0d1425", border:"2px solid #22c55e", borderRadius:14, padding:14, margin:"12px 0", textAlign:"center" }}>
+                    <div style={{ fontSize:20, marginBottom:4 }}>✅</div>
+                    <div style={{ fontSize:14, fontWeight:700, color:"#22c55e" }}>קיבלנו את פרטייך!</div>
+                    <div style={{ fontSize:12, color:"#7a8fa5" }}>נחזור אליך מייד</div>
+                  </div>
+                )}
                 <button onClick={() => { notifyWhatsApp(); window.location.href = waHref; }} aria-label="שלח את החישוב לעורך דין בוואטסאפ" className={s.ctaBtn}>
                   💬 שלח את החישוב לעו"ד בוואטסאפ
                 </button>
+                <a href="tel:+972544338212" style={{ display:"flex", alignItems:"center", justifyContent:"center", gap:8, width:"100%", background:"transparent", color:"#fff", border:"2px solid #ffffff44", borderRadius:12, fontFamily:"inherit", fontWeight:700, fontSize:16, padding:"14px", cursor:"pointer", textDecoration:"none", marginTop:8, boxSizing:"border-box" }}>📞 חייגו עכשיו</a>
               </div>
             )}
 
@@ -242,10 +287,25 @@ export default function Bot({ onClose, inline = false, openingMessage }) {
               <div className={s.calcLabel}>הערכת פיצוי ראשונית</div>
               <div className={s.calcAmount}>₪{calc.min.toLocaleString("he-IL")} – ₪{calc.max.toLocaleString("he-IL")}</div>
               <div className={s.calcFee}>לפני שכ"ט (8%–13%)</div>
-              <div className={s.bounceArrow}>👇</div>
+              <p style={{ fontSize:11, color:"#7a8fa5", textAlign:"center", margin:"8px 0 12px", lineHeight:1.5 }}>* הערכה זו אינה מהווה ייעוץ משפטי ואינה תחליף לו.<br/>ייעוץ משפטי מחייב יינתן על ידי עו״ד דן אלון בלבד.</p>
+              {!leadSubmitted ? (
+                <div style={{ background:"#0d1425", border:"2px solid #c9a84c", borderRadius:14, padding:14, margin:"12px 0" }}>
+                  <div style={{ fontSize:13, fontWeight:800, color:"#c9a84c", marginBottom:8, textAlign:"center" }}>רוצים שנחזור אליכם?</div>
+                  <input value={leadName} onChange={e => setLeadName(e.target.value)} placeholder="שם מלא" style={{ width:"100%", background:"#141b2d", border:"1px solid #1e2d4a", borderRadius:10, color:"#fff", fontFamily:"inherit", fontSize:14, padding:"10px 14px", marginBottom:8, direction:"rtl", boxSizing:"border-box" }} />
+                  <input value={leadPhone} onChange={e => setLeadPhone(e.target.value)} placeholder="טלפון" type="tel" style={{ width:"100%", background:"#141b2d", border:"1px solid #1e2d4a", borderRadius:10, color:"#fff", fontFamily:"inherit", fontSize:14, padding:"10px 14px", marginBottom:8, direction:"ltr", boxSizing:"border-box" }} />
+                  <button onClick={submitLead} disabled={leadSending} style={{ width:"100%", background:"#c9a84c", color:"#060a12", border:"none", borderRadius:12, fontFamily:"inherit", fontWeight:800, fontSize:15, padding:"13px", cursor:"pointer" }}>{leadSending ? "שולח..." : "חזרו אליי בבקשה \u2190"}</button>
+                </div>
+              ) : (
+                <div style={{ background:"#0d1425", border:"2px solid #22c55e", borderRadius:14, padding:14, margin:"12px 0", textAlign:"center" }}>
+                  <div style={{ fontSize:20, marginBottom:4 }}>✅</div>
+                  <div style={{ fontSize:14, fontWeight:700, color:"#22c55e" }}>קיבלנו את פרטייך!</div>
+                  <div style={{ fontSize:12, color:"#7a8fa5" }}>נחזור אליך מייד</div>
+                </div>
+              )}
               <button onClick={() => { notifyWhatsApp(); window.location.href = waHref; }} aria-label="שלח את החישוב לעורך דין בוואטסאפ" className={s.ctaBtn}>
                 💬 שלח את החישוב לעו"ד בוואטסאפ
               </button>
+              <a href="tel:+972544338212" style={{ display:"flex", alignItems:"center", justifyContent:"center", gap:8, width:"100%", background:"transparent", color:"#fff", border:"2px solid #ffffff44", borderRadius:12, fontFamily:"inherit", fontWeight:700, fontSize:16, padding:"14px", cursor:"pointer", textDecoration:"none", marginTop:8, boxSizing:"border-box" }}>📞 חייגו עכשיו</a>
             </div>
           )}
 
