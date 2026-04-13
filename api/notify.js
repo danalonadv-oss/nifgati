@@ -48,9 +48,13 @@ export default async function handler(req, res) {
   const ip = (req.headers["x-forwarded-for"] || "unknown").split(",")[0].trim();
   if (!checkRate(ip)) return res.status(429).json({ error: "Too many requests" });
 
-  // Validate
+  // Parse body
   const body = req.body || {};
-  const { type } = body;
+  const { summary, calculation, conversation, name, phone, data, msgs } = body;
+
+  if (!summary && !name) {
+    return res.status(400).json({ error: "missing lead data" });
+  }
 
   // Check for Resend API key
   if (!process.env.RESEND_API_KEY) {
@@ -58,69 +62,115 @@ export default async function handler(req, res) {
     return res.status(200).json({ ok: true, skipped: true });
   }
 
-  function escapeHtml(str) {
+  function esc(str) {
     return String(str || "").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
   }
+  function fmtNum(n) { return n ? Number(n).toLocaleString("he-IL") : "0"; }
 
   const ts = new Date().toLocaleString("he-IL", { timeZone: "Asia/Jerusalem" });
-  let emailSubject, html;
+  const calc = calculation || body.calc || {};
+  const calcMin = calc.min || 0;
+  const calcMax = calc.max || 0;
+  const safeName = esc(name || "אנונימי");
+  const safePhone = esc(phone || "");
 
-  if (type === "calculator_lead") {
-    // Calculator lead form submission
-    const { name, phone, estimate_min, estimate_max, accident_type, age, medical, work_related, disability_percent, source, timestamp } = body;
-    if (!name || !phone) return res.status(400).json({ error: "missing name or phone" });
-
-    const estLine = estimate_min && estimate_max
-      ? `₪${Number(estimate_min).toLocaleString("he-IL")} – ₪${Number(estimate_max).toLocaleString("he-IL")}`
-      : "לא חושב";
-
-    emailSubject = "ליד חדש באתר נפגעתי";
-    html = `
-      <div style="font-family:Arial,sans-serif;direction:rtl;max-width:600px;margin:0 auto;line-height:1.8">
-        <h2 style="color:#c9a84c;margin-bottom:16px">ליד חדש מהמחשבון — nifgati.co.il</h2>
-        <p><strong>שם:</strong> ${escapeHtml(name)}</p>
-        <p><strong>טלפון:</strong> ${escapeHtml(phone)}</p>
-        <p><strong>פיצוי משוער:</strong> ${estLine}</p>
-        <hr style="border:none;border-top:1px solid #ccc;margin:16px 0"/>
-        <p><strong>פרטי השיחה:</strong></p>
-        <p>• סוג תאונה: ${escapeHtml(accident_type)}</p>
-        <p>• גיל: ${escapeHtml(age)}</p>
-        <p>• טיפול רפואי: ${escapeHtml(medical)}</p>
-        <p>• קשור לעבודה: ${escapeHtml(work_related)}</p>
-        <p>• אחוז נכות: ${escapeHtml(disability_percent)}%</p>
-        <p>• מקור: ${escapeHtml(source)}</p>
-        <p>• תאריך: ${escapeHtml(timestamp || ts)}</p>
-      </div>
-    `;
-  } else {
-    // Legacy WhatsApp click notification
-    const { summary, calculation, conversation } = body;
-    if (!summary || typeof summary !== "string") {
-      return res.status(400).json({ error: "missing summary" });
-    }
-
-    emailSubject = "ליד חדש — שיחת וואטסאפ | nifgati.co.il";
-    const calcLine = calculation
-      ? `₪${Number(calculation.min).toLocaleString("he-IL")} – ₪${Number(calculation.max).toLocaleString("he-IL")}`
-      : "לא חושב";
+  // Extract phone from conversation if not provided directly
+  let displayPhone = safePhone;
+  if (!displayPhone) {
     const allText = Array.isArray(conversation) ? conversation.join(" ") : "";
     const phoneMatch = allText.match(/0[5-9]\d[\d-]{6,9}/);
-    const safePhone = phoneMatch ? escapeHtml(phoneMatch[0]) : "לא צוין";
-    const convoHtml = Array.isArray(conversation)
-      ? conversation.map(line => `<p>${escapeHtml(line)}</p>`).join("")
+    displayPhone = phoneMatch ? esc(phoneMatch[0]) : "לא צוין";
+  }
+
+  // Build conversation transcript
+  const transcriptHtml = Array.isArray(msgs) && msgs.length > 0
+    ? msgs.map(m => `
+        <div style="margin-bottom:12px;">
+          <strong style="color:${m.role === "user" ? "#b8953a" : "#2a5298"}">
+            ${m.role === "user" ? "\u{1F464} לקוח" : "\u{1F916} בוט"}:
+          </strong>
+          <span style="margin-right:8px;">${esc(m.content)}</span>
+        </div>
+      `).join("")
+    : Array.isArray(conversation)
+      ? conversation.map(line => `<p>${esc(line)}</p>`).join("")
       : "<p>לא זמינה</p>";
 
-    html = `
-      <div style="font-family:Arial,sans-serif;direction:rtl;max-width:600px;margin:0 auto;line-height:1.8">
-        <p><strong>שעה:</strong> ${ts}</p>
-        <p><strong>טלפון:</strong> ${safePhone}</p>
-        <p><strong>סכום משוער:</strong> ${calcLine}</p>
-        <hr style="border:none;border-top:1px solid #ccc;margin:16px 0"/>
-        <p><strong>השיחה המלאה:</strong></p>
-        ${convoHtml}
+  const d = data || {};
+  const emailSubject = `\u{1F514} ליד חדש: ${safeName} | ${displayPhone} | \u20AA${fmtNum(calcMin)}\u2013\u20AA${fmtNum(calcMax)}`;
+
+  const html = `
+    <div dir="rtl" style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;">
+      <h2 style="color:#b8953a;border-bottom:2px solid #b8953a;padding-bottom:8px;">
+        \u{1F514} ליד חדש מהבוט — nifgati.co.il
+      </h2>
+
+      <table style="width:100%;border-collapse:collapse;margin-bottom:20px;">
+        <tr style="background:#f5f5f5;">
+          <td style="padding:8px;font-weight:bold;">שם</td>
+          <td style="padding:8px;">${safeName}</td>
+        </tr>
+        <tr>
+          <td style="padding:8px;font-weight:bold;">טלפון</td>
+          <td style="padding:8px;"><a href="tel:${esc(phone || "")}">${displayPhone}</a></td>
+        </tr>
+        <tr style="background:#f5f5f5;">
+          <td style="padding:8px;font-weight:bold;">שעה</td>
+          <td style="padding:8px;">${ts}</td>
+        </tr>
+      </table>
+
+      <h3 style="color:#333;">\u{1F4CB} פרטי התאונה</h3>
+      <table style="width:100%;border-collapse:collapse;margin-bottom:20px;">
+        <tr style="background:#f5f5f5;">
+          <td style="padding:8px;font-weight:bold;">סוג תאונה</td>
+          <td style="padding:8px;">${esc(d.role || summary || "לא צוין")}</td>
+        </tr>
+        <tr>
+          <td style="padding:8px;font-weight:bold;">פנה למיון</td>
+          <td style="padding:8px;">${d.medical ? "\u2705 כן" : "\u274C לא"}</td>
+        </tr>
+        <tr style="background:#f5f5f5;">
+          <td style="padding:8px;font-weight:bold;">דרך לעבודה</td>
+          <td style="padding:8px;">${d.isWork ? "\u2705 כן" : "\u274C לא"}</td>
+        </tr>
+        <tr>
+          <td style="padding:8px;font-weight:bold;">סוג פגיעה</td>
+          <td style="padding:8px;">${esc(d.injury || "לא צוין")}</td>
+        </tr>
+        <tr style="background:#f5f5f5;">
+          <td style="padding:8px;font-weight:bold;">אחוזי נכות</td>
+          <td style="padding:8px;">${d.disability || 0}%</td>
+        </tr>
+        <tr>
+          <td style="padding:8px;font-weight:bold;">ימי היעדרות</td>
+          <td style="padding:8px;">${d.monthsOff || 0} ימים</td>
+        </tr>
+        <tr style="background:#f5f5f5;">
+          <td style="padding:8px;font-weight:bold;">גיל</td>
+          <td style="padding:8px;">${esc(d.age || "לא צוין")}</td>
+        </tr>
+      </table>
+
+      <h3 style="color:#b8953a;">\u{1F4B0} הערכת פיצוי</h3>
+      <div style="background:#1a2a3a;color:#fff;padding:16px;border-radius:8px;text-align:center;margin-bottom:20px;">
+        <div style="font-size:24px;font-weight:bold;">
+          \u20AA${fmtNum(calcMin)} \u2013 \u20AA${fmtNum(calcMax)}
+        </div>
+        <div style="color:#aaa;font-size:12px;">לפני שכ"ט</div>
       </div>
-    `;
-  }
+
+      <h3 style="color:#333;">\u{1F4AC} תמליל השיחה</h3>
+      <div style="background:#f9f9f9;padding:16px;border-radius:8px;border:1px solid #ddd;">
+        ${transcriptHtml}
+      </div>
+
+      <hr style="margin:20px 0;border-color:#ddd;">
+      <p style="color:#999;font-size:12px;text-align:center;">
+        nifgati.co.il | דן אלון, עו"ד נזיקין
+      </p>
+    </div>
+  `;
 
   try {
     const response = await fetch("https://api.resend.com/emails", {
