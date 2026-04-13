@@ -117,7 +117,7 @@ export default function Bot({ onClose, inline = false, openingMessage }) {
 
       {/* Phone button */}
       <a href="tel:+972544338212"
-        style={{ display:"flex", alignItems:"center", justifyContent:"center", gap:8, width:"100%", background:"transparent", color:"#7a8fa5", border:"1px solid #1e2d4a", borderRadius:12, fontFamily:"inherit", fontWeight:700, fontSize:14, padding:"13px", cursor:"pointer", textDecoration:"none", marginBottom:10, boxSizing:"border-box" }}>
+        style={{ display:"flex", alignItems:"center", justifyContent:"center", gap:8, width:"100%", background:"transparent", color:"#fff", border:"2px solid #ffffff44", borderRadius:12, fontFamily:"inherit", fontWeight:700, fontSize:16, padding:"14px", cursor:"pointer", textDecoration:"none", marginBottom:10, boxSizing:"border-box" }}>
         📞 חייגו עכשיו
       </a>
 
@@ -241,13 +241,15 @@ export default function Bot({ onClose, inline = false, openingMessage }) {
             </div>
           )}
 
-          {/* ── Persistent WhatsApp Button ── */}
-          <div style={{ padding:"6px 12px", borderTop:"1px solid #ffffff11", display:"flex", justifyContent:"center" }}>
-            <a href={waHref} onClick={() => notifyWhatsApp()}
-              style={{ display:"inline-flex", alignItems:"center", gap:8, background:"#25D366", color:"#fff", borderRadius:20, padding:"8px 20px", fontSize:13, fontWeight:700, textDecoration:"none", fontFamily:"inherit" }}>
-              💬 דבר עם דן עכשיו — חינם
-            </a>
-          </div>
+          {/* ── WhatsApp Button — only after calc ── */}
+          {calc && (
+            <div style={{ padding:"6px 12px", borderTop:"1px solid #ffffff11", display:"flex", justifyContent:"center" }}>
+              <a href={waHref} onClick={() => notifyWhatsApp()}
+                style={{ display:"inline-flex", alignItems:"center", gap:8, background:"#25D366", color:"#fff", borderRadius:20, padding:"8px 20px", fontSize:13, fontWeight:700, textDecoration:"none", fontFamily:"inherit" }}>
+                💬 דבר עם דן עכשיו — חינם
+              </a>
+            </div>
+          )}
 
           {/* ── Input Bar ── */}
           <div className={s.inputBar}>
