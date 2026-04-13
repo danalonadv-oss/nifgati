@@ -91,14 +91,14 @@ export default function Bot({ onClose, inline = false, openingMessage }) {
       {/* Lead form */}
       {!leadSubmitted ? (
         <form onSubmit={submitLead} style={{ background:"#0d1425", border:"2px solid #c9a84c", borderRadius:14, padding:16, marginBottom:12 }}>
-          <div style={{ fontSize:13, fontWeight:800, color:"#c9a84c", marginBottom:10, textAlign:"center" }}>השאירו פרטים לייעוץ חינם</div>
+          <div style={{ fontSize:13, fontWeight:800, color:"#c9a84c", marginBottom:10, textAlign:"center" }}>רוצים שנחזור אליכם?</div>
           <input value={leadName} onChange={e => setLeadName(e.target.value)} placeholder="שם מלא" required
             style={{ width:"100%", background:"#141b2d", border:"1px solid #1e2d4a", borderRadius:10, color:"#fff", fontFamily:"inherit", fontSize:14, padding:"10px 14px", marginBottom:8, direction:"rtl", boxSizing:"border-box" }} />
           <input value={leadPhone} onChange={e => setLeadPhone(e.target.value)} placeholder="טלפון" type="tel" required
             style={{ width:"100%", background:"#141b2d", border:"1px solid #1e2d4a", borderRadius:10, color:"#fff", fontFamily:"inherit", fontSize:14, padding:"10px 14px", marginBottom:10, direction:"ltr", boxSizing:"border-box" }} />
           <button type="submit" disabled={leadSending}
             style={{ width:"100%", background:"#c9a84c", color:"#060a12", border:"none", borderRadius:12, fontFamily:"inherit", fontWeight:800, fontSize:15, padding:"13px", cursor:"pointer" }}>
-            {leadSending ? "שולח..." : "לייעוץ חינם \u2190"}
+            {leadSending ? "שולח..." : "חזרו אליי בבקשה \u2190"}
           </button>
         </form>
       ) : (
@@ -241,8 +241,8 @@ export default function Bot({ onClose, inline = false, openingMessage }) {
             </div>
           )}
 
-          {/* ── WhatsApp Button — only after calc ── */}
-          {calc && (
+          {/* ── WhatsApp Button — hidden when calc card has its own ── */}
+          {!calc && (
             <div style={{ padding:"6px 12px", borderTop:"1px solid #ffffff11", display:"flex", justifyContent:"center" }}>
               <a href={waHref} onClick={() => notifyWhatsApp()}
                 style={{ display:"inline-flex", alignItems:"center", gap:8, background:"#25D366", color:"#fff", borderRadius:20, padding:"8px 20px", fontSize:13, fontWeight:700, textDecoration:"none", fontFamily:"inherit" }}>
