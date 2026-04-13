@@ -3,6 +3,51 @@ import LandingPage from "../LandingPage.jsx";
 
 const G = "#c9a84c";
 
+function getUtmTerm() {
+  const raw = new URLSearchParams(window.location.search).get("utm_term");
+  if (!raw) return "";
+  return decodeURIComponent(raw.replace(/\+/g, " ")).trim().toLowerCase();
+}
+
+function getDynamicTitle() {
+  const term = getUtmTerm();
+
+  if (term.includes('דוגמאות') || term.includes('כמה מקבלים'))
+    return 'דוגמאות לפיצויים בתאונות דרכים — תוצאות אמיתיות';
+
+  if (term.includes('מחשבון') || term.includes('חישוב') || term.includes('כאב וסבל'))
+    return 'מחשבון פיצויים תאונת דרכים — חשב כמה מגיע לך';
+
+  if (term.includes('עורך דין') || term.includes('עו"ד'))
+    return 'עורך דין תאונות דרכים — פיצוי מקסימלי';
+
+  if (term.includes('פיצויים') || term.includes('פיצוי'))
+    return 'פיצויים תאונת דרכים — גלה כמה מגיע לך';
+
+  if (term.includes('תביעה'))
+    return 'תביעת תאונת דרכים — בדוק את זכויותיך';
+
+  if (term.includes('זכויות'))
+    return 'זכויות נפגעי תאונות דרכים — כל המידע';
+
+  return 'נפגעת בתאונת דרכים? מגיע לך פיצוי.';
+}
+
+function getDynamicSubtitle() {
+  const term = getUtmTerm();
+
+  if (term.includes('דוגמאות') || term.includes('כמה מקבלים'))
+    return 'תוצאות אמיתיות של לקוחות עו״ד דן אלון — גלה כמה מגיע גם לך';
+
+  if (term.includes('מחשבון') || term.includes('חישוב'))
+    return 'מחשבון חינמי לפי נוסחת פלת״ד — כאב וסבל, הפסד שכר, נכות';
+
+  if (term.includes('עורך דין') || term.includes('עו"ד'))
+    return '25 שנות ניסיון בנזיקין | שכ״ט רק מהפיצוי | ייעוץ חינם';
+
+  return 'גלה כמה מגיע לך — תוך 60 שניות, חינם, אנונימי';
+}
+
 const caseResults = [
   { emoji: "🚗", label: "תאונת דרכים", detail: "נכות 15% | גיל 35", amount: "₪320,000 פיצוי", note: "לעומת הצעת הביטוח: ₪60,000" },
   { emoji: "🏍️", label: "תאונת אופנוע", detail: "נכות 25% | גיל 28", amount: "₪680,000 פיצוי", note: "הושג לאחר ערעור" },
@@ -107,9 +152,12 @@ function ExtraContent() {
 }
 
 export default function TaonatDrakhim() {
+  const [title] = useState(getDynamicTitle);
+  const [subtitle] = useState(getDynamicSubtitle);
+
   return <LandingPage
-    pageTitle="דוגמאות לפיצויים בתאונות דרכים"
-    pageSubtitle="תוצאות אמיתיות של לקוחות עו״ד דן אלון:"
+    pageTitle={title}
+    pageSubtitle={subtitle}
     metaTitle="דוגמאות לפיצויים תאונות דרכים | כמה מגיע לך?"
     metaDescription="דוגמאות אמיתיות לפיצויים בתאונות דרכים — ₪185,000 עד ₪680,000. חשב כמה מגיע לך חינם תוך 60 שניות."
     heroEmoji="🚗"
