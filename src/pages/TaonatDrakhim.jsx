@@ -7,7 +7,6 @@ export default function TaonatDrakhim() {
     bullets={["הנתונים לא נשמרים ולא מתועדים","אנונימי לחלוטין — השיחה לא נשמרת","ייצוג מלא מול חברות הביטוח"]}
     ctaText="חשב פיצוי על תאונת דרכים"
     pageSlug="taonat-drakhim"
-    socialProofAmount="₪320,000"
     socialProofLabel="נכות 15% — תאונת דרכים"
     bannerText="תאונת דרכים — חשב ודע מיד כמה מגיע לך"
   />;

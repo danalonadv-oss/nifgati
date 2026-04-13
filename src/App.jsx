@@ -164,9 +164,9 @@ export default function App() {
   ];
 
   const results = [
-    { icon:"🚗", type:"תאונת דרכים", disability:"נכות 15%", amount:"₪320,000" },
-    { icon:"🏍️", type:"תאונת אופנוע", disability:"נכות 25%", amount:"₪680,000" },
-    { icon:"🏗️", type:"תאונת עבודה", disability:"נכות 10%", amount:"₪185,000" },
+    { icon:"🚗", type:"תאונת דרכים", disability:"נכות 15%", badge:"פוצה בהצלחה" },
+    { icon:"🏍️", type:"תאונת אופנוע", disability:"נכות 25%", badge:"פוצה בהצלחה" },
+    { icon:"🏗️", type:"תאונת עבודה", disability:"נכות 10%", badge:"פוצה בהצלחה" },
   ];
 
   const reviews = [
@@ -350,8 +350,7 @@ export default function App() {
                     <div style={{ fontSize:40, marginBottom:12 }}>{r.icon}</div>
                     <h3 style={{ fontSize:17, fontWeight:800, marginBottom:6 }}>{r.type}</h3>
                     <div style={{ fontSize:14, color:"#7a8fa5", marginBottom:8 }}>{r.disability}</div>
-                    <div style={{ fontSize:26, fontWeight:900, color:G }}>{r.amount}</div>
-                    <div style={{ fontSize:12, color:"#556070", marginTop:4 }}>פיצוי</div>
+                    <div style={{ fontSize:14, fontWeight:700, color:G }}>✓ {r.badge}</div>
                   </div>
                 ))}
               </div>

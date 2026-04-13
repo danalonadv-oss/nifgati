@@ -7,7 +7,6 @@ export default function PritzatDisc() {
     bullets={["הנתונים לא נשמרים ולא מתועדים","חישוב לפי אחוז הנכות שנקבע","ייצוג מלא מול חברות הביטוח"]}
     ctaText="חשב פיצוי על פריצת דיסק"
     pageSlug="pritzat-disc"
-    socialProofAmount="₪230,000"
     socialProofLabel="פריצת דיסק — נכות 12%"
     bannerText="פריצת דיסק — חשב ודע מיד כמה מגיע לך"
   />;

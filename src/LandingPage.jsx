@@ -432,19 +432,16 @@ export default function LandingPage({ pageTitle, pageSubtitle, heroEmoji, bullet
               </h1>
               <h2 className="hero-sub" style={{ fontSize:18, fontWeight:700, color:"#7a8fa5", marginBottom:24, lineHeight:1.6 }}>{pageSubtitle}</h2>
 
-              <div className="hero-bullets" style={{ display:"inline-flex", flexDirection:"column", gap:12, marginBottom:32, textAlign:"right" }}>
+              <div style={{ display:"flex", gap:16, justifyContent:"center", flexWrap:"wrap", fontSize:13, color:"#7a8fa5", margin:"8px 0 24px" }}>
                 {bullets.map((b, i) => (
-                  <div key={i} style={{ display:"flex", gap:10, alignItems:"flex-start", fontSize:15, color:"#bcc8d4", lineHeight:1.6 }}>
-                    <span style={{ color:G, fontWeight:700, flexShrink:0, fontSize:16, marginTop:2 }}>✓</span>
-                    <span>{b}</span>
-                  </div>
+                  <span key={i}>✓ {b}</span>
                 ))}
               </div>
 
-              {socialProofAmount && (
-                <div style={{ display:"inline-flex", alignItems:"center", gap:12, background:"#141b2d", border:"1px solid #1e2d4a", borderRadius:14, padding:"12px 20px", marginBottom:24 }}>
-                  <span style={{ fontSize:24, fontWeight:900, color:G }}>{socialProofAmount}</span>
-                  <span style={{ fontSize:13, color:"#7a8fa5" }}>{socialProofLabel}</span>
+              {socialProofLabel && (
+                <div style={{ display:"inline-flex", alignItems:"center", gap:8, background:"#141b2d", border:"1px solid #1e2d4a", borderRadius:14, padding:"10px 18px", marginBottom:24 }}>
+                  <span style={{ fontSize:14, fontWeight:700, color:G }}>✓</span>
+                  <span style={{ fontSize:13, color:"#7a8fa5" }}>{socialProofLabel} — פוצה בהצלחה</span>
                 </div>
               )}
           </div>

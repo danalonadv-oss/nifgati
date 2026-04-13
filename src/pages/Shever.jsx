@@ -7,7 +7,6 @@ export default function Shever() {
     bullets={["הנתונים לא נשמרים ולא מתועדים","חישוב לפי סוג השבר ואחוז הנכות","תוצאה מיידית — חינם ואנונימי"]}
     ctaText="חשב פיצוי על שבר בתאונה"
     pageSlug="shever"
-    socialProofAmount="₪140,000"
     socialProofLabel="שבר + נכות 8%"
     bannerText="שבר בתאונה — חשב ודע מיד כמה מגיע לך"
   />;

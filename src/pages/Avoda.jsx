@@ -7,7 +7,6 @@ export default function Avoda() {
     bullets={["הנתונים לא נשמרים ולא מתועדים","חישוב מיידי לפי נסיבות הפגיעה","ייצוג מלא ללא תשלום מראש"]}
     ctaText="בדוק פיצוי על תאונת עבודה"
     pageSlug="avoda"
-    socialProofAmount="₪185,000"
     socialProofLabel="נכות 10% — תאונת עבודה"
     bannerText="תאונת עבודה — חשב ודע מיד כמה מגיע לך"
   />;

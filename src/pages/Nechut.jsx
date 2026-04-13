@@ -7,7 +7,6 @@ export default function Nechut() {
     bullets={["כל אחוז נכות = עשרות אלפי שקלים","חישוב לפי גיל, שכר ואחוז הנכות שלך","הנתונים לא נשמרים ולא מתועדים"]}
     ctaText="חשב כמה שווה הנכות שלך"
     pageSlug="nechut"
-    socialProofAmount="₪185,000"
     socialProofLabel="נכות 10% — תאונת דרכים"
     bannerText="אחוזי נכות — חשב ודע מיד כמה מגיע לך"
   />;
