@@ -458,14 +458,20 @@ export default function App() {
         </p>
       </footer>
 
-      {/* Floating bot button removed — bot opens via hero CTA */}
+      {/* Floating bot button */}
+      {!showBot && (
+        <button onClick={openBot} aria-label="פתח מחשבון פיצויים"
+          style={{ position:"fixed", bottom:100, left:24, borderRadius:28, background:"linear-gradient(135deg, #c9a84c, #f0d080)", color:"#fff", fontSize:14, fontWeight:800, fontFamily:"inherit", display:"flex", alignItems:"center", justifyContent:"center", cursor:"pointer", boxShadow:"0 4px 20px rgba(201,168,76,0.6)", zIndex:100, border:"none", padding:"12px 20px", whiteSpace:"nowrap" }}>
+          חשב פיצוי
+        </button>
+      )}
 
       {/* WhatsApp float */}
       <button className="wa-btn" onClick={() => openWhatsApp(window.location.pathname)} aria-label="פתח שיחת וואטסאפ">💬</button>
 
       {/* Cookie Banner */}
       {!cookie && (
-        <div style={{ position:"fixed", bottom:0, right:0, left:0, background:"#0a0f1eee", borderTop:"1px solid #1e2d4a22", padding:"12px 16px", display:"flex", alignItems:"center", justifyContent:"space-between", gap:16, zIndex:98, fontSize:12, color:"#ffffff" }}>
+        <div style={{ position:"fixed", bottom:80, right:0, left:0, background:"#0a0f1eee", borderTop:"1px solid #1e2d4a22", padding:"12px 16px", display:"flex", alignItems:"center", justifyContent:"space-between", gap:16, zIndex:9999, fontSize:12, color:"#ffffff" }}>
           <span>האתר משתמש בעוגיות Remarketing בלבד. שיחות הבוט אינן נשמרות. <a href="/privacy" style={{ color:"#ffffff", textDecoration:"underline" }}>פרטיות</a></span>
           <button style={{ background:"#c9a84c22", color:"#c9a84c", border:"1px solid #c9a84c44", borderRadius:10, fontFamily:"inherit", fontSize:14, padding:"14px 28px", cursor:"pointer", flexShrink:0, minHeight:48, minWidth:48 }} onClick={() => { setCookie(true); sessionStorage.setItem("nifgati_consent","granted"); window.dataLayer = window.dataLayer || []; window.dataLayer.push({event:'consent_update','analytics_storage':'granted','ad_storage':'granted'}); }}>אישור ✓</button>
         </div>
