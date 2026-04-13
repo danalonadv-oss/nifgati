@@ -153,14 +153,6 @@ export default function Bot({ onClose, inline = false, openingMessage }) {
             </div>
           )}
 
-          {/* ── Persistent WhatsApp Button ── */}
-          <div style={{ padding:"6px 12px", borderTop:"1px solid #ffffff11", display:"flex", justifyContent:"center" }}>
-            <a href={waHref} onClick={() => notifyWhatsApp()}
-              style={{ display:"inline-flex", alignItems:"center", gap:8, background:"#25D366", color:"#fff", borderRadius:20, padding:"8px 20px", fontSize:13, fontWeight:700, textDecoration:"none", fontFamily:"inherit" }}>
-              💬
-            </a>
-          </div>
-
           {/* ── Input Bar ── */}
           <div className={s.inputBar}>
             <div className={s.inputRow}>
@@ -294,14 +286,6 @@ export default function Bot({ onClose, inline = false, openingMessage }) {
             </div>
           </div>
         )}
-
-        {/* ── Persistent WhatsApp Button ── */}
-        <div style={{ padding:"6px 12px", borderTop:"1px solid #ffffff11", display:"flex", justifyContent:"center" }}>
-          <a href={waHref} onClick={() => notifyWhatsApp()}
-            style={{ display:"inline-flex", alignItems:"center", gap:8, background:"#25D366", color:"#fff", borderRadius:20, padding:"8px 20px", fontSize:13, fontWeight:700, textDecoration:"none", fontFamily:"inherit" }}>
-            💬
-          </a>
-        </div>
 
         {/* ── Input Bar ── */}
         <div className={s.inputBar}>
