@@ -123,15 +123,15 @@
 
 .msgRow {
   display: flex;
-  flex-direction: column;
+  width: 100%;
 }
 
 .msgRowUser {
-  align-items: flex-start;
+  justify-content: flex-end;
 }
 
 .msgRowBot {
-  align-items: flex-end;
+  justify-content: flex-start;
 }
 
 /* ── Chat Bubbles ────────────────────────── */
