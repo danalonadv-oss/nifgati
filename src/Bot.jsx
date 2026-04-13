@@ -47,7 +47,7 @@ export default function Bot({ onClose, inline = false, openingMessage }) {
       setLeadSubmitted(true);
       window.dataLayer = window.dataLayer || [];
       window.dataLayer.push({ event: "lead_form_submit", form_name: "bot_lead_form", page_slug: window.location.pathname });
-    } catch { setLeadSubmitted(true); }
+    } catch (e) { setLeadSubmitted(true); }
     setLeadSending(false);
   }
 
