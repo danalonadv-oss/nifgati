@@ -157,7 +157,7 @@ export default function Bot({ onClose, inline = false, openingMessage }) {
           <div style={{ padding:"6px 12px", borderTop:"1px solid #ffffff11", display:"flex", justifyContent:"center" }}>
             <a href={waHref} onClick={() => notifyWhatsApp()}
               style={{ display:"inline-flex", alignItems:"center", gap:8, background:"#25D366", color:"#fff", borderRadius:20, padding:"8px 20px", fontSize:13, fontWeight:700, textDecoration:"none", fontFamily:"inherit" }}>
-              💬 דבר עם דן עכשיו — חינם
+              💬
             </a>
           </div>
 
@@ -299,7 +299,7 @@ export default function Bot({ onClose, inline = false, openingMessage }) {
         <div style={{ padding:"6px 12px", borderTop:"1px solid #ffffff11", display:"flex", justifyContent:"center" }}>
           <a href={waHref} onClick={() => notifyWhatsApp()}
             style={{ display:"inline-flex", alignItems:"center", gap:8, background:"#25D366", color:"#fff", borderRadius:20, padding:"8px 20px", fontSize:13, fontWeight:700, textDecoration:"none", fontFamily:"inherit" }}>
-            💬 דבר עם דן עכשיו — חינם
+            💬
           </a>
         </div>
 
