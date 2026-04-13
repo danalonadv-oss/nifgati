@@ -1,4 +1,4 @@
-import { useRef, useEffect, useState } from "react";
+import { useRef, useEffect } from "react";
 import useChat from "./hooks/useChat";
 import useFileUpload from "./hooks/useFileUpload";
 import useSpeechRecognition from "./hooks/useSpeechRecognition";
@@ -8,52 +8,8 @@ export default function Bot({ onClose, inline = false, openingMessage }) {
   const {
     msgs, inp, setInp, load, setLoad, calc, err, setErr,
     showReferral, send, sendDoc, waMsg, endRef, WA, notifyWhatsApp,
-    quickReplies, handleQuickReply, progress, data,
+    quickReplies, handleQuickReply, progress,
   } = useChat(openingMessage);
-
-  const [leadName, setLeadName] = useState("");
-  const [leadPhone, setLeadPhone] = useState("");
-  const [leadSubmitted, setLeadSubmitted] = useState(false);
-  const [leadSending, setLeadSending] = useState(false);
-
-  function roleLabel(r) {
-    const m = { driver:"נהג", passenger:"נוסע", pedestrian:"הולך רגל", motorcycle:"אופנוע", scooter:"קורקינט", car:"רכב", work:"תאונת עבודה" };
-    return m[r] || "";
-  }
-
-  async function submitLead(e) {
-    e.preventDefault();
-    if (!leadName.trim() || !leadPhone.trim() || leadSending) return;
-    setLeadSending(true);
-    try {
-      await fetch("/api/notify", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          type: "calculator_lead",
-          name: leadName.trim(),
-          phone: leadPhone.trim(),
-          estimate_min: calc?.min,
-          estimate_max: calc?.max,
-          accident_type: roleLabel(data.role),
-          age: data.age,
-          medical: data.medical ? "כן" : "לא",
-          work_related: data.isWork ? "כן" : "לא",
-          disability_percent: data.disability,
-          source: window.location.pathname,
-          timestamp: new Date().toISOString(),
-        }),
-      });
-      setLeadSubmitted(true);
-      window.dataLayer = window.dataLayer || [];
-      window.dataLayer.push({ event: "lead_form_submit", form_name: "bot_lead_form", page_slug: window.location.pathname });
-    } catch (e) { setLeadSubmitted(true); }
-    setLeadSending(false);
-  }
-
-  const calcWaHref = calc
-    ? `https://wa.me/${WA}?text=${encodeURIComponent(`היי, השתמשתי במחשבון הפיצויים באתר נפגעתי. הפיצוי המשוער שלי: ₪${calc.min.toLocaleString("he-IL")}–₪${calc.max.toLocaleString("he-IL")}. אשמח לייעוץ.`)}`
-    : `https://wa.me/${WA}`;
 
   const {
     docName, setDocName, showFilePicker, setShowFilePicker,
@@ -63,67 +19,12 @@ export default function Bot({ onClose, inline = false, openingMessage }) {
   const { mic, toggleMic } = useSpeechRecognition({ setInp, setErr });
   const inpRef = useRef(null);
   const messagesContainerRef = useRef(null);
-  const calcRef = useRef(null);
 
   useEffect(() => {
     if (!messagesContainerRef.current) return;
     const container = messagesContainerRef.current;
     setTimeout(() => { container.scrollTop = container.scrollHeight; }, 100);
   }, [msgs, load]);
-
-  useEffect(() => {
-    if (calc && calcRef.current) {
-      setTimeout(() => {
-        calcRef.current.scrollIntoView({ behavior: "smooth", block: "center" });
-      }, 300);
-    }
-  }, [calc]);
-
-  const resultsCard = calc && !load && (
-    <div ref={calcRef} style={{ background:"linear-gradient(135deg, #1a2744, #0f1a30)", border:"1px solid #c9a84c55", borderRadius:16, padding:"20px 18px" }}>
-      {/* Estimate amount */}
-      <div style={{ fontSize:11, color:"#c9a84c", letterSpacing:1, marginBottom:6, fontWeight:700 }}>הפיצוי המשוער שלך</div>
-      <div style={{ fontSize:28, fontWeight:900, color:"#fff", marginBottom:4 }}>₪{calc.min.toLocaleString("he-IL")} – ₪{calc.max.toLocaleString("he-IL")}</div>
-      <div style={{ fontSize:12, color:"#556070", marginBottom:8 }}>לפני שכ"ט (8%–13%)</div>
-      <p style={{ fontSize:11, color:"#7a8fa5", textAlign:"center", margin:"4px 0 14px", lineHeight:1.5 }}>* הערכה ראשונית בלבד. אינה מהווה ייעוץ משפטי.</p>
-      <div style={{ fontSize:14, color:"#e8edf2", textAlign:"center", marginBottom:16, fontWeight:700 }}>רוצה לקבל הערכה מדויקת ולמצות את הסכום?</div>
-
-      {/* Lead form */}
-      {!leadSubmitted ? (
-        <form onSubmit={submitLead} style={{ background:"#0d1425", border:"2px solid #c9a84c", borderRadius:14, padding:16, marginBottom:12 }}>
-          <div style={{ fontSize:13, fontWeight:800, color:"#c9a84c", marginBottom:10, textAlign:"center" }}>רוצים שנחזור אליכם?</div>
-          <input value={leadName} onChange={e => setLeadName(e.target.value)} placeholder="שם מלא" required
-            style={{ width:"100%", background:"#141b2d", border:"1px solid #1e2d4a", borderRadius:10, color:"#fff", fontFamily:"inherit", fontSize:14, padding:"10px 14px", marginBottom:8, direction:"rtl", boxSizing:"border-box" }} />
-          <input value={leadPhone} onChange={e => setLeadPhone(e.target.value)} placeholder="טלפון" type="tel" required
-            style={{ width:"100%", background:"#141b2d", border:"1px solid #1e2d4a", borderRadius:10, color:"#fff", fontFamily:"inherit", fontSize:14, padding:"10px 14px", marginBottom:10, direction:"ltr", boxSizing:"border-box" }} />
-          <button type="submit" disabled={leadSending}
-            style={{ width:"100%", background:"#c9a84c", color:"#060a12", border:"none", borderRadius:12, fontFamily:"inherit", fontWeight:800, fontSize:15, padding:"13px", cursor:"pointer" }}>
-            {leadSending ? "שולח..." : "חזרו אליי בבקשה \u2190"}
-          </button>
-        </form>
-      ) : (
-        <div style={{ background:"#0d1425", border:"2px solid #22c55e", borderRadius:14, padding:16, marginBottom:12, textAlign:"center" }}>
-          <div style={{ fontSize:20, marginBottom:6 }}>✅</div>
-          <div style={{ fontSize:14, fontWeight:700, color:"#22c55e", marginBottom:4 }}>קיבלנו את פרטייך!</div>
-          <div style={{ fontSize:12, color:"#7a8fa5" }}>נחזור אליך מייד</div>
-        </div>
-      )}
-
-      {/* WhatsApp button */}
-      <a href={calcWaHref} onClick={() => notifyWhatsApp()} target="_blank" rel="noopener noreferrer"
-        style={{ display:"flex", alignItems:"center", justifyContent:"center", gap:8, width:"100%", background:"#25D366", color:"#fff", border:"none", borderRadius:12, fontFamily:"inherit", fontWeight:700, fontSize:14, padding:"13px", cursor:"pointer", textDecoration:"none", marginBottom:8, boxSizing:"border-box" }}>
-        💬 דברו איתנו עכשיו בוואטסאפ
-      </a>
-
-      {/* Phone button */}
-      <a href="tel:+972544338212"
-        style={{ display:"flex", alignItems:"center", justifyContent:"center", gap:8, width:"100%", background:"transparent", color:"#fff", border:"2px solid #ffffff44", borderRadius:12, fontFamily:"inherit", fontWeight:700, fontSize:16, padding:"14px", cursor:"pointer", textDecoration:"none", marginBottom:10, boxSizing:"border-box" }}>
-        📞 חייגו עכשיו
-      </a>
-
-      <p style={{ fontSize:11, color:"#556070", textAlign:"center", margin:0 }}>ייעוץ ראשוני ללא עלות וללא התחייבות</p>
-    </div>
-  );
 
   async function handleFile(file) {
     if (load) return;
@@ -201,7 +102,18 @@ export default function Bot({ onClose, inline = false, openingMessage }) {
               </div>
             )}
 
-            {resultsCard}
+            {calc && !load && (
+              <div className={s.calcCard}>
+                <div className={s.calcLabel}>הערכת פיצוי ראשונית</div>
+                <div className={s.calcAmount}>₪{calc.min.toLocaleString("he-IL")} – ₪{calc.max.toLocaleString("he-IL")}</div>
+                <div className={s.calcFee}>לפני שכ"ט (8%–13%)</div>
+                <p style={{ fontSize:11, color:"#7a8fa5", textAlign:"center", margin:"8px 0 12px", lineHeight:1.5 }}>* הערכה זו אינה מהווה ייעוץ משפטי ואינה תחליף לו.<br/>ייעוץ משפטי מחייב יינתן על ידי עו״ד דן אלון בלבד.</p>
+                <div className={s.bounceArrow}>👇</div>
+                <button onClick={() => { notifyWhatsApp(); window.location.href = waHref; }} aria-label="שלח את החישוב לעורך דין בוואטסאפ" className={s.ctaBtn}>
+                  💬 שלח את החישוב לעו"ד בוואטסאפ
+                </button>
+              </div>
+            )}
 
             {showReferral && !calc && (
               <div className={s.referralWrap}>
@@ -241,15 +153,13 @@ export default function Bot({ onClose, inline = false, openingMessage }) {
             </div>
           )}
 
-          {/* ── WhatsApp Button — hidden after calc or form submit ── */}
-          {!calc && !leadSubmitted && (
-            <div style={{ padding:"6px 12px", borderTop:"1px solid #ffffff11", display:"flex", justifyContent:"center" }}>
-              <a href={waHref} onClick={() => notifyWhatsApp()}
-                style={{ display:"inline-flex", alignItems:"center", gap:8, background:"#25D366", color:"#fff", borderRadius:20, padding:"8px 20px", fontSize:13, fontWeight:700, textDecoration:"none", fontFamily:"inherit" }}>
-                💬 דבר עם דן עכשיו — חינם
-              </a>
-            </div>
-          )}
+          {/* ── Persistent WhatsApp Button ── */}
+          <div style={{ padding:"6px 12px", borderTop:"1px solid #ffffff11", display:"flex", justifyContent:"center" }}>
+            <a href={waHref} onClick={() => notifyWhatsApp()}
+              style={{ display:"inline-flex", alignItems:"center", gap:8, background:"#25D366", color:"#fff", borderRadius:20, padding:"8px 20px", fontSize:13, fontWeight:700, textDecoration:"none", fontFamily:"inherit" }}>
+              💬 דבר עם דן עכשיו — חינם
+            </a>
+          </div>
 
           {/* ── Input Bar ── */}
           <div className={s.inputBar}>
@@ -335,7 +245,17 @@ export default function Bot({ onClose, inline = false, openingMessage }) {
             </div>
           )}
 
-          {resultsCard}
+          {calc && !load && (
+            <div className={s.calcCard}>
+              <div className={s.calcLabel}>הערכת פיצוי ראשונית</div>
+              <div className={s.calcAmount}>₪{calc.min.toLocaleString("he-IL")} – ₪{calc.max.toLocaleString("he-IL")}</div>
+              <div className={s.calcFee}>לפני שכ"ט (8%–13%)</div>
+              <div className={s.bounceArrow}>👇</div>
+              <button onClick={() => { notifyWhatsApp(); window.location.href = waHref; }} aria-label="שלח את החישוב לעורך דין בוואטסאפ" className={s.ctaBtn}>
+                💬 שלח את החישוב לעו"ד בוואטסאפ
+              </button>
+            </div>
+          )}
 
           {showReferral && !calc && (
             <div className={s.referralWrap}>
@@ -375,15 +295,13 @@ export default function Bot({ onClose, inline = false, openingMessage }) {
           </div>
         )}
 
-        {/* ── WhatsApp Button — hidden after calc or form submit ── */}
-        {!calc && !leadSubmitted && (
-          <div style={{ padding:"6px 12px", borderTop:"1px solid #ffffff11", display:"flex", justifyContent:"center" }}>
-            <a href={waHref} onClick={() => notifyWhatsApp()}
-              style={{ display:"inline-flex", alignItems:"center", gap:8, background:"#25D366", color:"#fff", borderRadius:20, padding:"8px 20px", fontSize:13, fontWeight:700, textDecoration:"none", fontFamily:"inherit" }}>
-              💬 דבר עם דן עכשיו — חינם
-            </a>
-          </div>
-        )}
+        {/* ── Persistent WhatsApp Button ── */}
+        <div style={{ padding:"6px 12px", borderTop:"1px solid #ffffff11", display:"flex", justifyContent:"center" }}>
+          <a href={waHref} onClick={() => notifyWhatsApp()}
+            style={{ display:"inline-flex", alignItems:"center", gap:8, background:"#25D366", color:"#fff", borderRadius:20, padding:"8px 20px", fontSize:13, fontWeight:700, textDecoration:"none", fontFamily:"inherit" }}>
+            💬 דבר עם דן עכשיו — חינם
+          </a>
+        </div>
 
         {/* ── Input Bar ── */}
         <div className={s.inputBar}>
