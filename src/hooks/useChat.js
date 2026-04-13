@@ -656,6 +656,6 @@ export default function useChat(customOpening) {
   return {
     msgs, inp, setInp, load, setLoad, calc, err, setErr,
     showReferral, send, sendDoc, restart, waMsg, endRef, WA, notifyWhatsApp,
-    quickReplies, handleQuickReply, progress, gender,
+    quickReplies, handleQuickReply, progress, gender, data,
   };
 }

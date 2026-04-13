@@ -49,11 +49,8 @@ export default async function handler(req, res) {
   if (!checkRate(ip)) return res.status(429).json({ error: "Too many requests" });
 
   // Validate
-  const { summary, calculation, conversation } = req.body || {};
-  if (!summary || typeof summary !== "string") {
-    return res.status(400).json({ error: "missing summary" });
-  }
-  const emailSubject = "ליד חדש — שיחת וואטסאפ | nifgati.co.il";
+  const body = req.body || {};
+  const { type } = body;
 
   // Check for Resend API key
   if (!process.env.RESEND_API_KEY) {
@@ -62,34 +59,68 @@ export default async function handler(req, res) {
   }
 
   function escapeHtml(str) {
-    return str.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
+    return String(str || "").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
   }
 
   const ts = new Date().toLocaleString("he-IL", { timeZone: "Asia/Jerusalem" });
-  const calcLine = calculation
-    ? `₪${Number(calculation.min).toLocaleString("he-IL")} – ₪${Number(calculation.max).toLocaleString("he-IL")}`
-    : "לא חושב";
+  let emailSubject, html;
 
-  // Extract phone from conversation if mentioned
-  const allText = Array.isArray(conversation) ? conversation.join(" ") : "";
-  const phoneMatch = allText.match(/0[5-9]\d[\d-]{6,9}/);
-  const safePhone = phoneMatch ? escapeHtml(phoneMatch[0]) : "לא צוין";
+  if (type === "calculator_lead") {
+    // Calculator lead form submission
+    const { name, phone, estimate_min, estimate_max, accident_type, age, medical, work_related, disability_percent, source, timestamp } = body;
+    if (!name || !phone) return res.status(400).json({ error: "missing name or phone" });
 
-  // Build conversation HTML
-  const convoHtml = Array.isArray(conversation)
-    ? conversation.map(line => `<p>${escapeHtml(line)}</p>`).join("")
-    : "<p>לא זמינה</p>";
+    const estLine = estimate_min && estimate_max
+      ? `₪${Number(estimate_min).toLocaleString("he-IL")} – ₪${Number(estimate_max).toLocaleString("he-IL")}`
+      : "לא חושב";
 
-  const html = `
-    <div style="font-family:Arial,sans-serif;direction:rtl;max-width:600px;margin:0 auto;line-height:1.8">
-      <p><strong>שעה:</strong> ${ts}</p>
-      <p><strong>טלפון:</strong> ${safePhone}</p>
-      <p><strong>סכום משוער:</strong> ${calcLine}</p>
-      <hr style="border:none;border-top:1px solid #ccc;margin:16px 0"/>
-      <p><strong>השיחה המלאה:</strong></p>
-      ${convoHtml}
-    </div>
-  `;
+    emailSubject = "ליד חדש באתר נפגעתי";
+    html = `
+      <div style="font-family:Arial,sans-serif;direction:rtl;max-width:600px;margin:0 auto;line-height:1.8">
+        <h2 style="color:#c9a84c;margin-bottom:16px">ליד חדש מהמחשבון — nifgati.co.il</h2>
+        <p><strong>שם:</strong> ${escapeHtml(name)}</p>
+        <p><strong>טלפון:</strong> ${escapeHtml(phone)}</p>
+        <p><strong>פיצוי משוער:</strong> ${estLine}</p>
+        <hr style="border:none;border-top:1px solid #ccc;margin:16px 0"/>
+        <p><strong>פרטי השיחה:</strong></p>
+        <p>• סוג תאונה: ${escapeHtml(accident_type)}</p>
+        <p>• גיל: ${escapeHtml(age)}</p>
+        <p>• טיפול רפואי: ${escapeHtml(medical)}</p>
+        <p>• קשור לעבודה: ${escapeHtml(work_related)}</p>
+        <p>• אחוז נכות: ${escapeHtml(disability_percent)}%</p>
+        <p>• מקור: ${escapeHtml(source)}</p>
+        <p>• תאריך: ${escapeHtml(timestamp || ts)}</p>
+      </div>
+    `;
+  } else {
+    // Legacy WhatsApp click notification
+    const { summary, calculation, conversation } = body;
+    if (!summary || typeof summary !== "string") {
+      return res.status(400).json({ error: "missing summary" });
+    }
+
+    emailSubject = "ליד חדש — שיחת וואטסאפ | nifgati.co.il";
+    const calcLine = calculation
+      ? `₪${Number(calculation.min).toLocaleString("he-IL")} – ₪${Number(calculation.max).toLocaleString("he-IL")}`
+      : "לא חושב";
+    const allText = Array.isArray(conversation) ? conversation.join(" ") : "";
+    const phoneMatch = allText.match(/0[5-9]\d[\d-]{6,9}/);
+    const safePhone = phoneMatch ? escapeHtml(phoneMatch[0]) : "לא צוין";
+    const convoHtml = Array.isArray(conversation)
+      ? conversation.map(line => `<p>${escapeHtml(line)}</p>`).join("")
+      : "<p>לא זמינה</p>";
+
+    html = `
+      <div style="font-family:Arial,sans-serif;direction:rtl;max-width:600px;margin:0 auto;line-height:1.8">
+        <p><strong>שעה:</strong> ${ts}</p>
+        <p><strong>טלפון:</strong> ${safePhone}</p>
+        <p><strong>סכום משוער:</strong> ${calcLine}</p>
+        <hr style="border:none;border-top:1px solid #ccc;margin:16px 0"/>
+        <p><strong>השיחה המלאה:</strong></p>
+        ${convoHtml}
+      </div>
+    `;
+  }
 
   try {
     const response = await fetch("https://api.resend.com/emails", {
