@@ -108,7 +108,7 @@ function readUtmTerm() {
   return decodeURIComponent(raw.replace(/\+/g, " ")).trim();
 }
 
-export default function LandingPage({ pageTitle, pageSubtitle, heroEmoji, bullets, ctaText, pageSlug, bannerText, socialProofAmount, socialProofLabel }) {
+export default function LandingPage({ pageTitle, pageSubtitle, heroEmoji, bullets, ctaText, pageSlug, bannerText, socialProofAmount, socialProofLabel, extraContent }) {
   const utmTerm = readUtmTerm();
 
   const [scrolled, setScrolled]     = useState(false);
@@ -251,8 +251,16 @@ export default function LandingPage({ pageTitle, pageSubtitle, heroEmoji, bullet
 
     const faqSchemas = {
       'taonat-drakhim': [
-        { q: "כמה זמן לוקח לקבל פיצוי על תאונת דרכים?", a: "בממוצע 6-18 חודשים, תלוי במורכבות התיק ובשיתוף פעולה של חברת הביטוח." },
-        { q: "כמה עולה ייצוג בתביעת תאונת דרכים?", a: "₪0 מראש. שכר הטרחה הוא 8%-13% מהפיצוי ומשולם רק מתוך הפיצוי שתקבל." },
+        { q: "כמה זמן לוקח לקבל פיצוי?", a: "ברוב המקרים 6-18 חודשים. תאונות קלות — מהר יותר." },
+        { q: "האם גם אם אני אשם בתאונה מגיע לי פיצוי?", a: "כן! חוק הפלת״ד קובע אחריות מוחלטת — גם נהג אשם זכאי לפיצוי." },
+        { q: "מה ההבדל בין פלת״ד לביטוח מקיף?", a: "פלת״ד מכסה נזקי גוף. ביטוח מקיף מכסה נזק לרכב." },
+        { q: "האם צריך לשלם מראש?", a: "לא. שכ״ט רק מהפיצוי — 8%-13% לפי חוק." },
+        { q: "מה קורה אם הרכב הפוגע ברח?", a: "תובעים את קרנית — קרן המדינה לפיצוי נפגעי תאונות." },
+        { q: "האם גם הולך רגל שנפגע זכאי לפיצוי?", a: "כן, מביטוח החובה של הרכב הפוגע." },
+        { q: "מה המינימום לתביעה?", a: "אין מינימום. גם תאונה ללא שברים מזכה בפיצוי." },
+        { q: "כמה שווה 10% נכות?", a: "תלוי בגיל ושכר — בדרך כלל ₪40,000-₪120,000 ומעלה." },
+        { q: "האם PTSD מוכר לפיצוי?", a: "כן. נזק נפשי מוכר בחוק כנזק גוף לכל דבר." },
+        { q: "מה לעשות מיד אחרי תאונה?", a: "1. צלם 2. קבל טיפול רפואי 3. רשום פרטי נהג 4. פנה לעו״ד" },
       ],
       'ofanoa': [
         { q: "כמה פיצוי מקבלים על תאונת אופנוע?", a: "תאונות אופנוע גוררות פיצויים גבוהים יחסית בשל חומרת הפגיעות. הסכום תלוי באחוזי הנכות, הגיל והשכר." },
@@ -467,6 +475,12 @@ export default function LandingPage({ pageTitle, pageSubtitle, heroEmoji, bullet
             ))}
           </div>
         </section>
+
+        {extraContent && (
+          <div style={{ padding:"0 16px 2rem" }}>
+            {extraContent}
+          </div>
+        )}
 
         {/* CTA SECTION */}
         <section style={{ padding:"68px 24px", background:"#0d1323" }}>

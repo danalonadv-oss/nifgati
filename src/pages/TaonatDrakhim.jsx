@@ -1,4 +1,83 @@
+import { useState } from "react";
 import LandingPage from "../LandingPage.jsx";
+
+const G = "#c9a84c";
+
+const caseResults = [
+  { emoji: "🚗", label: "תאונת דרכים", detail: "נכות 15% | גיל 35", amount: "₪320,000 פיצוי", note: "לעומת הצעת הביטוח: ₪60,000" },
+  { emoji: "🏍️", label: "תאונת אופנוע", detail: "נכות 25% | גיל 28", amount: "₪680,000 פיצוי", note: "הושג לאחר ערעור" },
+  { emoji: "🚶", label: "הולך רגל", detail: "נכות 10% | גיל 52", amount: "₪185,000 פיצוי", note: "הסתיים בפשרה תוך 8 חודשים" },
+];
+
+const faqItems = [
+  { q: "כמה זמן לוקח לקבל פיצוי?", a: "ברוב המקרים 6-18 חודשים. תאונות קלות — מהר יותר." },
+  { q: "האם גם אם אני אשם בתאונה מגיע לי פיצוי?", a: "כן! חוק הפלת״ד קובע אחריות מוחלטת — גם נהג אשם זכאי לפיצוי." },
+  { q: "מה ההבדל בין פלת״ד לביטוח מקיף?", a: "פלת״ד מכסה נזקי גוף. ביטוח מקיף מכסה נזק לרכב." },
+  { q: "האם צריך לשלם מראש?", a: "לא. שכ״ט רק מהפיצוי — 8%-13% לפי חוק." },
+  { q: "מה קורה אם הרכב הפוגע ברח?", a: "תובעים את קרנית — קרן המדינה לפיצוי נפגעי תאונות." },
+  { q: "האם גם הולך רגל שנפגע זכאי לפיצוי?", a: "כן, מביטוח החובה של הרכב הפוגע." },
+  { q: "מה המינימום לתביעה?", a: "אין מינימום. גם תאונה ללא שברים מזכה בפיצוי." },
+  { q: "כמה שווה 10% נכות?", a: "תלוי בגיל ושכר — בדרך כלל ₪40,000-₪120,000 ומעלה." },
+  { q: "האם PTSD מוכר לפיצוי?", a: "כן. נזק נפשי מוכר בחוק כנזק גוף לכל דבר." },
+  { q: "מה לעשות מיד אחרי תאונה?", a: "1. צלם 2. קבל טיפול רפואי 3. רשום פרטי נהג 4. פנה לעו״ד" },
+];
+
+function FaqItem({ q, a }) {
+  const [open, setOpen] = useState(false);
+  return (
+    <div style={{ borderBottom: "1px solid #1e2d4a" }}>
+      <button
+        onClick={() => setOpen(!open)}
+        style={{ width: "100%", background: "none", border: "none", color: "#e8e0d0", fontFamily: "inherit", fontSize: 16, fontWeight: 700, padding: "18px 0", cursor: "pointer", textAlign: "right", display: "flex", justifyContent: "space-between", alignItems: "center", gap: 12 }}
+      >
+        <span>{q}</span>
+        <span style={{ color: G, fontSize: 20, flexShrink: 0 }}>{open ? "−" : "+"}</span>
+      </button>
+      {open && (
+        <p style={{ color: "#7a8fa5", fontSize: 15, lineHeight: 1.8, margin: 0, padding: "0 0 18px" }}>{a}</p>
+      )}
+    </div>
+  );
+}
+
+function ExtraContent() {
+  return (
+    <>
+      {/* ── CASE RESULTS ── */}
+      <section style={{ maxWidth: 680, margin: "0 auto", padding: "48px 0 0" }}>
+        <h2 style={{ fontSize: 26, fontWeight: 900, textAlign: "center", marginBottom: 28, color: "#e8e0d0" }}>תוצאות אמיתיות של לקוחות</h2>
+        <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+          {caseResults.map((c, i) => (
+            <div key={i} style={{ background: "#0d1323", border: "1px solid #1e2d4a", borderRadius: 14, padding: "20px 24px", display: "flex", flexDirection: "column", gap: 6 }}>
+              <span style={{ fontSize: 18 }}>{c.emoji} {c.label}</span>
+              <span style={{ fontSize: 14, color: "#7a8fa5" }}>{c.detail}</span>
+              <strong style={{ fontSize: 22, color: G }}>{c.amount}</strong>
+              <small style={{ fontSize: 13, color: "#7a8fa5" }}>{c.note}</small>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* ── EXPANDED FAQ ── */}
+      <section style={{ maxWidth: 680, margin: "0 auto", padding: "56px 0 0" }}>
+        <h2 style={{ fontSize: 26, fontWeight: 900, textAlign: "center", marginBottom: 28, color: "#e8e0d0" }}>שאלות נפוצות — תאונות דרכים ופיצויים</h2>
+        <div>
+          {faqItems.map((item, i) => (
+            <FaqItem key={i} q={item.q} a={item.a} />
+          ))}
+        </div>
+      </section>
+
+      {/* ── SEO KEYWORDS ── */}
+      <section style={{ maxWidth: 680, margin: "0 auto", padding: "48px 0 0" }}>
+        <p style={{ fontSize: 14, color: "#3a4a5a", lineHeight: 2, textAlign: "center" }}>
+          חישוב פיצויים תאונת דרכים | כאב וסבל פלת״ד | מחשבון נזק גוף | זכויות נפגעי תאונות | פיצוי ביטוח חובה | עורך דין נזיקין
+        </p>
+      </section>
+    </>
+  );
+}
+
 export default function TaonatDrakhim() {
   return <LandingPage
     pageTitle="חישוב כאב וסבל פלת״ד — גלה כמה מגיע לך"
@@ -9,5 +88,6 @@ export default function TaonatDrakhim() {
     pageSlug="taonat-drakhim"
     socialProofLabel="נכות 15% — תאונת דרכים"
     bannerText="תאונת דרכים — חשב ודע מיד כמה מגיע לך"
+    extraContent={<ExtraContent />}
   />;
 }
