@@ -419,6 +419,9 @@ export default function useChat(customOpening) {
     setShowReferral(false);
     setState(STATE_ROLE);
     setData({ role: null, medical: null, isWork: null, injury: null, disability: null, monthsOff: null, age: null });
+    // Allow events to fire again for a genuine new calculation
+    firedCalcComplete.current = false;
+    firedWhatsAppClick.current = false;
   }
 
   function trackStep(stepNumber, stepName) {
