@@ -1,12 +1,9 @@
 <!DOCTYPE html>
 <html lang="he" dir="rtl">
   <head>
-    <!-- Deferred GTM + GA4 — loads 3s after page ready for better LCP -->
+    <!-- GTM only — GA4 is configured inside GTM to avoid duplicate event counting -->
     <script>
       window.dataLayer = window.dataLayer || [];
-      function gtag(){dataLayer.push(arguments);}
-      gtag('js', new Date());
-      gtag('config', 'G-NPHZ1VS3LY');
       window.addEventListener('load', function() {
         setTimeout(function() {
           var s = document.createElement('script');

@@ -103,11 +103,17 @@ export default function App() {
   }, []);
 
   /* ── Helper: open bot and mark as opened ── */
+  const firedBotOpened = useRef(false);
   function openBot() {
     setShowBot(true);
     botOpenedRef.current = true;
     sessionStorage.setItem("nifgati_bot_opened", "1");
-    window.dataLayer = window.dataLayer || []; window.dataLayer.push({event: 'bot_opened'});
+    if (!firedBotOpened.current) {
+      firedBotOpened.current = true;
+      window.dataLayer = window.dataLayer || [];
+      window.dataLayer.push({ event: 'bot_opened' });
+      console.log("[nifgati] bot_opened fired (App)");
+    }
   }
 
   useEffect(() => {

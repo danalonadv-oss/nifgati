@@ -174,14 +174,19 @@ export default function LandingPage({ pageTitle, pageSubtitle, heroEmoji, bullet
     window.scrollTo({ top: 0, behavior: 'instant' });
     captureGclid();
 
-    // Analytics: inline bot loaded
-    window.dataLayer = window.dataLayer || [];
-    window.dataLayer.push({
-      event: 'bot_opened',
-      bot_trigger: 'inline_page_load',
-      page_slug: pageSlug || '',
-      utm_term: utmTerm || '',
-    });
+    // Analytics: inline bot loaded — fire once per session per page
+    const botKey = `nifgati_bot_opened_${pageSlug}`;
+    if (!sessionStorage.getItem(botKey)) {
+      sessionStorage.setItem(botKey, "1");
+      window.dataLayer = window.dataLayer || [];
+      window.dataLayer.push({
+        event: 'bot_opened',
+        bot_trigger: 'inline_page_load',
+        page_slug: pageSlug || '',
+        utm_term: utmTerm || '',
+      });
+      console.log("[nifgati] bot_opened fired", pageSlug);
+    }
   }, []);
 
   useEffect(() => {

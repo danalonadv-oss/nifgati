@@ -284,6 +284,8 @@ export default function useChat(customOpening) {
   const shownUrgency = useRef(false);
   const shownSocialProof = useRef(false);
   const userMsgCount = useRef(0);
+  const firedCalcComplete = useRef(false);
+  const firedWhatsAppClick = useRef(false);
 
   useEffect(() => {
     if (!hasInteracted.current) return;
@@ -583,8 +585,12 @@ export default function useChat(customOpening) {
       setShowReferral(true);
       setState(STATE_DONE);
       setProgress(100);
-      window.dataLayer = window.dataLayer || [];
-      window.dataLayer.push({ event: "calculation_complete", value_min: c.min, value_max: c.max });
+      if (!firedCalcComplete.current) {
+        firedCalcComplete.current = true;
+        window.dataLayer = window.dataLayer || [];
+        window.dataLayer.push({ event: "calculation_complete", value_min: c.min, value_max: c.max });
+        console.log("[nifgati] calculation_complete fired", { min: c.min, max: c.max });
+      }
       trackStep(6, "calculation_shown");
       trackStep(7, "cta_shown");
       // CRM: qualified lead (bot completed)
@@ -623,17 +629,21 @@ export default function useChat(customOpening) {
     // CRM: WhatsApp clicked from bot
     sendToCrm(buildCrmPayload(data, calc, true));
 
-    // GA4 whatsapp_click with lead details
-    const roleLabel = roleToLabel(data.role);
-    const params = {
-      event_category: "engagement",
-      event_label: "whatsapp_button",
-      accident_type: roleLabel || undefined,
-      was_hospitalized: data.medical != null ? (data.medical ? "כן" : "לא") : undefined,
-      compensation_estimate: calc ? `₪${calc.min.toLocaleString("he-IL")}–₪${calc.max.toLocaleString("he-IL")}` : undefined,
-    };
-    window.dataLayer = window.dataLayer || [];
-    window.dataLayer.push({ event: "whatsapp_click", ...params });
+    // GA4 whatsapp_click with lead details — fire only once per session
+    if (!firedWhatsAppClick.current) {
+      firedWhatsAppClick.current = true;
+      const roleLabel = roleToLabel(data.role);
+      const params = {
+        event_category: "engagement",
+        event_label: "whatsapp_button",
+        accident_type: roleLabel || undefined,
+        was_hospitalized: data.medical != null ? (data.medical ? "כן" : "לא") : undefined,
+        compensation_estimate: calc ? `₪${calc.min.toLocaleString("he-IL")}–₪${calc.max.toLocaleString("he-IL")}` : undefined,
+      };
+      window.dataLayer = window.dataLayer || [];
+      window.dataLayer.push({ event: "whatsapp_click", ...params });
+      console.log("[nifgati] whatsapp_click fired (bot)", params);
+    }
   }
 
   // WhatsApp pre-filled message with all lead details
