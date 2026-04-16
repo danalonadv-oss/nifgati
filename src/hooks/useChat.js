@@ -168,7 +168,7 @@ function getPersonalizedOpening() {
   return 'שלום 👋 נפגעת בתאונה? בוא נבדוק ב-60 שניות כמה פיצוי מגיע לך — חינם, ללא התחייבות.';
 }
 
-const DEFAULT_OPENING = "שלום, אני הבוט של ניפגעתי.\nאני מחשב פיצוי לפי הנוסחה של חוק פלת\"ד — כאב וסבל, ימי אשפוז, אחוזי נכות.\nזה לא אומדן כללי — זו הנוסחה שבתי המשפט משתמשים בה.\n\nנתחיל: מה סוג הפגיעה שלך?";
+const DEFAULT_OPENING = "שלום, אני הבוט של ניפגעתי.\nאני מחשב פיצוי לפי הנוסחה של חוק פלת\"ד — כאב וסבל, ימי אשפוז, אחוזי נכות.\nזה לא אומדן כללי — זו הנוסחה שבתי המשפט משתמשים בה.\n\nנתחיל: איך היית מעורב בתאונה?";
 const PERSONALIZED_SUFFIX = "";
 
 function getInitialMsgs(customOpening) {
@@ -233,12 +233,11 @@ function buildSummary(data, calc) {
 
 
 const INITIAL_QUICK_REPLIES = [
-  { label: "צליפת שוט", value: "INJURY:צליפת שוט" },
-  { label: "שבר", value: "INJURY:שבר" },
-  { label: "פריצת דיסק", value: "INJURY:פריצת דיסק" },
-  { label: "חבלת ראש", value: "INJURY:חבלת ראש" },
-  { label: "PTSD", value: "INJURY:PTSD" },
-  { label: "פגיעה רכה אחרת", value: "INJURY:פגיעה רכה" },
+  { label: "\u{1F697} רכב", value: "סוג התאונה שלי: תאונת רכב." },
+  { label: "\u{1F3CD}\uFE0F אופנוע", value: "סוג התאונה שלי: תאונת אופנוע." },
+  { label: "\u{1F6F4} קורקינט", value: "סוג התאונה שלי: תאונת קורקינט או אופניים חשמליים." },
+  { label: "\u{1F6B6} הולך/ת רגל", value: "סוג התאונה שלי: נפגעתי כהולך רגל." },
+  { label: "\u{1F3D7}\uFE0F תאונת עבודה", value: "סוג התאונה שלי: תאונת עבודה." },
 ];
 
 const ACCIDENT_QUICK_REPLIES = [
@@ -460,27 +459,6 @@ export default function useChat(customOpening) {
       return;
     }
 
-    // Handle direct injury selection from opening buttons
-    if (txt.trim().startsWith("INJURY:")) {
-      const injury = txt.trim().replace("INJURY:", "");
-      setInp("");
-      hasInteracted.current = true;
-      userMsgCount.current++;
-      const newData = { ...data, role: "car", injury };
-      const socialProof = getSocialProof(injury);
-      shownSocialProof.current = true;
-      setMsgs(prev => [...prev,
-        { role: "user", content: injury },
-        { role: "assistant", content: `הבנתי — ${injury}. ${socialProof}` },
-        { role: "assistant", content: CONTEXT_QUESTION },
-      ]);
-      setData(newData);
-      setState(STATE_CONTEXT);
-      setProgress(40);
-      trackStep(2, "injury_type_direct");
-      return;
-    }
-
     // Handle free input option
     if (txt.trim() === "OPEN_INPUT") {
       const openMsg = gender === "female"
@@ -503,25 +481,9 @@ export default function useChat(customOpening) {
     const newData = { ...data };
 
     if (state === STATE_ROLE) {
-      // Check if user described an injury directly (since opening asks about injury type)
-      const INJURY_RE = /צליפת שוט|שבר|פריצת דיסק|דיסק|חבלת ראש|ptsd|פגיעה רכה|כאבי צוואר|כאבי גב|ברך|כתף|מניסקוס|רצועה|חבורות|שריטות|נזק נפשי|חרדה|דיכאון|ניתוח|whiplash/i;
-      if (INJURY_RE.test(txt)) {
-        newData.role = "car";
-        newData.injury = txt.trim();
-        const socialProof = getSocialProof(txt);
-        shownSocialProof.current = true;
-        botMsgs.push({ role: "assistant", content: `הבנתי — ${txt.trim()}. ${socialProof}` });
-        botMsgs.push({ role: "assistant", content: CONTEXT_QUESTION });
-        setState(STATE_CONTEXT);
-        setProgress(40);
-        trackStep(2, "injury_type_direct");
-        setData(newData);
-        setMsgs(p => [...p, userMsg, ...botMsgs]);
-        return;
-      }
       const role = classifyRole(txt);
       if (!role) {
-        botMsgs.push({ role: "assistant", content: "לא הבנתי. מה סוג הפגיעה? (למשל: צליפת שוט, שבר, פריצת דיסק, חבלת ראש)" });
+        botMsgs.push({ role: "assistant", content: "לא הבנתי. היית הנהג, נוסע, הולך רגל, או רוכב אופנוע/קורקינט?" });
       } else {
         newData.role = role;
         botMsgs.push({ role: "assistant", content: roleResponse(role) });
@@ -558,15 +520,8 @@ export default function useChat(customOpening) {
       newData.isWork = isWork;
       botMsgs.push({ role: "assistant", content: contextResponse(isWork) });
       trackStep(4, "work_related");
-      // If injury was already set (direct injury entry), skip to disability
-      if (newData.injury) {
-        botMsgs.push({ role: "assistant", content: DISABILITY_QUESTION });
-        setState(STATE_DISABILITY);
-        setProgress(50);
-      } else {
-        botMsgs.push({ role: "assistant", content: INJURY_QUESTION });
-        setState(STATE_INJURY);
-      }
+      botMsgs.push({ role: "assistant", content: INJURY_QUESTION });
+      setState(STATE_INJURY);
     } else if (state === STATE_INJURY) {
       newData.injury = txt.trim();
       const cleanInjury = txt.trim().replace(/^סוג הפגיעה:\s*/, "").replace(/\.$/, "");
