@@ -7,12 +7,20 @@ const WA = "972544338212";
 const STATE_ROLE = 1;
 const STATE_MEDICAL = 2;
 const STATE_CONTEXT = 3;
-const STATE_INJURY = 4;
-const STATE_DISABILITY = 5;
-const STATE_MONTHS_OFF = 6;
-const STATE_AGE = 7;
-const STATE_SALARY = 8;
-const STATE_DONE = 9;
+const STATE_LOCATION = 4;
+const STATE_INJURY = 5;
+const STATE_DISABILITY = 6;
+const STATE_MONTHS_OFF = 7;
+const STATE_AGE = 8;
+const STATE_SALARY = 9;
+const STATE_DONE = 10;
+
+const LOCATION_EXAMPLES = ["ברך", "כתף", "צוואר", "גב תחתון", "ראש", "יד", "קרסול", "צלעות", "בטן", "ירך", "מרפק", "אגן"];
+
+function getLocationQuestion() {
+  const shuffled = [...LOCATION_EXAMPLES].sort(() => Math.random() - 0.5);
+  return `היכן נפגעת?\nלדוגמה: ${shuffled[0]}, ${shuffled[1]} — או כל מקום אחר.`;
+}
 
 const DRIVER_RE = /נהג|נהגת|הנהג/i;
 const PASSENGER_RE = /נוסע|נוסעת|יושב/i;
@@ -30,7 +38,7 @@ const NO_RE = /לא|אף|בלי/i;
 const CONTEXT_QUESTION = "התאונה קרתה בדרך לעבודה, בחזרה ממנה, או בשעות פנויות?";
 const WORK_RE = /עבודה|בדרך ל|בחזרה מ|עובד|נסיעה לעבודה|משמרת/i;
 
-const INJURY_QUESTION = "מה סוג הפגיעה?";
+const INJURY_QUESTION = "מה סוג הפגיעה?\nלמשל: צליפת שוט, שבר, פריצת דיסק, PTSD, פגיעה רכה — או תאר במילים שלך.";
 const DISABILITY_QUESTION = "האם נקבעו לך אחוזי נכות?";
 const MONTHS_OFF_QUESTION = "כמה ימים לא עבדת (או צפוי שלא תעבוד) בגלל התאונה?";
 const AGE_QUESTION = "בן כמה אתה בערך?";
@@ -221,14 +229,15 @@ function contextResponse(isWork) {
 }
 
 function buildSummary(data, calc) {
-  const { role, medical, isWork, age, injury, disability, monthsOff } = data;
+  const { role, medical, isWork, location, age, injury, disability, monthsOff } = data;
   const ageNum = parseInt(age) || 30;
   const roleLabel = roleToLabel(role) || "לא צוין";
   const contextLabel = isWork ? "תאונה בדרך לעבודה (זכאות כפולה — ביטוח + ביטוח לאומי)" : "תאונה פרטית";
   const medLabel = medical ? "פנה למיון — ראיה רפואית חזקה" : "לא פנה למיון";
   const cleanInjury = (injury || "לא צוין").replace(/^סוג הפגיעה:\s*/i, "").replace(/\.$/, "");
+  const locationLabel = location || "לא צוין";
 
-  return `סיכום:\n• תפקיד: ${roleLabel}\n• ${medLabel}\n• ${contextLabel}\n• פגיעה: ${cleanInjury}\n• אחוזי נכות: ${disability}%\n• ימי היעדרות: ${monthsOff}\n• גיל: ${ageNum}\n\nהערכת פיצוי ראשונית: ₪${calc.min.toLocaleString("he-IL")} – ₪${calc.max.toLocaleString("he-IL")}\n\nזוהי הערכה ראשונית בלבד לפי נוסחת הפלת״ד. לחץ על הכפתור למטה כדי לדבר עם עו"ד דן אלון בוואטסאפ ולקבל הערכה מדויקת.`;
+  return `סיכום:\n• תפקיד: ${roleLabel}\n• ${medLabel}\n• ${contextLabel}\n• מיקום פגיעה: ${locationLabel}\n• סוג פגיעה: ${cleanInjury}\n• אחוזי נכות: ${disability}%\n• ימי היעדרות: ${monthsOff}\n• גיל: ${ageNum}\n\nהערכת פיצוי ראשונית: ₪${calc.min.toLocaleString("he-IL")} – ₪${calc.max.toLocaleString("he-IL")}\n\nזוהי הערכה ראשונית בלבד לפי נוסחת הפלת״ד. לחץ על הכפתור למטה כדי לדבר עם עו"ד דן אלון בוואטסאפ ולקבל הערכה מדויקת.`;
 }
 
 
@@ -269,47 +278,42 @@ function getSocialProof(txt) {
   return "לקוחות שלנו עם פציעות דומות קיבלו בין \u20AA30,000 ל-\u20AA400,000 — תלוי בנסיבות. בוא נחשב את הסכום המדויק שלך.";
 }
 
-const NII_DISCLAIMER = "\n\n\u26A0\uFE0F אחוזים אלה הם לפי תקנות המל\"ל — המשמשות כמדריך גם בתביעות פלת\"ד. הקביעה הסופית נעשית על ידי ועדה רפואית. זו הערכה ראשונית בלבד.";
+const NII_DISCLAIMER = "\n\n\u26A0\uFE0F אחוזים אלה לפי תקנות המל\"ל — משמשים כמדריך גם בתביעות פלת\"ד. הקביעה הסופית נעשית על ידי ועדה רפואית. זו הערכה ראשונית בלבד.";
 
-function getNiiGuidance(txt) {
+const NII_ENTRIES = [
+  { re: /צליפת שוט|whiplash/, label: "צליפת שוט", desc: "שהתרפאה — 0%. עם הגבלת תנועה שנותרה — 10%-20% בהתאם לחומרה. הפסיקה מכירה בה גם כשהדימות תקין" },
+  { re: /פריצת דיסק|דיסק/, label: "פריצת דיסק", desc: "שהתרפאה — 0%. עם הפרעות נוירולוגיות — נכות לפי ממצא נוירולוגי והגבלת תנועה. ממצא MRI מחזק משמעותית את התיק" },
+  { re: /עמוד שדרה מותני|גב תחתון|כאבי גב/, label: "עמוד שדרה מותני", desc: "הגבלת תנועה קלה — 10%. בינונית — 20%. קשה — 30%-40%. שבר חוליה שהתרפא ללא תזוזה — 5%-10%" },
+  { re: /עמוד שדרה צווארי|כאבי צוואר/, label: "עמוד שדרה צווארי", desc: "הגבלה קלה — 10%. בינונית — 20%. קשה — 30%. שבר חוליה צווארית — 10%-40% לפי חומרה ותזוזה" },
+  { re: /צלע|צלעות/, label: "פגיעת צלעות", desc: "שבר צלע שהתרפא — 0%. כריתת שתי צלעות — 10%. שלוש-ארבע — 20%. חמש-שש — 30%" },
+  { re: /שבר/, label: "שבר", desc: "שהתרפא ללא תזוזה — 5%. עם תזוזה ניכרת — 10%-20%. שבר שלא התאחה — גבוה יותר לפי מיקום" },
+  { re: /חבלת ראש|tbi|מוח|פגיעת ראש/, label: "חבלת ראש", desc: "קלה שהתרפאה — 0%-10%. עם תסמינים נוירולוגיים שנותרו — 20%-100%. בתי המשפט בוחנים בקפידה ממצאים אובייקטיביים" },
+  { re: /ptsd/, label: "PTSD", desc: "קל — 10%-19%. בינוני — 20%-40%. קשה — 50%-100%. ההכרה ב-PTSD מתאונת דרכים שופרה משמעותית בפסיקה האחרונה" },
+  { re: /דיכאון|חרדה|פסיכיאטר|נפשי/, label: "דיכאון / חרדה", desc: "קלה — 10%-19%. בינונית — 20%-40%. קשה המגבילה תפקוד — 50%-75%. דורש חוות דעת פסיכיאטרית" },
+  { re: /ברך|מניסקוס|רצועה צולבת|acl/, label: "פגיעת ברך", desc: "הגבלת תנועה קלה — 10%. בינונית — 20%. קרע מניסקוס שנותח — 0%-10%. אי-יציבות שנותרת — 20%-30%" },
+  { re: /כתף|רוטטור|סובבת/, label: "פגיעת כתף", desc: "הגבלת תנועה קלה — 10%. בינונית — 20%-30%. פגיעה מלאה בגיד הרוטטור — 30%-40% בהתאם לתפקוד שנותר" },
+  { re: /יד|שורש כף|אצבע/, label: "פגיעת יד", desc: "הגבלת תנועה קלה — 10%-15%. אובדן תפקוד משמעותי — 20%-40%. שבר שלא התאחה בעצמות קטנות — 10%-20%" },
+  { re: /רגל|קרסול|כף רגל/, label: "פגיעת רגל / קרסול", desc: "נקע שהתרפא — 0%. אי-יציבות כרונית — 10%-20%. שבר קרסול עם הגבלת תנועה — 10%-30%" },
+  { re: /בטן|פנימי|טחול|כבד|כליה/, label: "חבלה פנימית", desc: "שהתרפאה ללא שאריות — 0%. עם כריתת איבר או פגיעה תפקודית — 20%-100% לפי הממצא" },
+  { re: /פיברומיאלגיה|כאב כרוני/, label: "פיברומיאלגיה", desc: "הפרעה קלה בתפקוד — 10%. בינונית — 20%-30%. קשה הדורשת טיפול קבוע — 40%" },
+  { re: /עין|ראייה/, label: "פגיעת עין", desc: "ירידה בחדות ראייה בעין אחת — 10%-30%. אובדן מלא של עין — 40%-60%" },
+  { re: /אוזן|שמיעה|טנטון|טינטון/, label: "פגיעת אוזן / טנטון", desc: "אובדן שמיעה חלקי — 10%-40%. טנטון כרוני מתועד — 10%-20%" },
+  { re: /פגיעה רכה|רקמות רכות|חבורות|שריטות/, label: "פגיעה רכה", desc: "שהתרפאה — 0%. עם כאב כרוני מתועד — ייתכן 10%. ללא ממצא אובייקטיבי, משקל נמוך לתלונות סובייקטיביות" },
+];
+
+function buildNiiResponse(txt) {
   const t = (txt || "").toLowerCase();
-  if (/צליפת שוט|whiplash|כאבי צוואר/.test(t))
-    return "לפי תקנות המל\"ל, צליפת שוט שהתרפאה — 0%. עם הגבלת תנועה שנותרה — 10%-20% בהתאם לחומרה. הפסיקה מכירה בה גם כשהדימות תקין." + NII_DISCLAIMER;
-  if (/פריצת דיסק|דיסק/.test(t))
-    return "לפי תקנות המל\"ל, פריצת דיסק שהתרפאה — 0%. עם הפרעות נוירולוגיות — נכות לפי ממצא נוירולוגי והגבלת תנועה. ממצא MRI מחזק משמעותית את התיק." + NII_DISCLAIMER;
-  if (/עמוד שדרה מותני|גב תחתון|כאבי גב/.test(t))
-    return "לפי תקנות המל\"ל, הגבלת תנועה קלה — 10%. בינונית — 20%. קשה — 30%-40%. שבר חוליה שהתרפא ללא תזוזה — 5%-10%." + NII_DISCLAIMER;
-  if (/עמוד שדרה צווארי|צוואר/.test(t))
-    return "לפי תקנות המל\"ל, הגבלה קלה — 10%. בינונית — 20%. קשה — 30%. שבר חוליה צווארית — 10%-40% לפי חומרה ותזוזה." + NII_DISCLAIMER;
-  if (/צלע|צלעות/.test(t))
-    return "לפי תקנות המל\"ל, שבר צלע שהתרפא — 0%. כריתת שתי צלעות — 10%. שלוש-ארבע צלעות — 20%. חמש-שש — 30%." + NII_DISCLAIMER;
-  if (/שבר/.test(t))
-    return "לפי תקנות המל\"ל, שבר שהתרפא ללא תזוזה — 5%. עם תזוזה ניכרת — 10%-20%. שבר שלא התאחה — גבוה יותר לפי מיקום." + NII_DISCLAIMER;
-  if (/חבלת ראש|tbi|מוח|פגיעת ראש/.test(t))
-    return "לפי תקנות המל\"ל, חבלת ראש קלה שהתרפאה — 0%-10%. עם תסמינים נוירולוגיים שנותרו — 20%-100%. בתי המשפט בוחנים בקפידה ממצאים אובייקטיביים." + NII_DISCLAIMER;
-  if (/ptsd/.test(t))
-    return "לפי תקנות המל\"ל, PTSD קל — 10%-19%. בינוני — 20%-40%. קשה — 50%-100%. ההכרה ב-PTSD מתאונת דרכים שופרה משמעותית בפסיקה האחרונה." + NII_DISCLAIMER;
-  if (/דיכאון|חרדה|פסיכיאטר|נפשי/.test(t))
-    return "לפי תקנות המל\"ל, הפרעת חרדה קלה — 10%-19%. בינונית — 20%-40%. קשה המגבילה תפקוד — 50%-75%. דורש חוות דעת פסיכיאטרית." + NII_DISCLAIMER;
-  if (/ברך|מניסקוס|רצועה צולבת|acl/.test(t))
-    return "לפי תקנות המל\"ל, הגבלת תנועה קלה בברך — 10%. בינונית — 20%. קרע מניסקוס שנותח — 0%-10% לאחר החלמה. אי-יציבות שנותרת — 20%-30%." + NII_DISCLAIMER;
-  if (/כתף|רוטטור|סובבת/.test(t))
-    return "לפי תקנות המל\"ל, הגבלת תנועה קלה בכתף — 10%. בינונית — 20%-30%. פגיעה מלאה בגיד הרוט��ור — 30%-40% בהתאם לתפקוד שנותר." + NII_DISCLAIMER;
-  if (/יד|שורש כף|אצבע/.test(t))
-    return "לפי תקנות המל\"ל, הגבלת תנועה קלה — 10%-15%. אובדן תפקוד משמעותי — 20%-40%. שבר שלא התאחה בעצמות קטנות — 10%-20%." + NII_DISCLAIMER;
-  if (/רגל|קרסול|כף רגל/.test(t))
-    return "לפי תקנות המל\"ל, נקע קרסול שהתרפא — 0%. עם אי-יציבות כרונית — 10%-20%. שבר קרסול עם הגבלת תנועה — 10%-30% בהתאם לחומרה." + NII_DISCLAIMER;
-  if (/בטן|פנימי|טחול|כבד|כליה/.test(t))
-    return "לפי תקנות המל\"ל, פגיעה פנימית שהתרפאה ללא שאריות — 0%. עם כריתת איבר או פגיעה תפקודית — 20%-100% לפי הממצא." + NII_DISCLAIMER;
-  if (/פיברומיאלגיה|כאב כרוני/.test(t))
-    return "לפי תקנות המל\"ל, פיברומיאלגיה עם הפרעה קלה בתפקוד — 10%. בינונית — 20%-30%. קשה הדורשת טיפול קבוע — 40%." + NII_DISCLAIMER;
-  if (/עין|ראייה/.test(t))
-    return "לפי תקנות המל\"ל, ירידה בחדות ראייה בעין אחת — 10%-30% לפי מידת הירידה. אובדן ��לא של עין — 40%-60%." + NII_DISCLAIMER;
-  if (/אוזן|שמיעה|טנטון|טינטון/.test(t))
-    return "לפי תקנות המל\"ל, אובדן שמיעה חלקי — 10%-40% לפי מידת האובדן. טנטון כרוני מתועד — 10%-20%." + NII_DISCLAIMER;
-  if (/פגיעה רכה|רקמות רכות|חבורות|שריטות/.test(t))
-    return "לפי תקנות המל\"ל, פגיעה רכה שהתרפאה — 0%. עם כאב כרוני מתועד — ייתכן 10%. ללא ממצא אובייקטיבי, בתי המשפט נוטים לתת משקל נמוך לתלונות סובייקטיביות." + NII_DISCLAIMER;
-  return null;
+  const matched = NII_ENTRIES.filter(e => e.re.test(t));
+  if (matched.length === 0) {
+    return "לא מצאתי טווח ספציפי לפגיעה זו בתקנות. עו\"ד דן אלון יבחן את המסמכים הרפואיים ויעריך את הנכות הצפויה.";
+  }
+  const lines = matched.map(e => `- ${e.label} — ${e.desc}`);
+  return "לפי תקנות המל\"ל:\n" + lines.join("\n") + NII_DISCLAIMER;
+}
+
+// Legacy single-match wrapper (kept for compatibility)
+function getNiiGuidance(txt) {
+  return buildNiiResponse(txt);
 }
 
 export default function useChat(customOpening) {
@@ -320,7 +324,7 @@ export default function useChat(customOpening) {
   const [err, setErr] = useState("");
   const [showReferral, setShowReferral] = useState(false);
   const [state, setState] = useState(STATE_ROLE);
-  const [data, setData] = useState({ role: null, medical: null, isWork: null, injury: null, disability: null, monthsOff: null, age: null });
+  const [data, setData] = useState({ role: null, medical: null, isWork: null, location: null, injury: null, disability: null, monthsOff: null, age: null });
   const [quickReplies, setQuickReplies] = useState(INITIAL_QUICK_REPLIES);
   const [progress, setProgress] = useState(0);
   const [gender, setGender] = useState(null);
@@ -352,7 +356,6 @@ export default function useChat(customOpening) {
     const userMsgs = msgs.filter(m => m.role === "user");
     const hospitalAnswered = userMsgs.some(m => m.content.includes("פניתי למיון") || m.content.includes("לא פניתי"));
     const workAnswered = userMsgs.some(m => m.content.includes("בדרך לעבודה") || m.content.includes("שעות פנויות"));
-    const injuryAnswered = userMsgs.some(m => m.content.includes("סוג הפגיעה:"));
     const disabilityAnswered = userMsgs.some(m => m.content.includes("נקבעו לי אחוזי נכות") || m.content.includes("אחוזי הנכות שלי:") || m.content.includes("בתהליך קביעת") || m.content.includes("נקבע לי 0%"));
     const ageAnswered = userMsgs.some(m => m.content.includes("הגיל שלי:"));
     const lastUserMsg = userMsgs.slice(-1)[0];
@@ -374,24 +377,6 @@ export default function useChat(customOpening) {
       setQuickReplies([
         { label: "כן, בדרך לעבודה או חזרה", value: "התאונה קרתה בדרך לעבודה או בחזרה ממנה." },
         { label: "לא, בשעות פנויות", value: "התאונה קרתה בשעות פנויות, לא בדרך לעבודה." },
-      ]);
-      return;
-    }
-
-    // Detect injury type question
-    if (!injuryAnswered && (inEither('סוג הפגיע') || bothInEither('פגיע', 'למשל') || bothInEither('שבר', 'למשל') || bothInEither('צליפת שוט', 'למשל') || inEither('חבלת ראש') || bothInEither('פריצת דיסק', 'למשל'))) {
-      setQuickReplies([
-        { label: "צליפת שוט", value: "סוג הפגיעה: צליפת שוט." },
-        { label: "פריצת דיסק", value: "סוג הפגיעה: פריצת דיסק." },
-        { label: "שבר", value: "סוג הפגיעה: שבר." },
-        { label: "חבלת ראש", value: "סוג הפגיעה: חבלת ראש." },
-        { label: "PTSD", value: "סוג הפגיעה: PTSD." },
-        { label: "פגיעת ברך", value: "סוג הפגיעה: פגיעה בברך." },
-        { label: "פגיעת כתף", value: "סוג הפגיעה: פגיעה בכתף." },
-        { label: "פגיעת גב", value: "סוג הפגיעה: עמוד שדרה מותני." },
-        { label: "פגיעת צוואר", value: "סוג הפגיעה: עמוד שדרה צווארי." },
-        { label: "פגיעה רכה", value: "סוג הפגיעה: פגיעה רכה." },
-        { label: "אחר — אקליד בעצמי", value: "OPEN_INPUT" },
       ]);
       return;
     }
@@ -469,7 +454,7 @@ export default function useChat(customOpening) {
     setErr("");
     setShowReferral(false);
     setState(STATE_ROLE);
-    setData({ role: null, medical: null, isWork: null, injury: null, disability: null, monthsOff: null, age: null });
+    setData({ role: null, medical: null, isWork: null, location: null, injury: null, disability: null, monthsOff: null, age: null });
     // Allow events to fire again for a genuine new calculation
     firedCalcComplete.current = false;
     firedWhatsAppClick.current = false;
@@ -566,23 +551,20 @@ export default function useChat(customOpening) {
       newData.isWork = isWork;
       botMsgs.push({ role: "assistant", content: contextResponse(isWork) });
       trackStep(4, "work_related");
+      botMsgs.push({ role: "assistant", content: getLocationQuestion() });
+      setState(STATE_LOCATION);
+    } else if (state === STATE_LOCATION) {
+      newData.location = txt.trim();
+      botMsgs.push({ role: "assistant", content: `הבנתי — נפגעת ב${txt.trim()}. אאסוף את כל הפגיעות יחד לחישוב.` });
       botMsgs.push({ role: "assistant", content: INJURY_QUESTION });
       setState(STATE_INJURY);
+      setProgress(45);
     } else if (state === STATE_INJURY) {
-      // If user typed "אחר" — ask for description, stay in STATE_INJURY
-      if (/^אחר\s*[—\-.]?\s*$/i.test(txt.trim())) {
-        botMsgs.push({ role: "assistant", content: "ספר לי במילים שלך — מה הפגיעה?" });
-        setMsgs(p => [...p, userMsg, ...botMsgs]);
-        return;
-      }
       newData.injury = txt.trim();
-      const cleanInjury = txt.trim().replace(/^סוג הפגיעה:\s*/, "").replace(/\.$/, "");
+      const cleanInjury = txt.trim().replace(/\.$/, "");
       botMsgs.push({ role: "assistant", content: `הבנתי — ${cleanInjury}. חשוב לתעד את זה.` });
-      // NII disability guidance per injury type
-      const niiGuidance = getNiiGuidance(txt);
-      if (niiGuidance) {
-        botMsgs.push({ role: "assistant", content: niiGuidance });
-      }
+      // NII disability guidance — supports multiple injuries in one response
+      botMsgs.push({ role: "assistant", content: buildNiiResponse(txt) });
       // Social proof — show once based on injury type
       if (!shownSocialProof.current) {
         shownSocialProof.current = true;
@@ -723,7 +705,8 @@ export default function useChat(customOpening) {
     if (data.medical != null) lines.push(`אשפוז: ${data.medical ? "כן" : "לא"}`);
     if (data.isWork != null) lines.push(`תאונת עבודה: ${data.isWork ? "כן" : "לא"}`);
     if (data.age) lines.push(`גיל: ${data.age}`);
-    if (data.injury) lines.push(`פגיעה: ${data.injury}`);
+    if (data.location) lines.push(`מיקום פגיעה: ${data.location}`);
+    if (data.injury) lines.push(`סוג פגיעה: ${data.injury}`);
     if (data.disability != null) lines.push(`נכות: ${data.disability}%`);
     if (calc) lines.push(`הערכת פיצוי: ₪${calc.min.toLocaleString("he-IL")} – ₪${calc.max.toLocaleString("he-IL")}`);
     lines.push("אשמח לבדיקה מעמיקה.");
