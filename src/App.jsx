@@ -187,15 +187,6 @@ export default function App() {
     { q:"תאונה קלה ללא שברים — מגיע לי פיצוי?", a:"בהחלט. גם צליפת שוט (Whiplash) מזכה באלפי שקלים. כל פגיעה גופנית בתאונה מזכה בבדיקת זכאות לפיצוי." },
   ];
 
-  const marqueeItems = [
-    "✓ ₪0 עד קבלת פיצוי",
-    "✓ שכ״ט רק מהפיצוי (8-13% לפי חוק)",
-    "✓ 25 שנות ניסיון",
-    "✓ 200+ תיקים שטופלו",
-    "✓ מענה תוך שעה",
-    "✓ ניסיון מול כל חברות הביטוח",
-  ];
-
   const attorneyBullets = [
     "25 שנות ניסיון בפלת״ד ונזקי גוף",
     "מומחה לניהול תביעות מול כל חברות הביטוח",
@@ -226,11 +217,8 @@ export default function App() {
         @keyframes p{0%,100%{opacity:1}50%{opacity:.5}}
         .ck{position:fixed;bottom:0;right:0;left:0;background:#ffffff;border-top:1px solid #dde3ea;padding:14px 20px;display:flex;align-items:center;justify-content:space-between;gap:16px;z-index:98;font-size:13px;color:#7a8fa5}
         @media(min-width:769px){.hero-wrap{max-width:1200px!important;padding:60px 80px!important}.ht{font-size:4.5rem!important;line-height:1.2!important}.hero-sub{font-size:1.6rem!important}.hero-bullets{font-size:1.2rem!important;max-width:800px!important;margin:0 auto 32px!important}.sect-inner{max-width:1200px!important}}
-        @media(max-width:768px){.g2,.g3{grid-template-columns:1fr}.g4{grid-template-columns:1fr 1fr}.hm{display:none!important}.ht{font-size:34px!important}.marquee-track{animation-duration:12s!important}}
+        @media(max-width:768px){.g2,.g3{grid-template-columns:1fr}.g4{grid-template-columns:1fr 1fr}.hm{display:none!important}.ht{font-size:34px!important}}
         @media(max-width:480px){.g4{grid-template-columns:1fr 1fr}}
-        @keyframes marquee{0%{transform:translateX(0)}100%{transform:translateX(100%)}}
-        .marquee-wrap{overflow:hidden;width:100%;position:relative}
-        .marquee-track{display:flex;gap:48px;width:max-content;animation:marquee 20s linear infinite;direction:ltr}
       `}</style>
 
       {/* SKIP NAV */}
@@ -289,16 +277,7 @@ export default function App() {
           </div>
         </section>
 
-        {/* TRUST MARQUEE */}
-        <div style={{ background:"#f8f9fb", borderTop:"1px solid #dde3ea", borderBottom:"1px solid #dde3ea", padding:"14px 0" }}>
-          <div className="marquee-wrap" aria-label="יתרונות השירות">
-            <div className="marquee-track">
-              {[...marqueeItems, ...marqueeItems].map((item, i) => (
-                <span key={i} style={{ color:G, fontSize:14, fontWeight:700, whiteSpace:"nowrap" }}>{item}</span>
-              ))}
-            </div>
-          </div>
-        </div>
+
 
         {/* HOW */}
         <section id="how" aria-label="איך זה עובד" style={{ padding:"68px 24px", background:"#f8f9fb" }}>
