@@ -244,7 +244,7 @@ export default function App() {
             {nav.map(n => <a key={n.l} href={n.h} className="nl">{n.l}</a>)}
           </nav>
           <div style={{ display:"flex", alignItems:"center", gap:12 }}>
-            <a href="tel:0544338212" aria-label="התקשר אלינו" className="phone-pulse" onClick={() => { window.dataLayer=window.dataLayer||[]; window.dataLayer.push({event:'phone_click',event_category:'engagement',event_label:'phone_button'}); }} style={{ display:"inline-flex", alignItems:"center", justifyContent:"center", width:48, height:48, background:"#0a2240", borderRadius:12, color:"#fff", fontSize:22, textDecoration:"none", flexShrink:0 }}>📞</a>
+            <a href="tel:0544338212" aria-label="התקשר אלינו" className="phone-pulse" onClick={() => { window.dataLayer=window.dataLayer||[]; window.dataLayer.push({event:'phone_click',event_category:'engagement',event_label:'phone_button'}); }} style={{ display:"inline-flex", alignItems:"center", justifyContent:"center", width:48, height:48, background:"#0a2240", backgroundColor:"#0a2240", borderRadius:12, color:"#ffffff", border:"none", fontSize:22, textDecoration:"none", flexShrink:0 }}>📞</a>
             <button style={{ background:"#F4A300", color:"#ffffff", border:"none", borderRadius:8, fontFamily:"inherit", fontWeight:800, fontSize: isMobile ? 14 : 16, padding:"10px 20px", cursor:"pointer", display:"inline-flex", alignItems:"center", gap:8, whiteSpace:"nowrap" }} onClick={openBot} aria-label="בדיקת פיצוי חינם">בדיקת פיצוי חינם</button>
           </div>
         </div>

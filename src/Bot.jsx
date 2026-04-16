@@ -87,7 +87,7 @@ export default function Bot({ onClose, inline = false, openingMessage }) {
                 <span className={s.statusDot} />
                 השיחה לא נשמרת ולא מתועדת
               </span>
-              <a href="tel:0544338212" aria-label="התקשר לעו״ד אלון" title="התקשר" className={s.phoneBtn}>📞</a>
+              <a href="tel:0544338212" aria-label="התקשר לעו״ד אלון" title="התקשר" className={s.phoneBtn} style={{ background:"#0a2240", backgroundColor:"#0a2240", color:"#ffffff", border:"none" }}>📞</a>
             </div>
           </div>
 
@@ -235,7 +235,7 @@ export default function Bot({ onClose, inline = false, openingMessage }) {
               <span className={s.statusDot} />
               השיחה לא נשמרת ולא מתועדת
             </span>
-            <a href="tel:0544338212" aria-label="התקשר לעו״ד אלון" title="התקשר" className={s.phoneBtn}>📞</a>
+            <a href="tel:0544338212" aria-label="התקשר לעו״ד אלון" title="התקשר" className={s.phoneBtn} style={{ background:"#0a2240", backgroundColor:"#0a2240", color:"#ffffff", border:"none" }}>📞</a>
             <button onClick={onClose} aria-label="סגור בוט" className={s.closeBtn}>✕</button>
           </div>
         </div>
