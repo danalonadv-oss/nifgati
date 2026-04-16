@@ -476,8 +476,9 @@ export default function useChat(customOpening) {
     }
 
     // Detect salary question
+    // Income buttons — only show at STATE_SALARY, never earlier
     const salaryAnswered = userMsgs.some(m => m.content.includes("שקל בחודש") || m.content.includes("לא עובד") || m.content.includes("לא רלוונטי"));
-    if (!salaryAnswered && (/משתכר|שכר|הכנסה|מרוויח/.test(content) || /משתכר|שכר|הכנסה|מרוויח/.test(prevContent))) {
+    if (state === STATE_SALARY && !salaryAnswered && (/משתכר|שכר|הכנסה|מרוויח/.test(content) || /משתכר|שכר|הכנסה|מרוויח/.test(prevContent))) {
       setQuickReplies([
         { label: "עד \u20AA10,000", value: "אני מרוויח עד 10,000 שקל בחודש" },
         { label: "\u20AA10,000 – \u20AA20,000", value: "אני מרוויח בין 10,000 ל-20,000 שקל בחודש" },
@@ -487,7 +488,7 @@ export default function useChat(customOpening) {
         { label: "לא עובד / לא רלוונטי", value: "אני לא עובד או שהשכר לא רלוונטי" },
       ]);
     }
-  }, [msgs]);
+  }, [msgs, state]);
 
   function restart() {
     setMsgs([...getInitialMsgs(customOpening)]);
@@ -661,6 +662,12 @@ export default function useChat(customOpening) {
       newData.injuries = { ...data.injuries, ...newData.injuries, [curLoc]: injuryText };
       botMsgs.push({ role: "assistant", content: `הבנתי — ${curLoc}: ${injuryText}.` });
 
+      // Show NII disability guidance for this injury type
+      const niiResponse = buildNiiResponse(injuryText);
+      if (niiResponse) {
+        botMsgs.push({ role: "assistant", content: niiResponse });
+      }
+
       // Find next unprocessed location
       const allLocs = newData.locations.length ? newData.locations : data.locations;
       const processedLocs = Object.keys(newData.injuries);
@@ -680,7 +687,7 @@ export default function useChat(customOpening) {
         // All locations covered — summarize and move on
         const allInjuries = newData.injuries;
         const summaryLines = Object.entries(allInjuries).map(([loc, inj]) => `• ${loc}: ${inj}`);
-        botMsgs.push({ role: "assistant", content: `תודה — סיכמנו את כל הפגיעות:\n${summaryLines.join("\n")}\n\nעכשיו שאלה אחת לגבי השתכרות:` });
+        botMsgs.push({ role: "assistant", content: `תודה — סיכמנו את כל הפגיעות:\n${summaryLines.join("\n")}` });
         // Store combined injury text for calculation
         newData.injury = Object.entries(allInjuries).map(([loc, inj]) => `${loc}: ${inj}`).join(", ");
         newData.currentLocation = null;
