@@ -270,11 +270,11 @@ export default function App() {
 
               <h1 className="ht" style={{ fontSize:48, fontWeight:900, lineHeight:1.25, marginBottom:18 }}>
                 נפגעת בתאונת דרכים?<br />
-                <span style={{ color:G }}>בדוק מה מגיע לך</span>
+                <span style={{ color:G }}>בדוק מה מגיע לך לפי החוק</span>
               </h1>
 
               <p style={{ fontSize:16, color:"#5a6a7a", lineHeight:1.75, maxWidth:700, margin:"0 auto 24px", padding:"0 12px" }}>
-                הבוט היחיד בישראל שמחשב פיצוי לפי הנוסחה הסטטוטורית של חוק פלת"ד — ולא לפי "הערכה". תאונה בדרך לעבודה? זכאי גם לביטוח לאומי — שני מקורות פיצוי.
+                הבוט היחיד בישראל שמחשב פיצוי לפי הנוסחה הסטטוטורית של חוק פלת"ד — לא הערכה כללית.
               </p>
 
               <div style={{ marginBottom:12 }}>
