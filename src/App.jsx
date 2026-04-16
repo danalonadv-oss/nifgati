@@ -269,9 +269,13 @@ export default function App() {
           <div className="hero-wrap" style={{ maxWidth:900, margin:"0 auto", padding:"48px 24px 24px", width:"100%", textAlign:"center" }}>
 
               <h1 className="ht" style={{ fontSize:48, fontWeight:900, lineHeight:1.25, marginBottom:18 }}>
-                נפגעת בתאונה?<br />
-                <span style={{ color:G }}>מגיע לך פיצוי.</span>
+                נפגעת בתאונת דרכים?<br />
+                <span style={{ color:G }}>בדוק מה מגיע לך</span>
               </h1>
+
+              <p style={{ fontSize:16, color:"#5a6a7a", lineHeight:1.75, maxWidth:700, margin:"0 auto 24px", padding:"0 12px" }}>
+                הבוט היחיד בישראל שמחשב פיצוי לפי הנוסחה הסטטוטורית של חוק פלת"ד — ולא לפי "הערכה". תאונה בדרך לעבודה? זכאי גם לביטוח לאומי — שני מקורות פיצוי.
+              </p>
 
               <div style={{ marginBottom:12 }}>
                 <button style={{ ...gBtn, fontSize:18, padding:"16px 36px" }} onClick={openBot} aria-label="חשב כעת">חשב כעת — חינם</button>
