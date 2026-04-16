@@ -269,6 +269,25 @@ function getSocialProof(txt) {
   return "לקוחות שלנו עם פציעות דומות קיבלו בין \u20AA30,000 ל-\u20AA400,000 — תלוי בנסיבות. בוא נחשב את הסכום המדויק שלך.";
 }
 
+const NII_DISCLAIMER = "\n\n\u26A0\uFE0F האחוזים האלה הם לפי תקנות המל\"ל לתאונות עבודה — המשמשות כמדריך גם בתביעות פלת\"ד. הקביעה הסופית נעשית על ידי ועדה רפואית, ועורך דין יכול לערער עליה. זו הערכה ראשונית בלבד.";
+
+function getNiiGuidance(txt) {
+  const t = (txt || "").toLowerCase();
+  if (/צליפת שוט|whiplash|כאבי צוואר/.test(t))
+    return "לפי תקנות המל\"ל, צליפת שוט שהתרפאה — 0% נכות. עם הגבלת תנועה שנותרה — 10%-20% בהתאם לחומרה. הפסיקה מכירה בה כפגיעה אמיתית גם כשהדימות תקין." + NII_DISCLAIMER;
+  if (/פריצת דיסק|דיסק|כאבי גב/.test(t))
+    return "לפי תקנות המל\"ל, פריצת דיסק שהתרפאה — 0%. עם הפרעות נוירולוגיות שנותרו — נכות לפי ממצא הנוירולוגי והגבלת תנועה. תיקים עם ממצא MRI זוכים להכרה גבוהה יותר בבתי המשפט." + NII_DISCLAIMER;
+  if (/שבר/.test(t))
+    return "לפי תקנות המל\"ל, שבר שהתרפא ללא תזוזה — 5%. עם תזוזה ניכרת — 10%-20%. שבר שלא התאחה — גבוה יותר בהתאם למיקום." + NII_DISCLAIMER;
+  if (/חבלת ראש|tbi|מוח/.test(t))
+    return "לפי תקנות המל\"ל, חבלת ראש קלה שהתרפאה — 0%-10%. עם תסמינים נוירולוגיים שנותרו — 20%-100% בהתאם לחומרה. בתי המשפט בוחנים בקפידה את הממצאים האובייקטיביים." + NII_DISCLAIMER;
+  if (/ptsd|נפשי|טראומ|חרדה|דיכאון/.test(t))
+    return "לפי תקנות המל\"ל, PTSD קל — 10%-19%. בינוני — 20%-40%. קשה — 50%-100%. ההכרה של ב\"ל ב-PTSD מתאונת דרכים שופרה משמעותית בפסיקה האחרונה." + NII_DISCLAIMER;
+  if (/פגיעה רכה|רקמות רכות|חבורות|שריטות/.test(t))
+    return "לפי תקנות המל\"ל, פגיעה רכה שהתרפאה — 0%. עם כאב כרוני מתועד — ייתכן 10%. ללא ממצא אובייקטיבי, בתי המשפט נוטים לתת משקל נמוך יותר לתלונות סובייקטיביות בלבד." + NII_DISCLAIMER;
+  return null;
+}
+
 export default function useChat(customOpening) {
   const [msgs, setMsgs] = useState([...getInitialMsgs(customOpening)]);
   const [inp, setInp] = useState("");
@@ -531,6 +550,11 @@ export default function useChat(customOpening) {
       newData.injury = txt.trim();
       const cleanInjury = txt.trim().replace(/^סוג הפגיעה:\s*/, "").replace(/\.$/, "");
       botMsgs.push({ role: "assistant", content: `הבנתי — ${cleanInjury}. חשוב לתעד את זה.` });
+      // NII disability guidance per injury type
+      const niiGuidance = getNiiGuidance(txt);
+      if (niiGuidance) {
+        botMsgs.push({ role: "assistant", content: niiGuidance });
+      }
       // Social proof — show once based on injury type
       if (!shownSocialProof.current) {
         shownSocialProof.current = true;
