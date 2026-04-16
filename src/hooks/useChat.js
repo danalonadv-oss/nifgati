@@ -9,20 +9,54 @@ const STATE_ROLE = 1;
 const STATE_MEDICAL = 2;
 const STATE_CONTEXT = 3;
 const STATE_LOCATION = 4;
-const STATE_INJURY = 5;
+const STATE_INJURY_LOOP = 5;
 const STATE_DISABILITY = 6;
 const STATE_MONTHS_OFF = 7;
 const STATE_AGE = 8;
 const STATE_SALARY = 9;
 const STATE_DONE = 10;
 
-const LOCATION_EXAMPLES = ["ברך", "כתף", "צוואר", "גב תחתון", "ראש", "יד", "קרסול", "צלעות", "בטן", "ירך", "מרפק", "אגן"];
+const LOCATION_QUESTION = "היכן נפגעת וממה אתה סובל?";
 
-function getLocationQuestion(g) {
-  const shuffled = [...LOCATION_EXAMPLES].sort(() => Math.random() - 0.5);
-  if (g === "female") return `היכן נפגעת?\nלדוגמה: ${shuffled[0]}, ${shuffled[1]} — או כל מקום אחר.`;
-  if (g === "male") return `היכן נפגעת?\nלדוגמה: ${shuffled[0]}, ${shuffled[1]} — או כל מקום אחר.`;
-  return `היכן נפגעת?\nלדוגמה: ${shuffled[0]}, ${shuffled[1]} — או כל מקום אחר.`;
+const INJURY_TYPES_BY_LOCATION = {
+  "צוואר": "צליפת שוט | נקע צווארי | שבר חוליה | פריצת דיסק צווארי | פגיעה עצבית",
+  "גב תחתון": "פריצת דיסק | בקע דיסק | שבר חוליה | כאב כרוני | פגיעה עצבית (רדיקולופתיה)",
+  "גב": "פריצת דיסק | בקע דיסק | שבר חוליה | כאב כרוני | פגיעה עצבית (רדיקולופתיה)",
+  "מותני": "פריצת דיסק | בקע דיסק | שבר חוליה | כאב כרוני | פגיעה עצבית (רדיקולופתיה)",
+  "ברך": "קרע מניסקוס | קרע רצועה (ACL/PCL) | שבר | נקע | דלקת פרקים פוסט-טראומטית",
+  "כתף": "קרע גיד רוטטור | נקע מפרק | שבר עצם הבריח | קרע לברום | הגבלת תנועה",
+  "יד": "שבר | קרע גיד | נזק עצבי | תסמונת התעלה הקרפלית | נקע",
+  "שורש כף יד": "שבר | קרע גיד | נזק עצבי | תסמונת התעלה הקרפלית | נקע",
+  "קרסול": "שבר | נקע עם אי-יציבות | קרע רצועה | פגיעת עצב | שבר שלא התאחה",
+  "רגל": "שבר | נקע עם אי-יציבות | קרע רצועה | פגיעת עצב | שבר שלא התאחה",
+  "ראש": "זעזוע מוח | חבלת ראש | פגיעה קוגניטיבית | כאבי ראש כרוניים | פגיעה נוירולוגית",
+  "מוח": "זעזוע מוח | חבלת ראש | פגיעה קוגניטיבית | כאבי ראש כרוניים | פגיעה נוירולוגית",
+  "צלעות": "שבר צלע | פגיעת ריאה | כאב כרוני | שבר עצם החזה",
+  "חזה": "שבר צלע | פגיעת ריאה | כאב כרוני | שבר עצם החזה",
+  "פנים": "פגיעת עין | ירידת שמיעה | טנטון | צלקת | שבר עצמות הפנים",
+  "עין": "פגיעת עין | ירידת שמיעה | טנטון | צלקת | שבר עצמות הפנים",
+  "אוזן": "פגיעת עין | ירידת שמיעה | טנטון | צלקת | שבר עצמות הפנים",
+  "נפשי": "PTSD | חרדה | דיכאון | הפרעת שינה | פגיעה בתפקוד יומיומי",
+  "נפש": "PTSD | חרדה | דיכאון | הפרעת שינה | פגיעה בתפקוד יומיומי",
+  "בטן": "פגיעה פנימית | פגיעת טחול | פגיעת כבד | פגיעת כליה",
+  "ירך": "שבר צוואר ירך | שבר | פגיעת מפרק | הגבלת תנועה",
+  "מרפק": "שבר | נקע | פגיעת עצב | הגבלת תנועה",
+  "אגן": "שבר אגן | פגיעת מפרק ירך | פגיעה פנימית",
+};
+
+function parseLocations(txt) {
+  // Split on ו, commas, and "גם"
+  return txt.split(/\s*[,،]\s*|\s+ו(?:גם\s+|\s+)|\s+גם\s+/)
+    .map(s => s.trim().replace(/^ב/, ""))
+    .filter(s => s.length > 0);
+}
+
+function getInjuryTypesForLocation(loc) {
+  const l = loc.toLowerCase();
+  for (const [key, types] of Object.entries(INJURY_TYPES_BY_LOCATION)) {
+    if (l.includes(key) || key.includes(l)) return { location: key, types };
+  }
+  return null;
 }
 
 const DRIVER_RE = /נהג|נהגת|הנהג/i;
@@ -45,8 +79,6 @@ const NO_RE = /לא|אף|בלי/i;
 const CONTEXT_QUESTION = "התאונה קרתה בדרך לעבודה, בחזרה ממנה, או בשעות פנויות?";
 const WORK_RE = /עבודה|בדרך ל|בחזרה מ|עובד|נסיעה לעבודה|משמרת/i;
 
-const INJURY_QUESTION = "מה סוג הפגיעה?";
-const INJURY_QUESTION_MULTI = "מה סוג הפגיעה בכל אחד מהמקומות?";
 const DISABILITY_QUESTION = "האם נקבעו לך אחוזי נכות?";
 function getMonthsOffQuestion(g) {
   if (g === "female") return "כמה ימים לא עבדת (או צפוי שלא תעבדי) בגלל התאונה?";
@@ -244,15 +276,16 @@ function contextResponse(isWork) {
 }
 
 function buildSummary(data, calc) {
-  const { role, medical, isWork, location, age, injury, disability, monthsOff } = data;
+  const { role, medical, isWork, injuries, age, injury, disability, monthsOff } = data;
   const ageNum = parseInt(age) || 30;
   const roleLabel = roleToLabel(role) || "לא צוין";
   const contextLabel = isWork ? "תאונה בדרך לעבודה (זכאות כפולה — ביטוח + ביטוח לאומי)" : "תאונה פרטית";
   const medLabel = medical ? "פנה למיון — ראיה רפואית חזקה" : "לא פנה למיון";
-  const cleanInjury = (injury || "לא צוין").replace(/^סוג הפגיעה:\s*/i, "").replace(/\.$/, "");
-  const locationLabel = location || "לא צוין";
+  const injuryLines = injuries && Object.keys(injuries).length > 0
+    ? Object.entries(injuries).map(([loc, inj]) => `  - ${loc}: ${inj}`).join("\n")
+    : (injury || "לא צוין");
 
-  return `סיכום:\n• תפקיד: ${roleLabel}\n• ${medLabel}\n• ${contextLabel}\n• מיקום פגיעה: ${locationLabel}\n• סוג פגיעה: ${cleanInjury}\n• אחוזי נכות: ${disability}%\n• ימי היעדרות: ${monthsOff}\n• גיל: ${ageNum}\n\nהערכת פיצוי ראשונית: ₪${calc.min.toLocaleString("he-IL")} – ₪${calc.max.toLocaleString("he-IL")}\n\nזוהי הערכה ראשונית בלבד לפי נוסחת הפלת״ד. לחץ על הכפתור למטה כדי לדבר עם עו"ד דן אלון בוואטסאפ ולקבל הערכה מדויקת.`;
+  return `סיכום:\n• תפקיד: ${roleLabel}\n• ${medLabel}\n• ${contextLabel}\n• פגיעות:\n${injuryLines}\n• אחוזי נכות: ${disability}%\n• ימי היעדרות: ${monthsOff}\n• גיל: ${ageNum}\n\nהערכת פיצוי ראשונית: ₪${calc.min.toLocaleString("he-IL")} – ₪${calc.max.toLocaleString("he-IL")}\n\nזוהי הערכה ראשונית בלבד לפי נוסחת הפלת״ד. לחץ על הכפתור למטה כדי לדבר עם עו"ד דן אלון בוואטסאפ ולקבל הערכה מדויקת.`;
 }
 
 
@@ -333,7 +366,7 @@ export default function useChat(customOpening) {
   const [err, setErr] = useState("");
   const [showReferral, setShowReferral] = useState(false);
   const [state, setState] = useState(STATE_DISCLAIMER);
-  const [data, setData] = useState({ role: null, medical: null, isWork: null, location: null, injury: null, disability: null, monthsOff: null, age: null });
+  const [data, setData] = useState({ role: null, medical: null, isWork: null, locations: [], injuries: {}, currentLocation: null, injury: null, disability: null, monthsOff: null, age: null });
   const [quickReplies, setQuickReplies] = useState(INITIAL_QUICK_REPLIES);
   const [progress, setProgress] = useState(0);
   const [gender, setGender] = useState(null);
@@ -463,7 +496,7 @@ export default function useChat(customOpening) {
     setErr("");
     setShowReferral(false);
     setState(STATE_DISCLAIMER);
-    setData({ role: null, medical: null, isWork: null, location: null, injury: null, disability: null, monthsOff: null, age: null });
+    setData({ role: null, medical: null, isWork: null, locations: [], injuries: {}, currentLocation: null, injury: null, disability: null, monthsOff: null, age: null });
     // Allow events to fire again for a genuine new calculation
     firedCalcComplete.current = false;
     firedWhatsAppClick.current = false;
@@ -535,7 +568,7 @@ export default function useChat(customOpening) {
 
     // Handle free input option — context-aware prompt
     if (txt.trim() === "OPEN_INPUT") {
-      const openMsg = state === STATE_INJURY
+      const openMsg = state === STATE_INJURY_LOOP
         ? "ספר לי במילים שלך — מה הפגיעה?"
         : "ספר/י לי במילים שלך:";
       setMsgs(prev => [...prev, { role: "assistant", content: openMsg }]);
@@ -587,34 +620,74 @@ export default function useChat(customOpening) {
       newData.isWork = isWork;
       botMsgs.push({ role: "assistant", content: contextResponse(isWork) });
       trackStep(4, "work_related");
-      botMsgs.push({ role: "assistant", content: getLocationQuestion(gender) });
+      botMsgs.push({ role: "assistant", content: LOCATION_QUESTION });
       setState(STATE_LOCATION);
     } else if (state === STATE_LOCATION) {
-      newData.location = txt.trim();
-      const hasMultiple = /ו|,|גם/.test(txt.trim());
-      if (hasMultiple) {
-        botMsgs.push({ role: "assistant", content: `הבנתי — נפגעת ב${txt.trim()}. אאסוף את כל הפגיעות יחד לחישוב.` });
-        botMsgs.push({ role: "assistant", content: INJURY_QUESTION_MULTI });
+      // Parse locations from user input
+      const locs = parseLocations(txt.trim());
+      newData.locations = locs;
+      newData.injuries = {};
+
+      if (locs.length <= 1) {
+        const loc = locs[0] || txt.trim();
+        newData.locations = [loc];
+        botMsgs.push({ role: "assistant", content: `הבנתי — נפגעת ב${loc}.` });
+        // Ask injury type for this single location
+        const match = getInjuryTypesForLocation(loc);
+        if (match) {
+          botMsgs.push({ role: "assistant", content: `ביחס ל${loc} — מה סוג הפגיעה?\n${match.types}` });
+        } else {
+          botMsgs.push({ role: "assistant", content: `ביחס ל${loc} — תאר את הפגיעה במילים שלך.` });
+        }
+        newData.currentLocation = loc;
+        setState(STATE_INJURY_LOOP);
       } else {
-        botMsgs.push({ role: "assistant", content: `הבנתי — נפגעת ב${txt.trim()}.` });
-        botMsgs.push({ role: "assistant", content: INJURY_QUESTION });
+        botMsgs.push({ role: "assistant", content: `הבנתי — נפגעת במספר מקומות. נעבור על כל אחד בנפרד.` });
+        const firstLoc = locs[0];
+        const match = getInjuryTypesForLocation(firstLoc);
+        if (match) {
+          botMsgs.push({ role: "assistant", content: `ביחס ל${firstLoc} — מה סוג הפגיעה?\n${match.types}` });
+        } else {
+          botMsgs.push({ role: "assistant", content: `ביחס ל${firstLoc} — תאר את הפגיעה במילים שלך.` });
+        }
+        newData.currentLocation = firstLoc;
+        setState(STATE_INJURY_LOOP);
       }
-      setState(STATE_INJURY);
-      setProgress(45);
-    } else if (state === STATE_INJURY) {
-      newData.injury = txt.trim();
-      const cleanInjury = txt.trim().replace(/\.$/, "");
-      botMsgs.push({ role: "assistant", content: `הבנתי — ${cleanInjury}. חשוב לתעד את זה.` });
-      // NII disability guidance — supports multiple injuries in one response
-      botMsgs.push({ role: "assistant", content: buildNiiResponse(txt) });
-      // Social proof — show once based on injury type
-      if (!shownSocialProof.current) {
-        shownSocialProof.current = true;
-        botMsgs.push({ role: "assistant", content: getSocialProof(txt) });
+      setProgress(40);
+    } else if (state === STATE_INJURY_LOOP) {
+      // Record injury for current location
+      const curLoc = newData.currentLocation || data.currentLocation;
+      const injuryText = txt.trim().replace(/\.$/, "");
+      newData.injuries = { ...data.injuries, ...newData.injuries, [curLoc]: injuryText };
+      botMsgs.push({ role: "assistant", content: `הבנתי — ${curLoc}: ${injuryText}.` });
+
+      // Find next unprocessed location
+      const allLocs = newData.locations.length ? newData.locations : data.locations;
+      const processedLocs = Object.keys(newData.injuries);
+      const nextLoc = allLocs.find(l => !processedLocs.includes(l));
+
+      if (nextLoc) {
+        // More locations to process
+        const match = getInjuryTypesForLocation(nextLoc);
+        if (match) {
+          botMsgs.push({ role: "assistant", content: `ביחס ל${nextLoc} — מה סוג הפגיעה?\n${match.types}` });
+        } else {
+          botMsgs.push({ role: "assistant", content: `ביחס ל${nextLoc} — תאר את הפגיעה במילים שלך.` });
+        }
+        newData.currentLocation = nextLoc;
+        setProgress(Math.min(45, 40 + processedLocs.length * 2));
+      } else {
+        // All locations covered — summarize and move on
+        const allInjuries = newData.injuries;
+        const summaryLines = Object.entries(allInjuries).map(([loc, inj]) => `• ${loc}: ${inj}`);
+        botMsgs.push({ role: "assistant", content: `תודה — סיכמנו את כל הפגיעות:\n${summaryLines.join("\n")}\n\nעכשיו שאלה אחת לגבי השתכרות:` });
+        // Store combined injury text for calculation
+        newData.injury = Object.entries(allInjuries).map(([loc, inj]) => `${loc}: ${inj}`).join(", ");
+        newData.currentLocation = null;
+        botMsgs.push({ role: "assistant", content: DISABILITY_QUESTION });
+        setState(STATE_DISABILITY);
+        setProgress(50);
       }
-      botMsgs.push({ role: "assistant", content: DISABILITY_QUESTION });
-      setState(STATE_DISABILITY);
-      setProgress(50);
     } else if (state === STATE_DISABILITY) {
       const zeroDisability = /נקבע.*0\s*%|0\s*%\s*נכות|אפס אחוז/.test(txt);
       const pctMatch = txt.match(/(\d+)\s*%?/);
@@ -747,8 +820,12 @@ export default function useChat(customOpening) {
     if (data.medical != null) lines.push(`אשפוז: ${data.medical ? "כן" : "לא"}`);
     if (data.isWork != null) lines.push(`תאונת עבודה: ${data.isWork ? "כן" : "לא"}`);
     if (data.age) lines.push(`גיל: ${data.age}`);
-    if (data.location) lines.push(`מיקום פגיעה: ${data.location}`);
-    if (data.injury) lines.push(`סוג פגיעה: ${data.injury}`);
+    if (data.injuries && Object.keys(data.injuries).length > 0) {
+      lines.push("פגיעות:");
+      Object.entries(data.injuries).forEach(([loc, inj]) => lines.push(`  ${loc}: ${inj}`));
+    } else if (data.injury) {
+      lines.push(`פגיעה: ${data.injury}`);
+    }
     if (data.disability != null) lines.push(`נכות: ${data.disability}%`);
     if (calc) lines.push(`הערכת פיצוי: ₪${calc.min.toLocaleString("he-IL")} – ₪${calc.max.toLocaleString("he-IL")}`);
     lines.push("אשמח לבדיקה מעמיקה.");
