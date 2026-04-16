@@ -460,13 +460,11 @@ export default function useChat(customOpening) {
       return;
     }
 
-    // Handle free input option
+    // Handle free input option — context-aware prompt
     if (txt.trim() === "OPEN_INPUT") {
-      const openMsg = gender === "female"
-        ? "ספרי לי מה קרה — תוכלי להקליד, לדבר \uD83C\uDF99\uFE0F או להעלות מסמך רפואי \uD83D\uDCCE"
-        : gender === "male"
-        ? "ספר לי מה קרה — תוכל להקליד, לדבר \uD83C\uDF99\uFE0F או להעלות מסמך רפואי \uD83D\uDCCE"
-        : "ספר/י לי מה קרה — תוכל/י להקליד, לדבר \uD83C\uDF99\uFE0F או להעלות מסמך רפואי \uD83D\uDCCE";
+      const openMsg = state === STATE_INJURY
+        ? "ספר לי במילים שלך — מה הפגיעה?"
+        : "ספר/י לי במילים שלך:";
       setMsgs(prev => [...prev, { role: "assistant", content: openMsg }]);
       return;
     }
@@ -524,6 +522,12 @@ export default function useChat(customOpening) {
       botMsgs.push({ role: "assistant", content: INJURY_QUESTION });
       setState(STATE_INJURY);
     } else if (state === STATE_INJURY) {
+      // If user typed "אחר" — ask for description, stay in STATE_INJURY
+      if (/^אחר\s*[—\-.]?\s*$/i.test(txt.trim())) {
+        botMsgs.push({ role: "assistant", content: "ספר לי במילים שלך — מה הפגיעה?" });
+        setMsgs(p => [...p, userMsg, ...botMsgs]);
+        return;
+      }
       newData.injury = txt.trim();
       const cleanInjury = txt.trim().replace(/^סוג הפגיעה:\s*/, "").replace(/\.$/, "");
       botMsgs.push({ role: "assistant", content: `הבנתי — ${cleanInjury}. חשוב לתעד את זה.` });
