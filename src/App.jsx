@@ -206,7 +206,7 @@ export default function App() {
         .nl:hover{color:#ffffff;border-bottom-color:#ffffff}
         @keyframes phonePulse{0%,100%{box-shadow:0 0 0 0 rgba(230,57,70,0.5)}50%{box-shadow:0 0 0 10px rgba(230,57,70,0)}}
         .phone-pulse{animation:phonePulse 2s ease-in-out infinite}
-        .card{background:#ffffff;border:1px solid #dde3ea;border-radius:18px;padding:28px 24px;transition:all .3s}
+        .card{background:#ffffff;border:1px solid #e0e0e0;border-radius:18px;padding:28px 24px;transition:all .3s;box-shadow:0 2px 12px rgba(0,0,0,0.08)}
         .card:hover{border-color:#2a7ab555;transform:translateY(-4px)}
         .step{background:#f8f9fb;border:1px solid #dde3ea;border-radius:18px;padding:28px 24px}
         .wa-btn{position:fixed;bottom:24px;left:24px;background:#25d366;color:#fff;border:none;border-radius:50%;width:60px;height:60px;min-width:48px;min-height:48px;font-size:26px;cursor:pointer;box-shadow:0 8px 24px #25d36655;z-index:99;display:flex;align-items:center;justify-content:center;transition:transform .2s}
@@ -360,11 +360,11 @@ export default function App() {
               <div className="g3">
                 {reviews.map(r => (
                   <article key={r.n} className="card" aria-label={`ביקורת מאת ${r.n}`}>
-                    <div style={{ color:G, fontSize:14, letterSpacing:2, marginBottom:10 }} aria-label="5 כוכבים">★★★★★</div>
-                    <blockquote style={{ fontSize:14, color:"#bcc8d4", lineHeight:1.75, marginBottom:16, fontStyle:"italic" }}>"{r.t}"</blockquote>
+                    <div style={{ color:"#F4A300", fontSize:18, letterSpacing:2, marginBottom:10 }} aria-label="5 כוכבים">★★★★★</div>
+                    <blockquote style={{ fontSize:14, color:"#2d2d2d", lineHeight:1.75, marginBottom:16, fontStyle:"italic", fontWeight:500 }}>"{r.t}"</blockquote>
                     <footer style={{ display:"flex", justifyContent:"space-between" }}>
-                      <cite style={{ fontSize:13, fontWeight:700, fontStyle:"normal" }}>{r.n}</cite>
-                      <span style={{ fontSize:12, color:"#7a8fa5" }}>{r.c}</span>
+                      <cite style={{ fontSize:13, fontWeight:700, fontStyle:"normal", color:"#1a1a2e" }}>{r.n}</cite>
+                      <span style={{ fontSize:12, color:"#444444" }}>{r.c}</span>
                     </footer>
                   </article>
                 ))}
