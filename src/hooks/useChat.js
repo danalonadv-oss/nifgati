@@ -268,8 +268,6 @@ const ACCIDENT_QUICK_REPLIES = [
   { label: "\u{1F3D7}\uFE0F תאונת עבודה", value: "סוג התאונה שלי: תאונת עבודה." },
 ];
 
-const EARLY_ESTIMATE_MSG = "נפגעי תאונות דרכים מקבלים בממוצע בין \u20AA50,000 ל-\u20AA500,000 בהתאם לחומרת הפציעה. בוא נחשב את הסכום המדויק שלך — כמה שאלות קצרות ואגיע למספר.";
-
 const URGENCY_MSG = "\u{1F4A1} תיעוד מוקדם = פיצוי גבוה יותר. ככל שממתינים יותר, קשה יותר להוכיח — ורופאים, עדים ומסמכים הופכים לפחות זמינים.";
 
 function getSocialProof(txt) {
@@ -341,7 +339,7 @@ export default function useChat(customOpening) {
   const [gender, setGender] = useState(null);
   const endRef = useRef(null);
   const hasInteracted = useRef(false);
-  const shownEarlyEstimate = useRef(false);
+
   const shownUrgency = useRef(false);
   const shownSocialProof = useRef(false);
   const userMsgCount = useRef(0);
@@ -561,11 +559,6 @@ export default function useChat(customOpening) {
       } else {
         newData.role = role;
         botMsgs.push({ role: "assistant", content: roleResponse(role) });
-        // Early estimate — show once after first answer
-        if (!shownEarlyEstimate.current) {
-          shownEarlyEstimate.current = true;
-          botMsgs.push({ role: "assistant", content: EARLY_ESTIMATE_MSG });
-        }
         botMsgs.push({ role: "assistant", content: getMedicalQuestion(gender) });
         setState(STATE_MEDICAL);
         setProgress(25);
