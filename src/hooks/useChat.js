@@ -41,7 +41,7 @@ const WORK_RE = /עבודה|בדרך ל|בחזרה מ|עובד|נסיעה לעב
 const INJURY_QUESTION = "מה סוג הפגיעה?\nלמשל: צליפת שוט, שבר, פריצת דיסק, PTSD, פגיעה רכה — או תאר במילים שלך.";
 const DISABILITY_QUESTION = "האם נקבעו לך אחוזי נכות?";
 const MONTHS_OFF_QUESTION = "כמה ימים לא עבדת (או צפוי שלא תעבוד) בגלל התאונה?";
-const AGE_QUESTION = "בן כמה אתה בערך?";
+const AGE_QUESTION = "בן כמה אתה?";
 
 // ── Injury → estimated disability mapping ──
 function estimateDisability(injuryText) {
