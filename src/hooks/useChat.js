@@ -310,7 +310,7 @@ export default function useChat(customOpening) {
     const hospitalAnswered = userMsgs.some(m => m.content.includes("פניתי למיון") || m.content.includes("לא פניתי"));
     const workAnswered = userMsgs.some(m => m.content.includes("בדרך לעבודה") || m.content.includes("שעות פנויות"));
     const injuryAnswered = userMsgs.some(m => m.content.includes("סוג הפגיעה:"));
-    const disabilityAnswered = userMsgs.some(m => m.content.includes("נקבעו לי אחוזי נכות") || m.content.includes("אחוזי הנכות שלי:") || m.content.includes("בתהליך קביעת"));
+    const disabilityAnswered = userMsgs.some(m => m.content.includes("נקבעו לי אחוזי נכות") || m.content.includes("אחוזי הנכות שלי:") || m.content.includes("בתהליך קביעת") || m.content.includes("נקבע לי 0%"));
     const ageAnswered = userMsgs.some(m => m.content.includes("הגיל שלי:"));
     const lastUserMsg = userMsgs.slice(-1)[0];
 
@@ -353,6 +353,7 @@ export default function useChat(customOpening) {
     if (!disabilityAnswered && (inEither('אחוזי נכות') || (inEither('נכות') && (inEither('נקבעו') || inEither('קבעו'))))) {
       setQuickReplies([
         { label: "כן, נקבעו לי אחוזי נכות", value: "כן, נקבעו לי אחוזי נכות." },
+        { label: "כן, נקבע 0%", value: "כן, נקבע לי 0% נכות." },
         { label: "לא נקבעו עדיין", value: "לא נקבעו לי אחוזי נכות עדיין." },
         { label: "בתהליך קביעה", value: "אני בתהליך קביעת אחוזי נכות." },
       ]);
@@ -535,9 +536,13 @@ export default function useChat(customOpening) {
       setState(STATE_DISABILITY);
       setProgress(50);
     } else if (state === STATE_DISABILITY) {
+      const zeroDisability = /נקבע.*0\s*%|0\s*%\s*נכות|אפס אחוז/.test(txt);
       const pctMatch = txt.match(/(\d+)\s*%?/);
       const dontKnow = /לא יודע|לא נקבע|אין|טרם|עדיין לא|בתהליך/.test(txt);
-      if (pctMatch) {
+      if (zeroDisability || (pctMatch && parseInt(pctMatch[1]) === 0)) {
+        newData.disability = 0;
+        botMsgs.push({ role: "assistant", content: "0% נכות צמיתה עדיין מזכה בפיצוי על כאב וסבל לפי ימי האשפוז והטיפול.\nזה לא אומר שאין תביעה — זה אומר שהפיצוי מבוסס על רכיבים אחרים." });
+      } else if (pctMatch) {
         newData.disability = Math.min(parseInt(pctMatch[1]), 100);
         botMsgs.push({ role: "assistant", content: `${newData.disability}% נכות — זה משמעותי מבחינת הפיצוי.` });
       } else if (dontKnow) {
