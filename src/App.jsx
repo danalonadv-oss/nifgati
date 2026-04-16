@@ -204,7 +204,7 @@ export default function App() {
         ::-webkit-scrollbar-thumb{background:#dde3ea;border-radius:2px}
         .nl{color:#ffffff;font-size:15px;font-weight:500;border-bottom:2px solid transparent;transition:all .2s}
         .nl:hover{color:#ffffff;border-bottom-color:#ffffff}
-        @keyframes phonePulse{0%,100%{box-shadow:0 0 0 0 rgba(244,163,0,0.5)}50%{box-shadow:0 0 0 10px rgba(244,163,0,0)}}
+        @keyframes phonePulse{0%,100%{box-shadow:0 0 0 0 rgba(10,34,64,0.5)}50%{box-shadow:0 0 0 10px rgba(10,34,64,0)}}
         .phone-pulse{animation:phonePulse 2s ease-in-out infinite}
         .card{background:#ffffff;border:1px solid #e0e0e0;border-radius:18px;padding:28px 24px;transition:all .3s;box-shadow:0 2px 12px rgba(0,0,0,0.08)}
         .card:hover{border-color:#2a7ab555;transform:translateY(-4px)}
@@ -244,7 +244,7 @@ export default function App() {
             {nav.map(n => <a key={n.l} href={n.h} className="nl">{n.l}</a>)}
           </nav>
           <div style={{ display:"flex", alignItems:"center", gap:12 }}>
-            <a href="tel:0544338212" aria-label="התקשר אלינו" className="phone-pulse" onClick={() => { window.dataLayer=window.dataLayer||[]; window.dataLayer.push({event:'phone_click',event_category:'engagement',event_label:'phone_button'}); }} style={{ display:"inline-flex", alignItems:"center", justifyContent:"center", width:48, height:48, background:"#F4A300", borderRadius:14, color:"#fff", fontSize:22, textDecoration:"none", flexShrink:0 }}>📞</a>
+            <a href="tel:0544338212" aria-label="התקשר אלינו" className="phone-pulse" onClick={() => { window.dataLayer=window.dataLayer||[]; window.dataLayer.push({event:'phone_click',event_category:'engagement',event_label:'phone_button'}); }} style={{ display:"inline-flex", alignItems:"center", justifyContent:"center", width:48, height:48, background:"#0a2240", borderRadius:12, color:"#fff", fontSize:22, textDecoration:"none", flexShrink:0 }}>📞</a>
             <button style={{ background:"#F4A300", color:"#ffffff", border:"none", borderRadius:8, fontFamily:"inherit", fontWeight:800, fontSize: isMobile ? 14 : 16, padding:"10px 20px", cursor:"pointer", display:"inline-flex", alignItems:"center", gap:8, whiteSpace:"nowrap" }} onClick={openBot} aria-label="בדיקת פיצוי חינם">בדיקת פיצוי חינם</button>
           </div>
         </div>
