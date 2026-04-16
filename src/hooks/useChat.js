@@ -45,10 +45,10 @@ const INJURY_TYPES_BY_LOCATION = {
 };
 
 function parseLocations(txt) {
-  // Split on ו, commas, and "גם"
-  return txt.split(/\s*[,،]\s*|\s+ו(?:גם\s+|\s+)|\s+גם\s+/)
+  // Split on ו, וב, commas, גם, ובנוסף, עם
+  return txt.split(/\s*[,،]\s*|\s+וב|\s+ו(?:גם\s+|בנוסף\s+|\s+)|\s+גם\s+|\s+עם\s+/)
     .map(s => s.trim().replace(/^ב/, ""))
-    .filter(s => s.length > 0);
+    .filter(s => s.length > 1);
 }
 
 function getInjuryTypesForLocation(loc) {
@@ -323,7 +323,7 @@ function getSocialProof(txt) {
 const NII_DISCLAIMER = "\n\n\u26A0\uFE0F אחוזים אלה לפי תקנות המל\"ל — משמשים כמדריך גם בתביעות פלת\"ד. הקביעה הסופית נעשית על ידי ועדה רפואית. זו הערכה ראשונית בלבד.";
 
 const NII_ENTRIES = [
-  { re: /צליפת שוט|whiplash/, label: "צליפת שוט", desc: "שהתרפאה — 0%. עם הגבלת תנועה שנותרה — 10%-20% בהתאם לחומרה. הפסיקה מכירה בה גם כשהדימות תקין" },
+  { re: /צליפת שוט|whiplash|נקע צווארי|נקע/, label: "נקע צווארי / צליפת שוט", desc: "שהתרפא — 0%. עם הגבלת תנועה שנותרה — 10%-20% בהתאם לחומרה. הפסיקה מכירה בו גם כשהדימות תקין" },
   { re: /פריצת דיסק|דיסק/, label: "פריצת דיסק", desc: "שהתרפאה — 0%. עם הפרעות נוירולוגיות — נכות לפי ממצא נוירולוגי והגבלת תנועה. ממצא MRI מחזק משמעותית את התיק" },
   { re: /עמוד שדרה מותני|גב תחתון|כאבי גב/, label: "עמוד שדרה מותני", desc: "הגבלת תנועה קלה — 10%. בינונית — 20%. קשה — 30%-40%. שבר חוליה שהתרפא ללא תזוזה — 5%-10%" },
   { re: /עמוד שדרה צווארי|כאבי צוואר/, label: "עמוד שדרה צווארי", desc: "הגבלה קלה — 10%. בינונית — 20%. קשה — 30%. שבר חוליה צווארית — 10%-40% לפי חומרה ותזוזה" },
@@ -593,6 +593,11 @@ export default function useChat(customOpening) {
       } else {
         newData.role = role;
         botMsgs.push({ role: "assistant", content: roleResponse(role) });
+        // Show urgency tip once, right after vehicle type confirmed
+        if (!shownUrgency.current) {
+          shownUrgency.current = true;
+          botMsgs.push({ role: "assistant", content: URGENCY_MSG });
+        }
         botMsgs.push({ role: "assistant", content: getMedicalQuestion(gender) });
         setState(STATE_MEDICAL);
         setProgress(25);
@@ -768,12 +773,6 @@ export default function useChat(customOpening) {
       sendToCrm(buildCrmPayload(newData, c, false));
     } else if (state === STATE_DONE) {
       botMsgs.push({ role: "assistant", content: "לחץ על הכפתור למטה כדי לשוחח עם עו\"ד דן אלון בוואטסאפ." });
-    }
-
-    // Urgency message — after 3+ messages without calc
-    if (userMsgCount.current >= 5 && !calc && !shownUrgency.current && state !== STATE_DONE) {
-      shownUrgency.current = true;
-      botMsgs.push({ role: "assistant", content: URGENCY_MSG });
     }
 
     setData(newData);

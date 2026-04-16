@@ -114,10 +114,10 @@ export default function Bot({ onClose, inline = false, openingMessage }) {
 
             {/* ── Quick Reply Buttons ── */}
             {quickReplies.length > 0 && !load && (
-              <div style={{ display:"flex", flexWrap:"wrap", gap:8, padding:"8px 0", justifyContent:"center" }}>
+              <div style={{ display:"flex", flexWrap:"wrap", gap:8, padding:"8px 0", justifyContent:"flex-end" }}>
                 {quickReplies.map((qr, i) => (
                   <button key={i} onClick={() => handleQuickReply(qr.value)}
-                    style={{ flex:"0 0 auto", maxWidth:"calc(50% - 4px)", background:"#ffffff", border:"1px solid #0a2240", borderRadius:20, color:"#0a2240", padding:"8px 16px", fontSize:13, fontWeight:700, cursor:"pointer", fontFamily:"inherit" }}>
+                    style={{ maxWidth:"48%", minWidth:120, background:"#ffffff", border:"1px solid #0a2240", borderRadius:20, color:"#0a2240", padding:"8px 12px", fontSize:13, fontWeight:700, cursor:"pointer", fontFamily:"inherit", whiteSpace:"normal", wordBreak:"break-word", textAlign:"center" }}>
                     {qr.label}
                   </button>
                 ))}
@@ -263,10 +263,10 @@ export default function Bot({ onClose, inline = false, openingMessage }) {
 
           {/* ── Quick Reply Buttons ── */}
           {quickReplies.length > 0 && !load && (
-            <div style={{ display:"flex", flexWrap:"wrap", gap:8, padding:"8px 0" }}>
+            <div style={{ display:"flex", flexWrap:"wrap", gap:8, padding:"8px 0", justifyContent:"flex-end" }}>
               {quickReplies.map((qr, i) => (
                 <button key={i} onClick={() => handleQuickReply(qr.value)}
-                  style={{ background:"#ffffff", border:"1px solid #0a2240", borderRadius:20, color:"#0a2240", padding:"8px 16px", fontSize:13, fontWeight:700, cursor:"pointer", fontFamily:"inherit" }}>
+                  style={{ maxWidth:"48%", minWidth:120, background:"#ffffff", border:"1px solid #0a2240", borderRadius:20, color:"#0a2240", padding:"8px 12px", fontSize:13, fontWeight:700, cursor:"pointer", fontFamily:"inherit", whiteSpace:"normal", wordBreak:"break-word", textAlign:"center" }}>
                   {qr.label}
                 </button>
               ))}
