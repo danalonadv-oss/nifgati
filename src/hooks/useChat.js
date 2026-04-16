@@ -45,7 +45,8 @@ const NO_RE = /לא|אף|בלי/i;
 const CONTEXT_QUESTION = "התאונה קרתה בדרך לעבודה, בחזרה ממנה, או בשעות פנויות?";
 const WORK_RE = /עבודה|בדרך ל|בחזרה מ|עובד|נסיעה לעבודה|משמרת/i;
 
-const INJURY_QUESTION = "מה סוג הפגיעה?\nלמשל: צליפת שוט, שבר, פריצת דיסק, PTSD, פגיעה רכה — או תאר במילים שלך.";
+const INJURY_QUESTION = "מה סוג הפגיעה?";
+const INJURY_QUESTION_MULTI = "מה סוג הפגיעה בכל אחד מהמקומות?";
 const DISABILITY_QUESTION = "האם נקבעו לך אחוזי נכות?";
 function getMonthsOffQuestion(g) {
   if (g === "female") return "כמה ימים לא עבדת (או צפוי שלא תעבדי) בגלל התאונה?";
@@ -590,8 +591,14 @@ export default function useChat(customOpening) {
       setState(STATE_LOCATION);
     } else if (state === STATE_LOCATION) {
       newData.location = txt.trim();
-      botMsgs.push({ role: "assistant", content: `הבנתי — נפגעת ב${txt.trim()}. אאסוף את כל הפגיעות יחד לחישוב.` });
-      botMsgs.push({ role: "assistant", content: INJURY_QUESTION });
+      const hasMultiple = /ו|,|גם/.test(txt.trim());
+      if (hasMultiple) {
+        botMsgs.push({ role: "assistant", content: `הבנתי — נפגעת ב${txt.trim()}. אאסוף את כל הפגיעות יחד לחישוב.` });
+        botMsgs.push({ role: "assistant", content: INJURY_QUESTION_MULTI });
+      } else {
+        botMsgs.push({ role: "assistant", content: `הבנתי — נפגעת ב${txt.trim()}.` });
+        botMsgs.push({ role: "assistant", content: INJURY_QUESTION });
+      }
       setState(STATE_INJURY);
       setProgress(45);
     } else if (state === STATE_INJURY) {
