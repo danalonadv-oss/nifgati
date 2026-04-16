@@ -126,9 +126,9 @@ function extractSalary(msgs) {
 }
 
 // ── Paltad-based calculation ──
-function calculateCompensation(data, msgs) {
+function calculateCompensation(data, msgs, overrideDisability) {
   const ageNum = parseInt(data.age) || 30;
-  const disability = data.disability != null ? data.disability : 10;
+  const disability = overrideDisability != null ? overrideDisability : (data.disability != null ? data.disability : 0);
   const hospitalizationDays = data.hospitalizationDays != null ? data.hospitalizationDays : 0;
   const daysOff = data.monthsOff != null ? data.monthsOff : 0;
   const salary = extractSalary(msgs) || 13566;
@@ -375,7 +375,7 @@ export default function useChat(customOpening) {
   const [err, setErr] = useState("");
   const [showReferral, setShowReferral] = useState(false);
   const [state, setState] = useState(STATE_DISCLAIMER);
-  const [data, setData] = useState({ role: null, medical: null, isWork: null, locations: [], injuries: {}, currentLocation: null, injury: null, disability: null, hospitalizationDays: null, monthsOff: null, age: null });
+  const [data, setData] = useState({ role: null, medical: null, isWork: null, locations: [], injuries: {}, currentLocation: null, injury: null, disability: null, disabilityScenario: null, hospitalizationDays: null, monthsOff: null, age: null });
   const [quickReplies, setQuickReplies] = useState(INITIAL_QUICK_REPLIES);
   const [progress, setProgress] = useState(0);
   const [gender, setGender] = useState(null);
@@ -506,7 +506,7 @@ export default function useChat(customOpening) {
     setErr("");
     setShowReferral(false);
     setState(STATE_DISCLAIMER);
-    setData({ role: null, medical: null, isWork: null, locations: [], injuries: {}, currentLocation: null, injury: null, disability: null, hospitalizationDays: null, monthsOff: null, age: null });
+    setData({ role: null, medical: null, isWork: null, locations: [], injuries: {}, currentLocation: null, injury: null, disability: null, disabilityScenario: null, hospitalizationDays: null, monthsOff: null, age: null });
     // Allow events to fire again for a genuine new calculation
     firedCalcComplete.current = false;
     firedWhatsAppClick.current = false;
@@ -712,16 +712,28 @@ export default function useChat(customOpening) {
     } else if (state === STATE_DISABILITY) {
       const zeroDisability = /נקבע.*0\s*%|0\s*%\s*נכות|אפס אחוז/.test(txt);
       const pctMatch = txt.match(/(\d+)\s*%?/);
-      const dontKnow = /לא יודע|לא נקבע|אין|טרם|עדיין לא|בתהליך/.test(txt);
+      const notYet = /טרם|עדיין לא|בתהליך|לא נקבעו/.test(txt);
+      const noDocumentation = /לא יודע|אין|לא נקבע|אין תעודות|אין מסמכים/.test(txt);
       if (zeroDisability || (pctMatch && parseInt(pctMatch[1]) === 0)) {
+        // Scenario 1: confirmed 0%
         newData.disability = 0;
+        newData.disabilityScenario = "zero";
         botMsgs.push({ role: "assistant", content: "0% נכות צמיתה עדיין מזכה בפיצוי על כאב וסבל לפי ימי האשפוז והטיפול.\nזה לא אומר שאין תביעה — זה אומר שהפיצוי מבוסס על רכיבים אחרים." });
-      } else if (pctMatch) {
+      } else if (pctMatch && parseInt(pctMatch[1]) > 0) {
+        // Scenario 4: confirmed disability > 0%
         newData.disability = Math.min(parseInt(pctMatch[1]), 100);
+        newData.disabilityScenario = "confirmed";
         botMsgs.push({ role: "assistant", content: `${newData.disability}% נכות — זה משמעותי מבחינת הפיצוי.` });
-      } else if (dontKnow) {
-        newData.disability = estimateDisability(newData.injury);
-        botMsgs.push({ role: "assistant", content: `סטטיסטית, תיקים דומים מסתיימים בממוצע עם כ-${newData.disability}% נכות. אשתמש בזה לצורך ההערכה — עו״ד דן אלון יוכל לספק הערכה מדויקת יותר לאחר עיון במסמכים הרפואיים.` });
+      } else if (notYet) {
+        // Scenario 2: not yet determined — will show dual calculation
+        newData.disability = 0;
+        newData.disabilityScenario = "pending";
+        botMsgs.push({ role: "assistant", content: "הבנתי — טרם נקבעה נכות. אציג שתי הערכות: אחת בהנחת 0% ואחת בהנחת 10%, כדי שתקבל תמונה מלאה." });
+      } else if (noDocumentation) {
+        // Scenario 3: no documentation
+        newData.disability = 0;
+        newData.disabilityScenario = "none";
+        botMsgs.push({ role: "assistant", content: "ללא קביעת נכות רשמית, החישוב מבוסס על ימי אשפוז וימי היעדרות בלבד.\n\u26A0\uFE0F ממליץ לפנות לרופא לתיעוד מיידי — ככל שממתינים יותר, קשה יותר להוכיח." });
       } else {
         botMsgs.push({ role: "assistant", content: "כמה אחוזי נכות נקבעו לך? כתוב מספר, או ״לא יודע״." });
         setData(newData);
@@ -782,8 +794,18 @@ export default function useChat(customOpening) {
       }
     } else if (state === STATE_SALARY) {
       // Salary answered — now calculate
-      const c = calculateCompensation(newData, [...msgs, userMsg]);
-      botMsgs.push({ role: "assistant", content: "על בסיס הנתונים שלך:" });
+      const scenario = newData.disabilityScenario || data.disabilityScenario;
+      let c;
+      if (scenario === "pending") {
+        // Scenario 2: show dual calculation
+        const cZero = calculateCompensation(newData, [...msgs, userMsg], 0);
+        const cTen = calculateCompensation(newData, [...msgs, userMsg], 10);
+        botMsgs.push({ role: "assistant", content: `על בסיס הנתונים שלך — שתי הערכות:\n\nא. בהנחת 0% נכות: ₪${cZero.min.toLocaleString("he-IL")} – ₪${cZero.max.toLocaleString("he-IL")}\nב. בהנחת 10% נכות: ₪${cTen.min.toLocaleString("he-IL")} – ₪${cTen.max.toLocaleString("he-IL")}` });
+        c = cTen; // use the higher estimate for the calc card display
+      } else {
+        c = calculateCompensation(newData, [...msgs, userMsg]);
+        botMsgs.push({ role: "assistant", content: "על בסיס הנתונים שלך:" });
+      }
       setCalc(c);
       setShowReferral(true);
       setState(STATE_DONE);
