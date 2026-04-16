@@ -30,7 +30,7 @@ const NO_RE = /לא|אף|בלי/i;
 const CONTEXT_QUESTION = "התאונה קרתה בדרך לעבודה, בחזרה ממנה, או בשעות פנויות?";
 const WORK_RE = /עבודה|בדרך ל|בחזרה מ|עובד|נסיעה לעבודה|משמרת/i;
 
-const INJURY_QUESTION = "מה סוג הפגיעה? (למשל: צליפת שוט, שבר, פריצת דיסק, חבלת ראש, PTSD, פגיעה רכה)";
+const INJURY_QUESTION = "מה סוג הפגיעה?";
 const DISABILITY_QUESTION = "האם נקבעו לך אחוזי נכות?";
 const MONTHS_OFF_QUESTION = "כמה ימים לא עבדת (או צפוי שלא תעבוד) בגלל התאונה?";
 const AGE_QUESTION = "בן כמה אתה בערך?";
