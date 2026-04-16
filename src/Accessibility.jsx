@@ -1,13 +1,13 @@
 export default function Accessibility() {
-  const G = "#c9a84c";
-  const s = { fontSize:15, lineHeight:"1.8", color:"#b0bec5", marginBottom:8 };
+  const G = "#0a2240";
+  const s = { fontSize:15, lineHeight:"1.8", color:"#5a6a7a", marginBottom:8 };
   return (
-    <div style={{ fontFamily:"'Heebo',Arial,sans-serif", direction:"rtl", background:"#080d18", color:"#e8edf2", minHeight:"100vh", padding:"80px 24px 60px" }}>
-      <style>{`*{box-sizing:border-box;margin:0;padding:0}h2{color:${G};font-size:20px;margin:36px 0 12px;border-bottom:1px solid #1e2d4a;padding-bottom:8px}ul{padding-right:24px;margin-bottom:12px}li{font-size:15px;line-height:1.8;color:#b0bec5;margin-bottom:4px}a{color:${G}}`}</style>
+    <div style={{ fontFamily:"'Heebo',Arial,sans-serif", direction:"rtl", background:"#ffffff", color:"#0a2240", minHeight:"100vh", padding:"80px 24px 60px" }}>
+      <style>{`*{box-sizing:border-box;margin:0;padding:0}h2{color:${G};font-size:20px;margin:36px 0 12px;border-bottom:1px solid #dde3ea;padding-bottom:8px}ul{padding-right:24px;margin-bottom:12px}li{font-size:15px;line-height:1.8;color:#5a6a7a;margin-bottom:4px}a{color:${G}}`}</style>
       <div style={{ maxWidth:760, margin:"0 auto" }}>
         <a href="/" style={{ color:G, fontSize:14, textDecoration:"none" }}>← חזרה לעמוד הבית</a>
         <h1 style={{ fontSize:36, fontWeight:900, margin:"24px 0 4px" }}>הצהרת נגישות</h1>
-        <p style={{ color:"#7a8fa5", fontSize:13, marginBottom:32 }}>עדכון: מרץ 2025 | nifgati.co.il</p>
+        <p style={{ color:"#5a6a7a", fontSize:13, marginBottom:32 }}>עדכון: מרץ 2025 | nifgati.co.il</p>
 
         <h2>מחויבות לנגישות</h2>
         <p style={s}>nifgati.co.il מחויב לאפשר לאנשים עם מוגבלויות להשתמש באתר בצורה נגישה ונוחה, בהתאם ל<strong>תקנות שוויון זכויות לאנשים עם מוגבלות (התאמות נגישות לשירות), תשע"ג-2013</strong>, ותקן ישראלי <strong>IS 5568</strong> (WCAG 2.1 רמה AA).</p>

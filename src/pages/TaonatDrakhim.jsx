@@ -1,7 +1,7 @@
 import { useState } from "react";
 import LandingPage from "../LandingPage.jsx";
 
-const G = "#c9a84c";
+const G = "#0a2240";
 
 function getUtmTerm() {
   if (typeof window === 'undefined') return '';
@@ -63,8 +63,8 @@ const statsExamples = [
 ];
 
 const cardStyle = {
-  background: "rgba(184,149,58,0.15)",
-  border: "1px solid rgba(184,149,58,0.4)",
+  background: "rgba(10,34,64,0.08)",
+  border: "1px solid rgba(10,34,64,0.2)",
   borderRadius: "12px",
   padding: "12px 16px",
   textAlign: "center",
@@ -76,8 +76,8 @@ function StatsRow() {
     <div style={{ display: "flex", gap: "12px", flexWrap: "wrap", justifyContent: "center", margin: "16px 0", direction: "rtl" }}>
       {statsExamples.map((s, i) => (
         <div key={i} style={cardStyle}>
-          <div style={{ fontSize: "13px", color: "#aaa" }}>{s.emoji} {s.detail}</div>
-          <div style={{ fontSize: "20px", fontWeight: "bold", color: "#b8953a" }}>{s.amount}</div>
+          <div style={{ fontSize: "13px", color: "#7a8fa5" }}>{s.emoji} {s.detail}</div>
+          <div style={{ fontSize: "20px", fontWeight: "bold", color: "#0a2240" }}>{s.amount}</div>
         </div>
       ))}
     </div>
@@ -87,10 +87,10 @@ function StatsRow() {
 function FaqItem({ q, a }) {
   const [open, setOpen] = useState(false);
   return (
-    <div style={{ borderBottom: "1px solid #1e2d4a" }}>
+    <div style={{ borderBottom: "1px solid #dde3ea" }}>
       <button
         onClick={() => setOpen(!open)}
-        style={{ width: "100%", background: "none", border: "none", color: "#e8e0d0", fontFamily: "inherit", fontSize: 16, fontWeight: 700, padding: "18px 0", cursor: "pointer", textAlign: "right", display: "flex", justifyContent: "space-between", alignItems: "center", gap: 12 }}
+        style={{ width: "100%", background: "none", border: "none", color: "#0a2240", fontFamily: "inherit", fontSize: 16, fontWeight: 700, padding: "18px 0", cursor: "pointer", textAlign: "right", display: "flex", justifyContent: "space-between", alignItems: "center", gap: 12 }}
       >
         <span>{q}</span>
         <span style={{ color: G, fontSize: 20, flexShrink: 0 }}>{open ? "−" : "+"}</span>
@@ -107,10 +107,10 @@ function ExtraContent() {
     <>
       {/* ── CASE RESULTS ── */}
       <section style={{ maxWidth: 680, margin: "0 auto", padding: "48px 0 0", direction: "rtl" }}>
-        <h2 style={{ fontSize: 26, fontWeight: 900, textAlign: "center", marginBottom: 28, color: "#e8e0d0" }}>דוגמאות לפיצויים בתאונות דרכים</h2>
+        <h2 style={{ fontSize: 26, fontWeight: 900, textAlign: "center", marginBottom: 28, color: "#0a2240" }}>דוגמאות לפיצויים בתאונות דרכים</h2>
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: 16 }}>
           {caseResults.map((c, i) => (
-            <div key={i} style={{ background: "#0d1323", border: "1px solid #1e2d4a", borderRadius: 14, padding: "20px 24px", textAlign: "center", display: "flex", flexDirection: "column", gap: 6 }}>
+            <div key={i} style={{ background: "#f8f9fb", border: "1px solid #dde3ea", borderRadius: 14, padding: "20px 24px", textAlign: "center", display: "flex", flexDirection: "column", gap: 6 }}>
               <span style={{ fontSize: 14, color: "#7a8fa5" }}>{c.emoji} {c.type}</span>
               <span style={{ fontSize: 14, color: "#7a8fa5" }}>{c.disability}</span>
               <strong style={{ fontSize: 28, fontWeight: 700, color: G }}>{c.amount}</strong>
@@ -123,7 +123,7 @@ function ExtraContent() {
 
       {/* ── FAQ ── */}
       <section style={{ maxWidth: 680, margin: "0 auto", padding: "56px 0 0" }}>
-        <h2 style={{ fontSize: 26, fontWeight: 900, textAlign: "center", marginBottom: 28, color: "#e8e0d0" }}>שאלות נפוצות — תאונות דרכים ופיצויים</h2>
+        <h2 style={{ fontSize: 26, fontWeight: 900, textAlign: "center", marginBottom: 28, color: "#0a2240" }}>שאלות נפוצות — תאונות דרכים ופיצויים</h2>
         <div>
           {faqItems.map((item, i) => (
             <FaqItem key={i} q={item.q} a={item.a} />

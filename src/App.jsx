@@ -31,14 +31,14 @@ function Reveal({ children }) {
 function FAQItem({ q, a }) {
   const [open, setOpen] = useState(false);
   return (
-    <div style={{ borderBottom:"1px solid #1e2d4a" }}>
+    <div style={{ borderBottom:"1px solid #dde3ea" }}>
       <button
         onClick={() => setOpen(p => !p)}
         aria-expanded={open}
-        style={{ width:"100%",background:"transparent",border:"none",color:"#e8edf2",fontFamily:"inherit",fontSize:16,fontWeight:700,padding:"18px 0",cursor:"pointer",display:"flex",justifyContent:"space-between",alignItems:"center",textAlign:"right",direction:"rtl",gap:12 }}
+        style={{ width:"100%",background:"transparent",border:"none",color:"#0a2240",fontFamily:"inherit",fontSize:16,fontWeight:700,padding:"18px 0",cursor:"pointer",display:"flex",justifyContent:"space-between",alignItems:"center",textAlign:"right",direction:"rtl",gap:12 }}
       >
         <span>{q}</span>
-        <span style={{ color:"#c9a84c",fontSize:20,flexShrink:0,transition:"transform .3s",transform:open?"rotate(45deg)":"rotate(0)" }}>+</span>
+        <span style={{ color:"#2a7ab5",fontSize:20,flexShrink:0,transition:"transform .3s",transform:open?"rotate(45deg)":"rotate(0)" }}>+</span>
       </button>
       <div style={{ maxHeight:open?300:0,overflow:"hidden",transition:"max-height .4s ease",paddingInlineStart:0 }}>
         <p style={{ fontSize:14,color:"#7a8fa5",lineHeight:1.85,paddingBottom:18 }}>{a}</p>
@@ -156,8 +156,8 @@ export default function App() {
     });
   }, []);
 
-  const G = "#c9a84c";
-  const gBtn = { background:G, color:"#060a12", border:"none", borderRadius:12, fontFamily:"inherit", fontWeight:800, fontSize:15, padding:"14px 28px", cursor:"pointer", display:"inline-flex", alignItems:"center", gap:8, transition:"all .2s" };
+  const G = "#0a2240";
+  const gBtn = { background:G, color:"#ffffff", border:"none", borderRadius:12, fontFamily:"inherit", fontWeight:800, fontSize:15, padding:"14px 28px", cursor:"pointer", display:"inline-flex", alignItems:"center", gap:8, transition:"all .2s" };
   const oBtn = { background:"transparent", color:G, border:`1.5px solid ${G}88`, borderRadius:12, fontFamily:"inherit", fontWeight:700, fontSize:14, padding:"12px 24px", cursor:"pointer", display:"inline-flex", alignItems:"center", gap:8 };
 
   const nav = [{ l:"איך עובד", h:"#how" }, { l:"תוצאות", h:"#results" }, { l:"שאלות", h:"#faq" }, { l:"צור קשר", h:"#contact" }];
@@ -204,27 +204,27 @@ export default function App() {
   ];
 
   return (
-    <div style={{ fontFamily:"'Heebo',Arial,sans-serif", direction:"rtl", background:"#080d18", color:"#e8edf2", overflowX:"hidden" }}>
+    <div style={{ fontFamily:"'Heebo',Arial,sans-serif", direction:"rtl", background:"#ffffff", color:"#0a2240", overflowX:"hidden" }}>
       <style>{`
         *{box-sizing:border-box;margin:0;padding:0}
         html{scroll-behavior:smooth}
         a{text-decoration:none;color:inherit}
         ::-webkit-scrollbar{width:4px}
-        ::-webkit-scrollbar-thumb{background:#1e2d4a;border-radius:2px}
-        .nl{color:#7a8fa5;font-size:14px;font-weight:500;border-bottom:2px solid transparent;transition:all .2s}
-        .nl:hover{color:#c9a84c;border-bottom-color:#c9a84c}
-        .card{background:#111a2c;border:1px solid #1e2d4a;border-radius:18px;padding:28px 24px;transition:all .3s}
-        .card:hover{border-color:#c9a84c55;transform:translateY(-4px)}
-        .step{background:#0d1323;border:1px solid #1e2d4a;border-radius:18px;padding:28px 24px}
+        ::-webkit-scrollbar-thumb{background:#dde3ea;border-radius:2px}
+        .nl{color:#5a6a7a;font-size:14px;font-weight:500;border-bottom:2px solid transparent;transition:all .2s}
+        .nl:hover{color:#2a7ab5;border-bottom-color:#2a7ab5}
+        .card{background:#ffffff;border:1px solid #dde3ea;border-radius:18px;padding:28px 24px;transition:all .3s}
+        .card:hover{border-color:#2a7ab555;transform:translateY(-4px)}
+        .step{background:#f8f9fb;border:1px solid #dde3ea;border-radius:18px;padding:28px 24px}
         .wa-btn{position:fixed;bottom:24px;left:24px;background:#25d366;color:#fff;border:none;border-radius:50%;width:60px;height:60px;min-width:48px;min-height:48px;font-size:26px;cursor:pointer;box-shadow:0 8px 24px #25d36655;z-index:99;display:flex;align-items:center;justify-content:center;transition:transform .2s}
         .wa-btn:hover{transform:scale(1.1)}
         .g2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
         .g3{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
         .g4{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
-        .div{width:56px;height:3px;background:#c9a84c;border-radius:2px;margin:0 auto 14px}
+        .div{width:56px;height:3px;background:#2a7ab5;border-radius:2px;margin:0 auto 14px}
         .pulse{animation:p 2s ease-in-out infinite}
         @keyframes p{0%,100%{opacity:1}50%{opacity:.5}}
-        .ck{position:fixed;bottom:0;right:0;left:0;background:#0d1323;border-top:1px solid #1e2d4a;padding:14px 20px;display:flex;align-items:center;justify-content:space-between;gap:16px;z-index:98;font-size:13px;color:#7a8fa5}
+        .ck{position:fixed;bottom:0;right:0;left:0;background:#ffffff;border-top:1px solid #dde3ea;padding:14px 20px;display:flex;align-items:center;justify-content:space-between;gap:16px;z-index:98;font-size:13px;color:#7a8fa5}
         @media(min-width:769px){.hero-wrap{max-width:1200px!important;padding:60px 80px!important}.ht{font-size:4.5rem!important;line-height:1.2!important}.hero-sub{font-size:1.6rem!important}.hero-bullets{font-size:1.2rem!important;max-width:800px!important;margin:0 auto 32px!important}.sect-inner{max-width:1200px!important}}
         @media(max-width:768px){.g2,.g3{grid-template-columns:1fr}.g4{grid-template-columns:1fr 1fr}.hm{display:none!important}.ht{font-size:34px!important}.marquee-track{animation-duration:12s!important}}
         @media(max-width:480px){.g4{grid-template-columns:1fr 1fr}}
@@ -234,18 +234,18 @@ export default function App() {
       `}</style>
 
       {/* SKIP NAV */}
-      <a href="#main-content" style={{ position:"absolute", top:-40, right:0, background:G, color:"#000", padding:"8px 16px", borderRadius:"0 0 8px 0", fontSize:14, fontWeight:700, zIndex:999, transition:"top .2s" }} onFocus={e => e.target.style.top = "0"} onBlur={e => e.target.style.top = "-40px"}>דלג לתוכן הראשי</a>
+      <a href="#main-content" style={{ position:"absolute", top:-40, right:0, background:G, color:"#ffffff", padding:"8px 16px", borderRadius:"0 0 8px 0", fontSize:14, fontWeight:700, zIndex:999, transition:"top .2s" }} onFocus={e => e.target.style.top = "0"} onBlur={e => e.target.style.top = "-40px"}>דלג לתוכן הראשי</a>
 
       {/* URGENCY BANNER */}
       {showBanner && (
-        <div style={{ position:"fixed", top:0, right:0, left:0, width:"100%", boxSizing:"border-box", zIndex:110, background:G, color:"#060a12", height:40, display:"flex", alignItems:"center", justifyContent:"space-between", fontSize:14, fontWeight:700, padding:"0 12px" }}>
+        <div style={{ position:"fixed", top:0, right:0, left:0, width:"100%", boxSizing:"border-box", zIndex:110, background:G, color:"#ffffff", height:40, display:"flex", alignItems:"center", justifyContent:"space-between", fontSize:14, fontWeight:700, padding:"0 12px" }}>
           <span style={{ flex:1, textAlign:"center" }}>תביעות פלת״ד — חשב ודע מיד כמה מגיע לך</span>
-          <button onClick={() => setShowBanner(false)} aria-label="סגור באנר" style={{ background:"transparent", border:"none", color:"#060a12", fontSize:18, cursor:"pointer", lineHeight:1, fontWeight:900, flexShrink:0 }}>✕</button>
+          <button onClick={() => setShowBanner(false)} aria-label="סגור באנר" style={{ background:"transparent", border:"none", color:"#ffffff", fontSize:18, cursor:"pointer", lineHeight:1, fontWeight:900, flexShrink:0 }}>✕</button>
         </div>
       )}
 
       {/* HEADER */}
-      <header role="banner" style={{ position:"fixed", top:showBanner ? 40 : 0, right:0, left:0, zIndex:100, background:scrolled ? "#080d18f0" : "transparent", backdropFilter:scrolled ? "blur(12px)" : "none", borderBottom:scrolled ? "1px solid #1e2d4a" : "1px solid transparent", transition:"all .3s", padding: isMobile ? "0 8px" : "0 24px" }}>
+      <header role="banner" style={{ position:"fixed", top:showBanner ? 40 : 0, right:0, left:0, zIndex:100, background:scrolled ? "#0a2240" : "#0a2240", backdropFilter:scrolled ? "blur(12px)" : "none", borderBottom:scrolled ? "1px solid #1a4a7a" : "1px solid transparent", transition:"all .3s", padding: isMobile ? "0 8px" : "0 24px" }}>
         <div style={{ maxWidth:1100, margin:"0 auto", minHeight: isMobile ? 52 : 80, display:"flex", alignItems:"center", justifyContent:"space-between" }}>
           <a href="/" aria-label="ניפגעתי — עמוד בית" style={{ display:"flex", alignItems:"center" }}>
             <img src="/logo.png" alt="nifgati" width={isMobile ? 112 : 225} height={isMobile ? 28 : 56} style={{ height: isMobile ? 28 : 56, width:"auto", objectFit:"contain" }} />
@@ -254,7 +254,7 @@ export default function App() {
             {nav.map(n => <a key={n.l} href={n.h} className="nl">{n.l}</a>)}
           </nav>
           <div style={{ display:"flex", alignItems:"center", gap:12 }}>
-            <a href="tel:0544338212" aria-label="התקשר אלינו" onClick={() => { window.dataLayer=window.dataLayer||[]; window.dataLayer.push({event:'phone_click',event_category:'engagement',event_label:'phone_button'}); }} style={{ display:"inline-flex", alignItems:"center", justifyContent:"center", width: isMobile ? 36 : 48, height: isMobile ? 36 : 48, background:"#22c55e", borderRadius: isMobile ? 10 : 14, color:"#fff", fontSize: isMobile ? 17 : 22, textDecoration:"none", flexShrink:0, boxShadow:"0 2px 8px #22c55e55" }}>📞</a>
+            <a href="tel:0544338212" aria-label="התקשר אלינו" onClick={() => { window.dataLayer=window.dataLayer||[]; window.dataLayer.push({event:'phone_click',event_category:'engagement',event_label:'phone_button'}); }} style={{ display:"inline-flex", alignItems:"center", justifyContent:"center", width: isMobile ? 36 : 48, height: isMobile ? 36 : 48, background:"#2a7ab5", borderRadius: isMobile ? 10 : 14, color:"#fff", fontSize: isMobile ? 17 : 22, textDecoration:"none", flexShrink:0, boxShadow:"0 2px 8px #2a7ab555" }}>📞</a>
             <button style={{ ...gBtn, height: isMobile ? 36 : 48, padding: isMobile ? "0 12px" : "0 20px", fontSize: isMobile ? 13 : 15 }} onClick={openBot} aria-label="בדיקת גובה הפיצוי">בדיקת פיצוי</button>
           </div>
         </div>
@@ -265,7 +265,7 @@ export default function App() {
 
         {/* HERO */}
         <section id="hero" aria-label="עמוד ראשי" style={{ display:"flex", alignItems:"center", position:"relative", overflow:"hidden", paddingTop:showBanner ? 120 : 80 }}>
-          <div style={{ position:"absolute", top:"20%", right:"-8%", width:500, height:500, background:"radial-gradient(circle, #c9a84c09 0%, transparent 70%)", pointerEvents:"none" }} aria-hidden="true" />
+          <div style={{ position:"absolute", top:"20%", right:"-8%", width:500, height:500, background:"radial-gradient(circle, #2a7ab509 0%, transparent 70%)", pointerEvents:"none" }} aria-hidden="true" />
           <div className="hero-wrap" style={{ maxWidth:900, margin:"0 auto", padding:"48px 24px 24px", width:"100%", textAlign:"center" }}>
 
               <h1 className="ht" style={{ fontSize:48, fontWeight:900, lineHeight:1.25, marginBottom:18 }}>
@@ -286,7 +286,7 @@ export default function App() {
         </section>
 
         {/* TRUST MARQUEE */}
-        <div style={{ background:"#0d1323", borderTop:"1px solid #1e2d4a", borderBottom:"1px solid #1e2d4a", padding:"14px 0" }}>
+        <div style={{ background:"#f8f9fb", borderTop:"1px solid #dde3ea", borderBottom:"1px solid #dde3ea", padding:"14px 0" }}>
           <div className="marquee-wrap" aria-label="יתרונות השירות">
             <div className="marquee-track">
               {[...marqueeItems, ...marqueeItems].map((item, i) => (
@@ -297,7 +297,7 @@ export default function App() {
         </div>
 
         {/* HOW */}
-        <section id="how" aria-label="איך זה עובד" style={{ padding:"68px 24px", background:"#0d1323" }}>
+        <section id="how" aria-label="איך זה עובד" style={{ padding:"68px 24px", background:"#f8f9fb" }}>
           <Reveal>
             <div className="sect-inner" style={{ maxWidth:1100, margin:"0 auto" }}>
               <div style={{ textAlign:"center", marginBottom:48 }}>
@@ -327,7 +327,7 @@ export default function App() {
               <p style={{ color:"#7a8fa5", fontSize:15, marginBottom:36, lineHeight:1.75 }}>
                 הבוט מחשב 4 ראשי נזק לפי חוק הפלת"ד — כאב וסבל, הפסדי שכר, אובדן כושר עתידי והוצאות רפואיות.
               </p>
-              <div style={{ background:"#111a2c", border:"1px solid #c9a84c44", borderRadius:20, padding:"36px 32px", marginBottom:20 }}>
+              <div style={{ background:"#f8f9fb", border:"1px solid #dde3ea", borderRadius:20, padding:"36px 32px", marginBottom:20 }}>
                 <div style={{ fontSize:48, marginBottom:16 }} aria-hidden="true">🤖</div>
                 <h3 style={{ fontSize:18, fontWeight:700, marginBottom:8 }}>בוט הפיצויים של nifgati</h3>
                 <p style={{ fontSize:14, color:"#7a8fa5", marginBottom:24, lineHeight:1.7 }}>
@@ -343,7 +343,7 @@ export default function App() {
         </section>
 
         {/* RESULTS STRIP */}
-        <section id="results" aria-label="תוצאות אמיתיות" style={{ padding:"68px 24px", background:"#0d1323" }}>
+        <section id="results" aria-label="תוצאות אמיתיות" style={{ padding:"68px 24px", background:"#f8f9fb" }}>
           <Reveal>
             <div className="sect-inner" style={{ maxWidth:1100, margin:"0 auto" }}>
               <div style={{ textAlign:"center", marginBottom:48 }}>
@@ -389,7 +389,7 @@ export default function App() {
         </section>
 
         {/* ATTORNEY SECTION */}
-        <section aria-label="אודות עורך הדין" style={{ padding:"68px 24px", background:"#0d1323" }}>
+        <section aria-label="אודות עורך הדין" style={{ padding:"68px 24px", background:"#f8f9fb" }}>
           <Reveal>
             <div className="sect-inner" style={{ maxWidth:700, margin:"0 auto" }}>
               <div>
@@ -416,7 +416,7 @@ export default function App() {
                 <div className="div" aria-hidden="true" />
                 <h2 style={{ fontSize:32, fontWeight:900, marginBottom:10 }}>שאלות נפוצות</h2>
               </div>
-              <div style={{ borderTop:"1px solid #1e2d4a" }}>
+              <div style={{ borderTop:"1px solid #dde3ea" }}>
                 {faqItems.map(f => <FAQItem key={f.q} q={f.q} a={f.a} />)}
               </div>
             </div>
@@ -424,7 +424,7 @@ export default function App() {
         </section>
 
         {/* CONTACT */}
-        <section id="contact" aria-label="צור קשר" style={{ padding:"68px 24px", background:"#0d1323" }}>
+        <section id="contact" aria-label="צור קשר" style={{ padding:"68px 24px", background:"#f8f9fb" }}>
           <Reveal>
             <div className="sect-inner" style={{ maxWidth:500, margin:"0 auto", textAlign:"center" }}>
               <div className="div" aria-hidden="true" />
@@ -449,16 +449,16 @@ export default function App() {
       </main>
 
       {/* FOOTER */}
-      <footer role="contentinfo" style={{ background:"#060a12", borderTop:"1px solid #1e2d4a", padding:"24px" }}>
+      <footer role="contentinfo" style={{ background:"#0a2240", borderTop:"1px solid #1a4a7a", padding:"24px" }}>
         <div style={{ maxWidth:1100, margin:"0 auto", display:"flex", justifyContent:"space-between", alignItems:"center", flexWrap:"wrap", gap:12 }}>
-          <div style={{ fontSize:13, color:"#7a8fa5" }}>© 2025 nifgati.co.il | {MY_NAME}, עו״ד נזיקין (25 שנות ניסיון)</div>
+          <div style={{ fontSize:13, color:"#ffffffbb" }}>© 2025 nifgati.co.il | {MY_NAME}, עו״ד נזיקין (25 שנות ניסיון)</div>
           <nav aria-label="קישורי מדיניות" style={{ display:"flex", gap:20 }}>
-            <a href="/privacy" style={{ fontSize:12, color:"#7a8fa5", textDecoration:"underline" }}>מדיניות פרטיות</a>
-            <a href="/accessibility" style={{ fontSize:12, color:"#7a8fa5", textDecoration:"underline" }}>נגישות</a>
-            <a href="#" style={{ fontSize:12, color:"#7a8fa5", textDecoration:"underline" }}>תנאי שימוש</a>
+            <a href="/privacy" style={{ fontSize:12, color:"#ffffffbb", textDecoration:"underline" }}>מדיניות פרטיות</a>
+            <a href="/accessibility" style={{ fontSize:12, color:"#ffffffbb", textDecoration:"underline" }}>נגישות</a>
+            <a href="#" style={{ fontSize:12, color:"#ffffffbb", textDecoration:"underline" }}>תנאי שימוש</a>
           </nav>
         </div>
-        <p style={{ textAlign:"center", fontSize:11, color:"#7a8fa5", marginTop:12 }}>
+        <p style={{ textAlign:"center", fontSize:11, color:"#ffffff88", marginTop:12 }}>
           האתר אינו מהווה ייעוץ משפטי. כל מקרה נבחן באופן אישי. | שיחות הבוט אינן נשמרות ואינן מתועדות בשום אופן.
         </p>
       </footer>
@@ -466,7 +466,7 @@ export default function App() {
       {/* Floating bot button */}
       {!showBot && (
         <button onClick={openBot} aria-label="פתח מחשבון פיצויים"
-          style={{ position:"fixed", bottom:100, left:24, borderRadius:28, background:"linear-gradient(135deg, #c9a84c, #f0d080)", color:"#fff", fontSize:14, fontWeight:800, fontFamily:"inherit", display:"flex", alignItems:"center", justifyContent:"center", cursor:"pointer", boxShadow:"0 4px 20px rgba(201,168,76,0.6)", zIndex:100, border:"none", padding:"12px 20px", whiteSpace:"nowrap" }}>
+          style={{ position:"fixed", bottom:100, left:24, borderRadius:28, background:"linear-gradient(135deg, #0a2240 0%, #2a7ab5 100%)", color:"#fff", fontSize:14, fontWeight:800, fontFamily:"inherit", display:"flex", alignItems:"center", justifyContent:"center", cursor:"pointer", boxShadow:"0 4px 20px rgba(10,34,64,0.4)", zIndex:100, border:"none", padding:"12px 20px", whiteSpace:"nowrap" }}>
           חשב פיצוי
         </button>
       )}
@@ -476,29 +476,29 @@ export default function App() {
 
       {/* Cookie Banner */}
       {!cookie && (
-        <div style={{ position:"fixed", bottom:80, right:0, left:0, background:"#0a0f1eee", borderTop:"1px solid #1e2d4a22", padding:"12px 16px", display:"flex", alignItems:"center", justifyContent:"space-between", gap:16, zIndex:9999, fontSize:12, color:"#ffffff" }}>
-          <span>האתר משתמש בעוגיות Remarketing בלבד. שיחות הבוט אינן נשמרות. <a href="/privacy" style={{ color:"#ffffff", textDecoration:"underline" }}>פרטיות</a></span>
-          <button style={{ background:"#c9a84c22", color:"#c9a84c", border:"1px solid #c9a84c44", borderRadius:10, fontFamily:"inherit", fontSize:14, padding:"14px 28px", cursor:"pointer", flexShrink:0, minHeight:48, minWidth:48 }} onClick={() => { setCookie(true); sessionStorage.setItem("nifgati_consent","granted"); window.dataLayer = window.dataLayer || []; window.dataLayer.push({event:'consent_update','analytics_storage':'granted','ad_storage':'granted'}); }}>אישור ✓</button>
+        <div style={{ position:"fixed", bottom:80, right:0, left:0, background:"#ffffffee", borderTop:"1px solid #dde3ea", padding:"12px 16px", display:"flex", alignItems:"center", justifyContent:"space-between", gap:16, zIndex:9999, fontSize:12, color:"#0a2240" }}>
+          <span>האתר משתמש בעוגיות Remarketing בלבד. שיחות הבוט אינן נשמרות. <a href="/privacy" style={{ color:"#2a7ab5", textDecoration:"underline" }}>פרטיות</a></span>
+          <button style={{ background:"#0a224022", color:"#0a2240", border:"1px solid #0a224044", borderRadius:10, fontFamily:"inherit", fontSize:14, padding:"14px 28px", cursor:"pointer", flexShrink:0, minHeight:48, minWidth:48 }} onClick={() => { setCookie(true); sessionStorage.setItem("nifgati_consent","granted"); window.dataLayer = window.dataLayer || []; window.dataLayer.push({event:'consent_update','analytics_storage':'granted','ad_storage':'granted'}); }}>אישור ✓</button>
         </div>
       )}
 
       {/* EXIT INTENT POPUP */}
       {showExit && (
-        <div role="dialog" aria-modal="true" aria-label="לפני שאתה עוזב" style={{ position:"fixed", inset:0, background:"#080d18ee", zIndex:200, display:"flex", alignItems:"center", justifyContent:"center", padding:16 }}>
-          <div style={{ background:"#0d1323", border:`2px solid ${G}`, borderRadius:20, padding:"36px 32px", maxWidth:420, width:"100%", textAlign:"center", position:"relative" }}>
+        <div role="dialog" aria-modal="true" aria-label="לפני שאתה עוזב" style={{ position:"fixed", inset:0, background:"#0a2240cc", zIndex:200, display:"flex", alignItems:"center", justifyContent:"center", padding:16 }}>
+          <div style={{ background:"#ffffff", border:`2px solid ${G}`, borderRadius:20, padding:"36px 32px", maxWidth:420, width:"100%", textAlign:"center", position:"relative" }}>
             <button onClick={() => setShowExit(false)} aria-label="סגור" style={{ position:"absolute", top:12, left:12, background:"transparent", border:"none", color:"#7a8fa5", fontSize:20, cursor:"pointer", lineHeight:1 }}>✕</button>
-            <h2 style={{ fontSize:24, fontWeight:900, marginBottom:10, color:"#e8edf2" }}>רגע לפני שאתה עוזב... 👋</h2>
+            <h2 style={{ fontSize:24, fontWeight:900, marginBottom:10, color:"#0a2240" }}>רגע לפני שאתה עוזב... 👋</h2>
             <p style={{ fontSize:15, color:"#7a8fa5", marginBottom:28, lineHeight:1.6 }}>גלה כמה פיצוי מגיע לך — לוקח 60 שניות</p>
             <div style={{ display:"flex", flexDirection:"column", gap:12 }}>
               <button onClick={() => { setShowExit(false); openBot(); }} style={{ ...gBtn, width:"100%", justifyContent:"center", fontSize:16, padding:16 }} aria-label="פתח מחשבון פיצויים">⚡ פתח מחשבון פיצויים</button>
-              <button onClick={() => openWhatsApp("exit_intent")} style={{ ...oBtn, width:"100%", justifyContent:"center", fontSize:16, padding:16, background:"#25d36615", borderColor:"#25d36688", color:"#25d366" }} aria-label="וואטסאפ עכשיו">💬 וואטסאפ עכשיו</button>
+              <button onClick={() => openWhatsApp("exit_intent")} style={{ ...oBtn, width:"100%", justifyContent:"center", fontSize:16, padding:16, background:"#0a224015", borderColor:"#0a224088", color:"#0a2240" }} aria-label="וואטסאפ עכשיו">💬 וואטסאפ עכשיו</button>
             </div>
           </div>
         </div>
       )}
 
       {/* Bot */}
-      {showBot && <Suspense fallback={<div style={{position:"fixed",inset:0,background:"#080d18ee",zIndex:200,display:"flex",alignItems:"center",justifyContent:"center",color:"#c9a84c",fontSize:18,fontWeight:700}}>טוען...</div>}><Bot onClose={() => setShowBot(false)} /></Suspense>}
+      {showBot && <Suspense fallback={<div style={{position:"fixed",inset:0,background:"#0a2240cc",zIndex:200,display:"flex",alignItems:"center",justifyContent:"center",color:"#ffffff",fontSize:18,fontWeight:700}}>טוען...</div>}><Bot onClose={() => setShowBot(false)} /></Suspense>}
     </div>
   );
 }

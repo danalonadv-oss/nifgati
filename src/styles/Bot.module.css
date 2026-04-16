@@ -2,7 +2,7 @@
 .overlay {
   position: fixed;
   inset: 0;
-  background: #080d18ee;
+  background: #0a2240cc;
   z-index: 200;
   display: flex;
   align-items: center;
@@ -11,8 +11,8 @@
 }
 
 .container {
-  background: #0a0f1e;
-  border: 1px solid #1e2d4a;
+  background: #ffffff;
+  border: 1px solid #dde3ea;
   border-radius: 20px;
   width: 100%;
   max-width: 560px;
@@ -32,8 +32,8 @@
 }
 
 .inlineContainer {
-  background: #0a0f1e;
-  border: 1px solid #1e2d4a;
+  background: #ffffff;
+  border: 1px solid #dde3ea;
   border-radius: 20px;
   width: 100%;
   display: flex;
@@ -47,8 +47,8 @@
 
 /* ── Header ──────────────────────────────── */
 .header {
-  background: #070c18;
-  border-bottom: 1px solid #1e2d4a;
+  background: #0a2240;
+  border-bottom: 1px solid #dde3ea;
   padding: 12px 16px;
   display: flex;
   justify-content: space-between;
@@ -58,7 +58,7 @@
 .title {
   font-weight: 900;
   font-size: 15px;
-  color: #c9a84c;
+  color: #ffffff;
 }
 
 .headerRight {
@@ -69,7 +69,7 @@
 
 .statusText {
   font-size: 13px;
-  color: #c9a84c;
+  color: #ffffff;
   display: flex;
   align-items: center;
   gap: 5px;
@@ -85,8 +85,8 @@
 }
 
 .phoneBtn {
-  background: #25d366;
-  border: none;
+  background: #0a2240;
+  border: 1px solid #ffffff44;
   color: #fff;
   font-size: 15px;
   cursor: pointer;
@@ -97,13 +97,13 @@
   align-items: center;
   justify-content: center;
   text-decoration: none;
-  box-shadow: 0 2px 8px #25d36644;
+  box-shadow: 0 2px 8px #0a224044;
 }
 
 .closeBtn {
   background: transparent;
   border: none;
-  color: #7a8fa5;
+  color: #ffffffaa;
   font-size: 20px;
   cursor: pointer;
   line-height: 1;
@@ -146,17 +146,17 @@
 }
 
 .bubbleUser {
-  background: #b8953a;
-  color: #0a0f1e;
+  background: #0a2240;
+  color: #ffffff;
   border: none;
   border-radius: 16px 4px 16px 16px;
   font-weight: 600;
 }
 
 .bubbleBot {
-  background: #1e2a3a;
-  color: #e8eaf0;
-  border: 1px solid #1e2d4a;
+  background: #f8f9fb;
+  color: #0a2240;
+  border: 1px solid #dde3ea;
   border-radius: 4px 16px 16px 16px;
   font-weight: 400;
 }
@@ -169,7 +169,7 @@
 }
 
 .privacyLink {
-  color: #3b82f6;
+  color: #2a7ab5;
   text-decoration: underline;
 }
 
@@ -180,8 +180,8 @@
 }
 
 .loadBubble {
-  background: #141b2d;
-  border: 1px solid #1e2d4a;
+  background: #f8f9fb;
+  border: 1px solid #dde3ea;
   border-radius: 18px 18px 18px 4px;
   padding: 14px 18px;
   display: flex;
@@ -200,22 +200,22 @@
   display: inline-block;
   width: 7px;
   height: 7px;
-  background: #c9a84c;
+  background: #2a7ab5;
   border-radius: 50%;
   animation: bl 1.2s infinite;
 }
 
 /* ── Calculation Card ────────────────────── */
 .calcCard {
-  background: linear-gradient(135deg, #1a2744, #0f1a30);
-  border: 1px solid #c9a84c55;
+  background: linear-gradient(135deg, #0a2240 0%, #2a7ab5 100%);
+  border: 1px solid #2a7ab533;
   border-radius: 16px;
   padding: 18px 20px;
 }
 
 .calcLabel {
   font-size: 11px;
-  color: #c9a84c;
+  color: #ffffff;
   letter-spacing: 1px;
   margin-bottom: 6px;
   font-weight: 700;
@@ -230,7 +230,7 @@
 
 .calcFee {
   font-size: 12px;
-  color: #556070;
+  color: #ffffffaa;
   margin-bottom: 14px;
 }
 
@@ -244,7 +244,7 @@
 /* ── CTA Buttons ─────────────────────────── */
 .ctaBtn {
   width: 100%;
-  background: #25d366;
+  background: #0a2240;
   color: #fff;
   border: none;
   border-radius: 12px;
@@ -258,6 +258,11 @@
   justify-content: center;
   gap: 8px;
   line-height: 1.4;
+  transition: background 0.2s;
+}
+
+.ctaBtn:hover {
+  background: #1a4a7a;
 }
 
 .referralWrap {
@@ -294,7 +299,7 @@
 .pickerOverlay {
   position: absolute;
   inset: 0;
-  background: #080d18dd;
+  background: #0a224088;
   z-index: 10;
   display: flex;
   align-items: center;
@@ -303,8 +308,8 @@
 }
 
 .pickerModal {
-  background: #0d1323;
-  border: 1px solid #1e2d4a;
+  background: #ffffff;
+  border: 1px solid #dde3ea;
   border-radius: 20px;
   padding: 24px;
   width: 100%;
@@ -324,21 +329,21 @@
 .pickerTitle {
   font-size: 16px;
   font-weight: 800;
-  color: #e8eaf0;
+  color: #0a2240;
 }
 
 .pickerHint {
   font-size: 12px;
-  color: #556070;
+  color: #7a8fa5;
   line-height: 1.5;
   margin-bottom: 4px;
 }
 
 .pickerBtn {
-  background: #141b2d;
-  border: 1.5px solid #1e2d4a;
+  background: #f8f9fb;
+  border: 1.5px solid #dde3ea;
   border-radius: 14px;
-  color: #e8eaf0;
+  color: #0a2240;
   font-family: inherit;
   font-size: 15px;
   font-weight: 700;
@@ -351,15 +356,15 @@
 }
 
 .pickerBtn:hover {
-  border-color: #c9a84c;
-  background: #1a2744;
+  border-color: #2a7ab5;
+  background: #eef4fa;
 }
 
 .pickerIcon {
   font-size: 24px;
   width: 36px;
   height: 36px;
-  background: #c9a84c18;
+  background: #2a7ab518;
   border-radius: 10px;
   display: flex;
   align-items: center;
@@ -374,8 +379,8 @@
 
 /* ── Input Bar ───────────────────────────── */
 .inputBar {
-  background: #0a0f1e;
-  border-top: 1px solid #1e2d4a;
+  background: #ffffff;
+  border-top: 1px solid #dde3ea;
   padding: 10px 12px 12px;
 }
 
@@ -386,8 +391,8 @@
 }
 
 .btnSm {
-  background: #141b2d;
-  border: 1px solid #1e2d4a;
+  background: #f8f9fb;
+  border: 1px solid #dde3ea;
   border-radius: 10px;
   color: #7a8fa5;
   font-size: 16px;
@@ -413,10 +418,10 @@
 
 .input {
   width: 100%;
-  background: #141b2d;
-  border: 1px solid #1e2d4a;
+  background: #f8f9fb;
+  border: 1px solid #dde3ea;
   border-radius: 10px;
-  color: #fff;
+  color: #0a2240;
   font-family: inherit;
   font-size: 14px;
   padding: 0 14px;
@@ -447,7 +452,7 @@
 /* ── Mic Button States ───────────────────── */
 .micBtn {
   composes: btnSm;
-  color: #c9a84c;
+  color: #2a7ab5;
 }
 
 .micBtnActive {
@@ -460,8 +465,8 @@
 
 /* ── Send Button ─────────────────────────── */
 .sendBtn {
-  background: #c9a84c;
-  color: #0a0f1e;
+  background: #0a2240;
+  color: #ffffff;
   border: none;
   border-radius: 10px;
   font-weight: 700;
@@ -483,7 +488,7 @@
 .docStatus {
   text-align: center;
   font-size: 12px;
-  color: #c9a84c;
+  color: #2a7ab5;
   margin-top: 6px;
 }
 
@@ -541,6 +546,6 @@
 }
 
 @keyframes blink {
-  0%, 100% { opacity: 1; color: #c9a84c; }
-  50% { opacity: 0.15; color: #c9a84c; }
+  0%, 100% { opacity: 1; color: #ffffff; }
+  50% { opacity: 0.15; color: #ffffff; }
 }

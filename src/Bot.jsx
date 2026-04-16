@@ -98,8 +98,8 @@ export default function Bot({ onClose, inline = false, openingMessage }) {
                 <span>התקדמות החישוב</span>
                 <span>{progress}%</span>
               </div>
-              <div style={{ background:"#1e2d4a", borderRadius:4, height:4 }}>
-                <div style={{ background:"#c9a84c", height:4, borderRadius:4, width:`${progress}%`, transition:"width 0.5s ease" }} />
+              <div style={{ background:"#dde3ea", borderRadius:4, height:4 }}>
+                <div style={{ background:"#2a7ab5", height:4, borderRadius:4, width:`${progress}%`, transition:"width 0.5s ease" }} />
               </div>
             </div>
           )}
@@ -117,7 +117,7 @@ export default function Bot({ onClose, inline = false, openingMessage }) {
               <div style={{ display:"flex", flexWrap:"wrap", gap:8, padding:"8px 0", justifyContent:"center" }}>
                 {quickReplies.map((qr, i) => (
                   <button key={i} onClick={() => handleQuickReply(qr.value)}
-                    style={{ flex:"0 0 auto", maxWidth:"calc(50% - 4px)", background:"#0d1425", border:"1px solid #c9a84c", borderRadius:20, color:"#c9a84c", padding:"8px 16px", fontSize:13, fontWeight:700, cursor:"pointer", fontFamily:"inherit" }}>
+                    style={{ flex:"0 0 auto", maxWidth:"calc(50% - 4px)", background:"#ffffff", border:"1px solid #0a2240", borderRadius:20, color:"#0a2240", padding:"8px 16px", fontSize:13, fontWeight:700, cursor:"pointer", fontFamily:"inherit" }}>
                     {qr.label}
                   </button>
                 ))}
@@ -138,16 +138,16 @@ export default function Bot({ onClose, inline = false, openingMessage }) {
                 <div className={s.calcLabel}>הערכת פיצוי ראשונית</div>
                 <div className={s.calcAmount}>₪{calc.min.toLocaleString("he-IL")} – ₪{calc.max.toLocaleString("he-IL")}</div>
                 <div className={s.calcFee}>לפני שכ"ט (8%–13%)</div>
-                <p style={{ fontSize:11, color:"#7a8fa5", textAlign:"center", margin:"8px 0 12px", lineHeight:1.5 }}>* הערכה זו אינה מהווה ייעוץ משפטי ואינה תחליף לו.<br/>ייעוץ משפטי מחייב יינתן על ידי עו״ד דן אלון בלבד.</p>
+                <p style={{ fontSize:11, color:"#ffffffbb", textAlign:"center", margin:"8px 0 12px", lineHeight:1.5 }}>* הערכה זו אינה מהווה ייעוץ משפטי ואינה תחליף לו.<br/>ייעוץ משפטי מחייב יינתן על ידי עו״ד דן אלון בלבד.</p>
                 {!leadSubmitted ? (
-                  <div style={{ background:"#0d1425", border:"2px solid #c9a84c", borderRadius:14, padding:14, margin:"12px 0" }}>
-                    <div style={{ fontSize:13, fontWeight:800, color:"#c9a84c", marginBottom:8, textAlign:"center" }}>רוצים שנחזור אליכם?</div>
-                    <input value={leadName} onChange={e => setLeadName(e.target.value)} placeholder="שם מלא" style={{ width:"100%", background:"#141b2d", border:"1px solid #1e2d4a", borderRadius:10, color:"#fff", fontFamily:"inherit", fontSize:14, padding:"10px 14px", marginBottom:8, direction:"rtl", boxSizing:"border-box" }} />
-                    <input value={leadPhone} onChange={e => setLeadPhone(e.target.value)} placeholder="טלפון" type="tel" style={{ width:"100%", background:"#141b2d", border:"1px solid #1e2d4a", borderRadius:10, color:"#fff", fontFamily:"inherit", fontSize:14, padding:"10px 14px", marginBottom:8, direction:"ltr", boxSizing:"border-box" }} />
-                    <button onClick={submitLead} disabled={leadSending} style={{ width:"100%", background:"#c9a84c", color:"#060a12", border:"none", borderRadius:12, fontFamily:"inherit", fontWeight:800, fontSize:15, padding:"13px", cursor:"pointer" }}>{leadSending ? "שולח..." : "חזרו אליי בבקשה \u2190"}</button>
+                  <div style={{ background:"#f8f9fb", border:"2px solid #0a2240", borderRadius:14, padding:14, margin:"12px 0" }}>
+                    <div style={{ fontSize:13, fontWeight:800, color:"#ffffff", marginBottom:8, textAlign:"center" }}>רוצים שנחזור אליכם?</div>
+                    <input value={leadName} onChange={e => setLeadName(e.target.value)} placeholder="שם מלא" style={{ width:"100%", background:"#ffffff", border:"1px solid #dde3ea", borderRadius:10, color:"#0a2240", fontFamily:"inherit", fontSize:14, padding:"10px 14px", marginBottom:8, direction:"rtl", boxSizing:"border-box" }} />
+                    <input value={leadPhone} onChange={e => setLeadPhone(e.target.value)} placeholder="טלפון" type="tel" style={{ width:"100%", background:"#ffffff", border:"1px solid #dde3ea", borderRadius:10, color:"#0a2240", fontFamily:"inherit", fontSize:14, padding:"10px 14px", marginBottom:8, direction:"ltr", boxSizing:"border-box" }} />
+                    <button onClick={submitLead} disabled={leadSending} style={{ width:"100%", background:"#0a2240", color:"#ffffff", border:"none", borderRadius:12, fontFamily:"inherit", fontWeight:800, fontSize:15, padding:"13px", cursor:"pointer" }}>{leadSending ? "שולח..." : "חזרו אליי בבקשה \u2190"}</button>
                   </div>
                 ) : (
-                  <div style={{ background:"#0d1425", border:"2px solid #22c55e", borderRadius:14, padding:14, margin:"12px 0", textAlign:"center" }}>
+                  <div style={{ background:"#f8f9fb", border:"2px solid #22c55e", borderRadius:14, padding:14, margin:"12px 0", textAlign:"center" }}>
                     <div style={{ fontSize:20, marginBottom:4 }}>✅</div>
                     <div style={{ fontSize:14, fontWeight:700, color:"#22c55e" }}>קיבלנו את פרטייך!</div>
                     <div style={{ fontSize:12, color:"#7a8fa5" }}>נחזור אליך מייד</div>
@@ -156,7 +156,7 @@ export default function Bot({ onClose, inline = false, openingMessage }) {
                 <button onClick={() => { notifyWhatsApp(); window.location.href = waHref; }} aria-label="שלח את החישוב לעורך דין בוואטסאפ" className={s.ctaBtn}>
                   💬 שלח את החישוב לעו"ד בוואטסאפ
                 </button>
-                <a href="tel:+972544338212" style={{ display:"flex", alignItems:"center", justifyContent:"center", gap:8, width:"100%", background:"transparent", color:"#fff", border:"2px solid #ffffff44", borderRadius:12, fontFamily:"inherit", fontWeight:700, fontSize:16, padding:"14px", cursor:"pointer", textDecoration:"none", marginTop:8, boxSizing:"border-box" }}>📞 חייגו עכשיו</a>
+                <a href="tel:+972544338212" style={{ display:"flex", alignItems:"center", justifyContent:"center", gap:8, width:"100%", background:"transparent", color:"#ffffff", border:"2px solid #ffffff44", borderRadius:12, fontFamily:"inherit", fontWeight:700, fontSize:16, padding:"14px", cursor:"pointer", textDecoration:"none", marginTop:8, boxSizing:"border-box" }}>📞 חייגו עכשיו</a>
               </div>
             )}
 
@@ -217,7 +217,7 @@ export default function Bot({ onClose, inline = false, openingMessage }) {
             </div>
             {docName && <p className={s.docStatus}>{load ? "📤 מעלה ומנתח" : "🔍 מנתח"}: {docName}...</p>}
           </div>
-          <p style={{ fontSize:10, color:"#666", textAlign:"center", padding:"4px 12px", margin:0, borderTop:"1px solid #ffffff11" }}>המידע אינו נשמר ואינו מתועד • הערכה ראשונית בלבד • אינה מהווה ייעוץ משפטי</p>
+          <p style={{ fontSize:10, color:"#7a8fa5", textAlign:"center", padding:"4px 12px", margin:0, borderTop:"1px solid #dde3ea" }}>המידע אינו נשמר ואינו מתועד • הערכה ראשונית בלבד • אינה מהווה ייעוץ משפטי</p>
         </div>
       </div>
     );
@@ -247,8 +247,8 @@ export default function Bot({ onClose, inline = false, openingMessage }) {
               <span>התקדמות החישוב</span>
               <span>{progress}%</span>
             </div>
-            <div style={{ background:"#1e2d4a", borderRadius:4, height:4 }}>
-              <div style={{ background:"#c9a84c", height:4, borderRadius:4, width:`${progress}%`, transition:"width 0.5s ease" }} />
+            <div style={{ background:"#dde3ea", borderRadius:4, height:4 }}>
+              <div style={{ background:"#2a7ab5", height:4, borderRadius:4, width:`${progress}%`, transition:"width 0.5s ease" }} />
             </div>
           </div>
         )}
@@ -266,7 +266,7 @@ export default function Bot({ onClose, inline = false, openingMessage }) {
             <div style={{ display:"flex", flexWrap:"wrap", gap:8, padding:"8px 0" }}>
               {quickReplies.map((qr, i) => (
                 <button key={i} onClick={() => handleQuickReply(qr.value)}
-                  style={{ background:"#0d1425", border:"1px solid #c9a84c", borderRadius:20, color:"#c9a84c", padding:"8px 16px", fontSize:13, fontWeight:700, cursor:"pointer", fontFamily:"inherit" }}>
+                  style={{ background:"#ffffff", border:"1px solid #0a2240", borderRadius:20, color:"#0a2240", padding:"8px 16px", fontSize:13, fontWeight:700, cursor:"pointer", fontFamily:"inherit" }}>
                   {qr.label}
                 </button>
               ))}
@@ -287,16 +287,16 @@ export default function Bot({ onClose, inline = false, openingMessage }) {
               <div className={s.calcLabel}>הערכת פיצוי ראשונית</div>
               <div className={s.calcAmount}>₪{calc.min.toLocaleString("he-IL")} – ₪{calc.max.toLocaleString("he-IL")}</div>
               <div className={s.calcFee}>לפני שכ"ט (8%–13%)</div>
-              <p style={{ fontSize:11, color:"#7a8fa5", textAlign:"center", margin:"8px 0 12px", lineHeight:1.5 }}>* הערכה זו אינה מהווה ייעוץ משפטי ואינה תחליף לו.<br/>ייעוץ משפטי מחייב יינתן על ידי עו״ד דן אלון בלבד.</p>
+              <p style={{ fontSize:11, color:"#ffffffbb", textAlign:"center", margin:"8px 0 12px", lineHeight:1.5 }}>* הערכה זו אינה מהווה ייעוץ משפטי ואינה תחליף לו.<br/>ייעוץ משפטי מחייב יינתן על ידי עו״ד דן אלון בלבד.</p>
               {!leadSubmitted ? (
-                <div style={{ background:"#0d1425", border:"2px solid #c9a84c", borderRadius:14, padding:14, margin:"12px 0" }}>
-                  <div style={{ fontSize:13, fontWeight:800, color:"#c9a84c", marginBottom:8, textAlign:"center" }}>רוצים שנחזור אליכם?</div>
-                  <input value={leadName} onChange={e => setLeadName(e.target.value)} placeholder="שם מלא" style={{ width:"100%", background:"#141b2d", border:"1px solid #1e2d4a", borderRadius:10, color:"#fff", fontFamily:"inherit", fontSize:14, padding:"10px 14px", marginBottom:8, direction:"rtl", boxSizing:"border-box" }} />
-                  <input value={leadPhone} onChange={e => setLeadPhone(e.target.value)} placeholder="טלפון" type="tel" style={{ width:"100%", background:"#141b2d", border:"1px solid #1e2d4a", borderRadius:10, color:"#fff", fontFamily:"inherit", fontSize:14, padding:"10px 14px", marginBottom:8, direction:"ltr", boxSizing:"border-box" }} />
-                  <button onClick={submitLead} disabled={leadSending} style={{ width:"100%", background:"#c9a84c", color:"#060a12", border:"none", borderRadius:12, fontFamily:"inherit", fontWeight:800, fontSize:15, padding:"13px", cursor:"pointer" }}>{leadSending ? "שולח..." : "חזרו אליי בבקשה \u2190"}</button>
+                <div style={{ background:"#f8f9fb", border:"2px solid #0a2240", borderRadius:14, padding:14, margin:"12px 0" }}>
+                  <div style={{ fontSize:13, fontWeight:800, color:"#ffffff", marginBottom:8, textAlign:"center" }}>רוצים שנחזור אליכם?</div>
+                  <input value={leadName} onChange={e => setLeadName(e.target.value)} placeholder="שם מלא" style={{ width:"100%", background:"#ffffff", border:"1px solid #dde3ea", borderRadius:10, color:"#0a2240", fontFamily:"inherit", fontSize:14, padding:"10px 14px", marginBottom:8, direction:"rtl", boxSizing:"border-box" }} />
+                  <input value={leadPhone} onChange={e => setLeadPhone(e.target.value)} placeholder="טלפון" type="tel" style={{ width:"100%", background:"#ffffff", border:"1px solid #dde3ea", borderRadius:10, color:"#0a2240", fontFamily:"inherit", fontSize:14, padding:"10px 14px", marginBottom:8, direction:"ltr", boxSizing:"border-box" }} />
+                  <button onClick={submitLead} disabled={leadSending} style={{ width:"100%", background:"#0a2240", color:"#ffffff", border:"none", borderRadius:12, fontFamily:"inherit", fontWeight:800, fontSize:15, padding:"13px", cursor:"pointer" }}>{leadSending ? "שולח..." : "חזרו אליי בבקשה \u2190"}</button>
                 </div>
               ) : (
-                <div style={{ background:"#0d1425", border:"2px solid #22c55e", borderRadius:14, padding:14, margin:"12px 0", textAlign:"center" }}>
+                <div style={{ background:"#f8f9fb", border:"2px solid #22c55e", borderRadius:14, padding:14, margin:"12px 0", textAlign:"center" }}>
                   <div style={{ fontSize:20, marginBottom:4 }}>✅</div>
                   <div style={{ fontSize:14, fontWeight:700, color:"#22c55e" }}>קיבלנו את פרטייך!</div>
                   <div style={{ fontSize:12, color:"#7a8fa5" }}>נחזור אליך מייד</div>
@@ -305,7 +305,7 @@ export default function Bot({ onClose, inline = false, openingMessage }) {
               <button onClick={() => { notifyWhatsApp(); window.location.href = waHref; }} aria-label="שלח את החישוב לעורך דין בוואטסאפ" className={s.ctaBtn}>
                 💬 שלח את החישוב לעו"ד בוואטסאפ
               </button>
-              <a href="tel:+972544338212" style={{ display:"flex", alignItems:"center", justifyContent:"center", gap:8, width:"100%", background:"transparent", color:"#fff", border:"2px solid #ffffff44", borderRadius:12, fontFamily:"inherit", fontWeight:700, fontSize:16, padding:"14px", cursor:"pointer", textDecoration:"none", marginTop:8, boxSizing:"border-box" }}>📞 חייגו עכשיו</a>
+              <a href="tel:+972544338212" style={{ display:"flex", alignItems:"center", justifyContent:"center", gap:8, width:"100%", background:"transparent", color:"#ffffff", border:"2px solid #ffffff44", borderRadius:12, fontFamily:"inherit", fontWeight:700, fontSize:16, padding:"14px", cursor:"pointer", textDecoration:"none", marginTop:8, boxSizing:"border-box" }}>📞 חייגו עכשיו</a>
             </div>
           )}
 
@@ -366,7 +366,7 @@ export default function Bot({ onClose, inline = false, openingMessage }) {
           </div>
           {docName && <p className={s.docStatus}>{load ? "📤 מעלה ומנתח" : "🔍 מנתח"}: {docName}...</p>}
         </div>
-        <p style={{ fontSize:10, color:"#666", textAlign:"center", padding:"4px 12px", margin:0, borderTop:"1px solid #ffffff11" }}>המידע אינו נשמר ואינו מתועד • הערכה ראשונית בלבד • אינה מהווה ייעוץ משפטי</p>
+        <p style={{ fontSize:10, color:"#7a8fa5", textAlign:"center", padding:"4px 12px", margin:0, borderTop:"1px solid #dde3ea" }}>המידע אינו נשמר ואינו מתועד • הערכה ראשונית בלבד • אינה מהווה ייעוץ משפטי</p>
 
         {/* ── Floating WhatsApp ── */}
         <button onClick={() => { notifyWhatsApp(); window.location.href = waHref; }} aria-label="שיחת וואטסאפ עם עו״ד אלון" title="וואטסאפ" className={s.waFab}>💬</button>

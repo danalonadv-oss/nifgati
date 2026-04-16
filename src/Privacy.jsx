@@ -1,14 +1,14 @@
 ﻿export default function Privacy() {
-  const G = "#c9a84c";
-  const s = { fontSize:15, lineHeight:"1.8", color:"#b0bec5", marginBottom:8 };
+  const G = "#0a2240";
+  const s = { fontSize:15, lineHeight:"1.8", color:"#5a6a7a", marginBottom:8 };
   return (
-    <div style={{ fontFamily:"'Heebo',Arial,sans-serif", direction:"rtl", background:"#080d18", color:"#e8edf2", minHeight:"100vh", padding:"80px 24px 60px" }}>
-      <style>{`*{box-sizing:border-box;margin:0;padding:0}h2{color:${G};font-size:20px;margin:36px 0 12px;border-bottom:1px solid #1e2d4a;padding-bottom:8px}ul{padding-right:24px;margin-bottom:12px}li{font-size:15px;line-height:1.8;color:#b0bec5;margin-bottom:4px}a{color:${G}}`}</style>
+    <div style={{ fontFamily:"'Heebo',Arial,sans-serif", direction:"rtl", background:"#ffffff", color:"#0a2240", minHeight:"100vh", padding:"80px 24px 60px" }}>
+      <style>{`*{box-sizing:border-box;margin:0;padding:0}h2{color:${G};font-size:20px;margin:36px 0 12px;border-bottom:1px solid #dde3ea;padding-bottom:8px}ul{padding-right:24px;margin-bottom:12px}li{font-size:15px;line-height:1.8;color:#5a6a7a;margin-bottom:4px}a{color:${G}}`}</style>
       <div style={{ maxWidth:760, margin:"0 auto" }}>
         <a href="/" style={{ color:G, fontSize:14, textDecoration:"none", display:"inline-flex", alignItems:"center", gap:4 }}>← חזרה לעמוד הבית</a>
 
         <h1 style={{ fontSize:36, fontWeight:900, margin:"24px 0 4px" }}>מדיניות פרטיות</h1>
-        <p style={{ color:"#7a8fa5", fontSize:13, marginBottom:32 }}>עדכון אחרון: מרץ 2025 | nifgati.co.il</p>
+        <p style={{ color:"#5a6a7a", fontSize:13, marginBottom:32 }}>עדכון אחרון: מרץ 2025 | nifgati.co.il</p>
 
         <h2>1. מי אנחנו</h2>
         <p style={s}>nifgati.co.il הוא האתר של <strong>דן אלון, עורך דין נזיקין</strong>.<br />
@@ -68,7 +68,7 @@
         דוא"ל: <a href="mailto:Danalonadv@gmail.com">Danalonadv@gmail.com</a><br />
         טלפון: <a href="tel:0544338212">054-4338212</a></p>
 
-        <div style={{ marginTop:48, padding:"16px 20px", background:"#0d1323", border:"1px solid #1e2d4a", borderRadius:12, fontSize:13, color:"#7a8fa5" }}>
+        <div style={{ marginTop:48, padding:"16px 20px", background:"#f8f9fb", border:"1px solid #dde3ea", borderRadius:12, fontSize:13, color:"#5a6a7a" }}>
           האתר אינו מהווה ייעוץ משפטי. כל מקרה נבחן באופן אישי.
         </div>
       </div>

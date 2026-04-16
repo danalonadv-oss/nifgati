@@ -1,7 +1,7 @@
 import { useState } from "react";
 import LandingPage from "../LandingPage.jsx";
 
-const G = "#c9a84c";
+const G = "#0a2240";
 
 function getUtmTerm() {
   if (typeof window === 'undefined') return '';
@@ -41,10 +41,10 @@ const whiplashExamples = [
 function FaqItem({ q, a }) {
   const [open, setOpen] = useState(false);
   return (
-    <div style={{ borderBottom: "1px solid #1e2d4a" }}>
+    <div style={{ borderBottom: "1px solid #dde3ea" }}>
       <button
         onClick={() => setOpen(!open)}
-        style={{ width: "100%", background: "none", border: "none", color: "#e8e0d0", fontFamily: "inherit", fontSize: 16, fontWeight: 700, padding: "18px 0", cursor: "pointer", textAlign: "right", display: "flex", justifyContent: "space-between", alignItems: "center", gap: 12 }}
+        style={{ width: "100%", background: "none", border: "none", color: "#0a2240", fontFamily: "inherit", fontSize: 16, fontWeight: 700, padding: "18px 0", cursor: "pointer", textAlign: "right", display: "flex", justifyContent: "space-between", alignItems: "center", gap: 12 }}
       >
         <span>{q}</span>
         <span style={{ color: G, fontSize: 20, flexShrink: 0 }}>{open ? "−" : "+"}</span>
@@ -61,22 +61,22 @@ function ExtraContent() {
     <>
       {/* ── WHIPLASH EXPLAINER ── */}
       <section style={{ maxWidth: 680, margin: "0 auto", padding: "48px 0 0", direction: "rtl" }}>
-        <h2 style={{ fontSize: 26, fontWeight: 900, textAlign: "center", marginBottom: 20, color: "#e8e0d0" }}>צליפת שוט — מה זה ומה מגיע לך?</h2>
+        <h2 style={{ fontSize: 26, fontWeight: 900, textAlign: "center", marginBottom: 20, color: "#0a2240" }}>צליפת שוט — מה זה ומה מגיע לך?</h2>
         <p style={{ fontSize: 15, color: "#7a8fa5", lineHeight: 1.8, marginBottom: 24 }}>
           צליפת שוט (Whiplash) היא פגיעה שכיחה בתאונות דרכים, בעיקר בתאונות מאחור.
           הפגיעה מוכרת בחוק גם ללא שבר גלוי ומזכה בפיצוי לפי פלת״ד.
         </p>
-        <h3 style={{ fontSize: 20, fontWeight: 800, color: "#e8e0d0", marginBottom: 14 }}>סימנים נפוצים:</h3>
+        <h3 style={{ fontSize: 20, fontWeight: 800, color: "#0a2240", marginBottom: 14 }}>סימנים נפוצים:</h3>
         <ul style={{ fontSize: 15, color: "#7a8fa5", lineHeight: 2.2, paddingRight: 20, margin: "0 0 28px" }}>
           <li>כאבי צוואר וגב עליון</li>
           <li>כאבי ראש מתמשכים</li>
           <li>סחרחורות וטשטוש</li>
           <li>הגבלה בתנועות הצוואר</li>
         </ul>
-        <h3 style={{ fontSize: 20, fontWeight: 800, color: "#e8e0d0", marginBottom: 14 }}>דוגמאות לפיצויים על צליפת שוט:</h3>
+        <h3 style={{ fontSize: 20, fontWeight: 800, color: "#0a2240", marginBottom: 14 }}>דוגמאות לפיצויים על צליפת שוט:</h3>
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(160px, 1fr))", gap: 16 }}>
           {whiplashExamples.map((c, i) => (
-            <div key={i} style={{ background: "#0d1323", border: "1px solid #1e2d4a", borderRadius: 14, padding: "20px 24px", textAlign: "center" }}>
+            <div key={i} style={{ background: "#f8f9fb", border: "1px solid #dde3ea", borderRadius: 14, padding: "20px 24px", textAlign: "center" }}>
               <span style={{ fontSize: 14, color: "#7a8fa5", display: "block", marginBottom: 6 }}>{c.disability}</span>
               <strong style={{ fontSize: 28, fontWeight: 700, color: G }}>{c.amount}</strong>
             </div>
@@ -87,7 +87,7 @@ function ExtraContent() {
 
       {/* ── FAQ ── */}
       <section style={{ maxWidth: 680, margin: "0 auto", padding: "56px 0 0" }}>
-        <h2 style={{ fontSize: 26, fontWeight: 900, textAlign: "center", marginBottom: 28, color: "#e8e0d0" }}>שאלות נפוצות — צליפת שוט</h2>
+        <h2 style={{ fontSize: 26, fontWeight: 900, textAlign: "center", marginBottom: 28, color: "#0a2240" }}>שאלות נפוצות — צליפת שוט</h2>
         <div>
           <FaqItem q="צליפת שוט ללא שבר — מגיע לי פיצוי?" a="כן. צליפת שוט מוכרת כנזק גוף בחוק גם ללא שבר. כאבי צוואר וגב מזכים בפיצוי." />
           <FaqItem q="התאונה נראתה קלה אבל יש לי כאבים — מה עושים?" a="פנו מיד לרופא ותעדו את הכאבים. גם תאונה קלה יכולה לגרום לצליפת שוט שמזכה בפיצוי." />

@@ -417,21 +417,21 @@ export default function LandingPage({ pageTitle, pageSubtitle, heroEmoji, bullet
     return () => window.removeEventListener("scroll", fn);
   }, []);
 
-  const G = "#c9a84c";
+  const G = "#0a2240";
   const oBtn = { background:"transparent", color:G, border:`1.5px solid ${G}88`, borderRadius:12, fontFamily:"inherit", fontWeight:700, fontSize:14, padding:"12px 24px", cursor:"pointer", display:"inline-flex", alignItems:"center", gap:8 };
 
   const openingMessage = getPersonalizedOpening(pageSlug, utmTerm);
 
   return (
-    <div style={{ fontFamily:"'Heebo',Arial,sans-serif", direction:"rtl", background:"#080d18", color:"#e8edf2", overflowX:"hidden", minHeight:"100vh", display:"flex", flexDirection:"column" }}>
+    <div style={{ fontFamily:"'Heebo',Arial,sans-serif", direction:"rtl", background:"#ffffff", color:"#0a2240", overflowX:"hidden", minHeight:"100vh", display:"flex", flexDirection:"column" }}>
       <style>{`
         *{box-sizing:border-box;margin:0;padding:0}
         html{scroll-behavior:smooth}
         a{text-decoration:none;color:inherit}
         ::-webkit-scrollbar{width:4px}
-        ::-webkit-scrollbar-thumb{background:#1e2d4a;border-radius:2px}
-        .nl{color:#7a8fa5;font-size:14px;font-weight:500;border-bottom:2px solid transparent;transition:all .2s}
-        .nl:hover{color:#c9a84c;border-bottom-color:#c9a84c}
+        ::-webkit-scrollbar-thumb{background:#dde3ea;border-radius:2px}
+        .nl{color:#5a6a7a;font-size:14px;font-weight:500;border-bottom:2px solid transparent;transition:all .2s}
+        .nl:hover{color:#2a7ab5;border-bottom-color:#2a7ab5}
         .wa-btn{position:fixed;bottom:24px;left:24px;background:#25d366;color:#fff;border:none;border-radius:50%;width:56px;height:56px;font-size:24px;cursor:pointer;box-shadow:0 8px 24px #25d36655;z-index:99;display:flex;align-items:center;justify-content:center;transition:transform .2s}
         .wa-btn:hover{transform:scale(1.1)}
         .hm{display:flex}
@@ -440,23 +440,23 @@ export default function LandingPage({ pageTitle, pageSubtitle, heroEmoji, bullet
       `}</style>
 
       {/* SKIP NAV */}
-      <a href="#main-content" style={{ position:"absolute", top:-40, right:0, background:G, color:"#000", padding:"8px 16px", borderRadius:"0 0 8px 0", fontSize:14, fontWeight:700, zIndex:999, transition:"top .2s" }} onFocus={e => e.target.style.top = "0"} onBlur={e => e.target.style.top = "-40px"}>דלג לתוכן הראשי</a>
+      <a href="#main-content" style={{ position:"absolute", top:-40, right:0, background:G, color:"#ffffff", padding:"8px 16px", borderRadius:"0 0 8px 0", fontSize:14, fontWeight:700, zIndex:999, transition:"top .2s" }} onFocus={e => e.target.style.top = "0"} onBlur={e => e.target.style.top = "-40px"}>דלג לתוכן הראשי</a>
 
       {/* URGENCY BANNER */}
       {showBanner && (
-        <div style={{ position:"fixed", top:0, right:0, left:0, width:"100%", boxSizing:"border-box", zIndex:110, background:G, color:"#060a12", height:40, display:"flex", alignItems:"center", justifyContent:"space-between", fontSize:14, fontWeight:700, padding:"0 12px" }}>
+        <div style={{ position:"fixed", top:0, right:0, left:0, width:"100%", boxSizing:"border-box", zIndex:110, background:G, color:"#ffffff", height:40, display:"flex", alignItems:"center", justifyContent:"space-between", fontSize:14, fontWeight:700, padding:"0 12px" }}>
           <span style={{ flex:1, textAlign:"center" }}>{bannerText || "תביעות פלת״ד — חשב ודע מיד כמה מגיע לך"}</span>
-          <button onClick={() => setShowBanner(false)} aria-label="סגור באנר" style={{ background:"transparent", border:"none", color:"#060a12", fontSize:18, cursor:"pointer", lineHeight:1, fontWeight:900, flexShrink:0 }}>✕</button>
+          <button onClick={() => setShowBanner(false)} aria-label="סגור באנר" style={{ background:"transparent", border:"none", color:"#ffffff", fontSize:18, cursor:"pointer", lineHeight:1, fontWeight:900, flexShrink:0 }}>✕</button>
         </div>
       )}
 
       {/* HEADER */}
-      <header role="banner" style={{ position:"fixed", top:showBanner ? 40 : 0, right:0, left:0, zIndex:100, background:scrolled ? "#080d18f0" : "transparent", backdropFilter:scrolled ? "blur(12px)" : "none", borderBottom:scrolled ? "1px solid #1e2d4a" : "1px solid transparent", transition:"all .3s", padding: isMobile ? "0 8px" : "0 24px" }}>
+      <header role="banner" style={{ position:"fixed", top:showBanner ? 40 : 0, right:0, left:0, zIndex:100, background:scrolled ? "#0a2240" : "#0a2240", backdropFilter:scrolled ? "blur(12px)" : "none", borderBottom:scrolled ? "1px solid #1a4a7a" : "1px solid transparent", transition:"all .3s", padding: isMobile ? "0 8px" : "0 24px" }}>
         <div style={{ maxWidth:1100, margin:"0 auto", height: isMobile ? 52 : 64, display:"flex", alignItems:"center", justifyContent:"space-between" }}>
           <a href="/" aria-label="nifgati — עמוד בית" style={{ display:"flex", alignItems:"center", gap:10 }}>
             <img src="/logo.png" alt="nifgati" width={isMobile ? 112 : 225} height={isMobile ? 28 : 56} style={{ height: isMobile ? 28 : 56, width:"auto", objectFit:"contain" }} />
           </a>
-          <a href="tel:0544338212" aria-label="התקשר אלינו" style={{ display:"inline-flex", alignItems:"center", justifyContent:"center", width: isMobile ? 36 : 48, height: isMobile ? 36 : 48, background:"#22c55e", borderRadius: isMobile ? 10 : 14, color:"#fff", fontSize: isMobile ? 17 : 22, textDecoration:"none", flexShrink:0, boxShadow:"0 2px 8px #22c55e55" }}>📞</a>
+          <a href="tel:0544338212" aria-label="התקשר אלינו" style={{ display:"inline-flex", alignItems:"center", justifyContent:"center", width: isMobile ? 36 : 48, height: isMobile ? 36 : 48, background:"#2a7ab5", borderRadius: isMobile ? 10 : 14, color:"#fff", fontSize: isMobile ? 17 : 22, textDecoration:"none", flexShrink:0, boxShadow:"0 2px 8px #2a7ab555" }}>📞</a>
         </div>
       </header>
 
@@ -465,7 +465,7 @@ export default function LandingPage({ pageTitle, pageSubtitle, heroEmoji, bullet
 
         {/* HERO */}
         <section aria-label={dynamicTitle} style={{ display:"flex", alignItems:"center", position:"relative", overflow:"hidden", paddingTop:showBanner ? 120 : 80 }}>
-          <div style={{ position:"absolute", top:"20%", right:"-8%", width:500, height:500, background:"radial-gradient(circle, #c9a84c09 0%, transparent 70%)", pointerEvents:"none" }} aria-hidden="true" />
+          <div style={{ position:"absolute", top:"20%", right:"-8%", width:500, height:500, background:"radial-gradient(circle, #2a7ab509 0%, transparent 70%)", pointerEvents:"none" }} aria-hidden="true" />
           <div className="hero-wrap" style={{ maxWidth:900, margin:"0 auto", padding:"48px 24px 32px", width:"100%", textAlign:"center" }}>
 
               <h1 className="ht" style={{ fontSize:44, fontWeight:900, lineHeight:1.25, marginBottom:14 }}>
@@ -480,7 +480,7 @@ export default function LandingPage({ pageTitle, pageSubtitle, heroEmoji, bullet
               </div>
 
               {socialProofLabel && (
-                <div style={{ display:"inline-flex", alignItems:"center", gap:8, background:"#141b2d", border:"1px solid #1e2d4a", borderRadius:14, padding:"10px 18px", marginBottom:24 }}>
+                <div style={{ display:"inline-flex", alignItems:"center", gap:8, background:"#f8f9fb", border:"1px solid #dde3ea", borderRadius:14, padding:"10px 18px", marginBottom:24 }}>
                   <span style={{ fontSize:14, fontWeight:700, color:G }}>✓</span>
                   <span style={{ fontSize:13, color:"#7a8fa5" }}>{socialProofLabel} — פוצה בהצלחה</span>
                 </div>
@@ -518,7 +518,7 @@ export default function LandingPage({ pageTitle, pageSubtitle, heroEmoji, bullet
         )}
 
         {/* CTA SECTION */}
-        <section style={{ padding:"68px 24px", background:"#0d1323" }}>
+        <section style={{ padding:"68px 24px", background:"#f8f9fb" }}>
           <div className="sect-inner" style={{ maxWidth:500, margin:"0 auto", textAlign:"center" }}>
             <h2 style={{ fontSize:28, fontWeight:900, marginBottom:12 }}>דברו איתנו עכשיו</h2>
             <p style={{ color:"#7a8fa5", fontSize:15, marginBottom:36 }}>ייעוץ ראשוני חינמי, ללא התחייבות</p>
@@ -537,16 +537,16 @@ export default function LandingPage({ pageTitle, pageSubtitle, heroEmoji, bullet
       </main>
 
       {/* FOOTER */}
-      <footer role="contentinfo" style={{ background:"#060a12", borderTop:"1px solid #1e2d4a", padding:"24px" }}>
+      <footer role="contentinfo" style={{ background:"#0a2240", borderTop:"1px solid #1a4a7a", padding:"24px" }}>
         <div style={{ maxWidth:1100, margin:"0 auto", display:"flex", justifyContent:"space-between", alignItems:"center", flexWrap:"wrap", gap:12 }}>
-          <div style={{ fontSize:13, color:"#7a8fa5" }}>© 2025 nifgati.co.il | {MY_NAME}, עו״ד נזיקין (25 שנות ניסיון)</div>
+          <div style={{ fontSize:13, color:"#ffffffbb" }}>© 2025 nifgati.co.il | {MY_NAME}, עו״ד נזיקין (25 שנות ניסיון)</div>
           <nav aria-label="קישורי מדיניות" style={{ display:"flex", gap:20 }}>
-            <a href="/privacy" style={{ fontSize:12, color:"#7a8fa5" }}>מדיניות פרטיות</a>
-            <a href="/accessibility" style={{ fontSize:12, color:"#7a8fa5" }}>נגישות</a>
-            <a href="#" style={{ fontSize:12, color:"#7a8fa5" }}>תנאי שימוש</a>
+            <a href="/privacy" style={{ fontSize:12, color:"#ffffffbb" }}>מדיניות פרטיות</a>
+            <a href="/accessibility" style={{ fontSize:12, color:"#ffffffbb" }}>נגישות</a>
+            <a href="#" style={{ fontSize:12, color:"#ffffffbb" }}>תנאי שימוש</a>
           </nav>
         </div>
-        <p style={{ textAlign:"center", fontSize:11, color:"#2a3545", marginTop:12 }}>
+        <p style={{ textAlign:"center", fontSize:11, color:"#ffffff88", marginTop:12 }}>
           האתר אינו מהווה ייעוץ משפטי. כל מקרה נבחן באופן אישי. | שיחות הבוט אינן נשמרות ואינן מתועדות בשום אופן.
         </p>
       </footer>
@@ -556,9 +556,9 @@ export default function LandingPage({ pageTitle, pageSubtitle, heroEmoji, bullet
 
       {/* Cookie Banner */}
       {!cookie && (
-        <div style={{ position:"fixed", bottom:0, right:0, left:0, background:"#0a0f1eee", borderTop:"1px solid #1e2d4a22", padding:"8px 16px", display:"flex", alignItems:"center", justifyContent:"space-between", gap:12, zIndex:98, fontSize:11, color:"#445566" }}>
-          <span>האתר משתמש בעוגיות Remarketing בלבד. שיחות הבוט אינן נשמרות. <a href="/privacy" style={{ color:"#c9a84c88" }}>פרטיות</a></span>
-          <button style={{ background:"#c9a84c22", color:"#c9a84c", border:"1px solid #c9a84c44", borderRadius:8, fontFamily:"inherit", fontSize:11, padding:"4px 10px", cursor:"pointer", flexShrink:0 }} onClick={() => setCookie(true)}>אישור ✓</button>
+        <div style={{ position:"fixed", bottom:0, right:0, left:0, background:"#ffffffee", borderTop:"1px solid #dde3ea", padding:"8px 16px", display:"flex", alignItems:"center", justifyContent:"space-between", gap:12, zIndex:98, fontSize:11, color:"#5a6a7a" }}>
+          <span>האתר משתמש בעוגיות Remarketing בלבד. שיחות הבוט אינן נשמרות. <a href="/privacy" style={{ color:"#2a7ab5" }}>פרטיות</a></span>
+          <button style={{ background:"#0a224022", color:"#0a2240", border:"1px solid #0a224044", borderRadius:8, fontFamily:"inherit", fontSize:11, padding:"4px 10px", cursor:"pointer", flexShrink:0 }} onClick={() => setCookie(true)}>אישור ✓</button>
         </div>
       )}
     </div>
