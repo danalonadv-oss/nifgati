@@ -4,6 +4,7 @@ import { sendToCrm } from "../utils/crm.js";
 const WA = "972544338212";
 
 // ═══ State Machine: Nifgati Bot ═══
+const STATE_DISCLAIMER = 0;
 const STATE_ROLE = 1;
 const STATE_MEDICAL = 2;
 const STATE_CONTEXT = 3;
@@ -189,7 +190,7 @@ function getPersonalizedOpening() {
   return 'שלום 👋 נפגעת בתאונה? בוא נבדוק ב-60 שניות כמה פיצוי מגיע לך — חינם, ללא התחייבות.';
 }
 
-const DEFAULT_OPENING = "שלום, אני הבוט של ניפגעתי.\nאני מחשב פיצוי לפי הנוסחה של חוק פלת\"ד — כאב וסבל, ימי אשפוז, אחוזי נכות.\nזה לא אומדן כללי — זו הנוסחה שבתי המשפט משתמשים בה.\n\nנתחיל: איך היית מעורב/ת בתאונה?";
+const DEFAULT_OPENING = "שלום, אני הבוט של ניפגעתי.\n\nאני מחשב הערכת פיצוי ראשונית המבוססת על:\nחוק פיצויים לנפגעי תאונות דרכים, תשל״ה-1975, תקנות הפיצויים לנפגעי תאונות דרכים (חישוב פיצויים בשל נזק שאינו נזק ממון), ופסיקת בתי המשפט.\n\nהאמור אינו מהווה יעוץ משפטי ואינו מחליף בירור מעמיק עם עו״ד דן אלון המותאם לנסיבותיך הספציפיות.";
 const PERSONALIZED_SUFFIX = "";
 
 function getInitialMsgs(customOpening) {
@@ -255,11 +256,8 @@ function buildSummary(data, calc) {
 
 
 const INITIAL_QUICK_REPLIES = [
-  { label: "\u{1F697} רכב", value: "סוג התאונה שלי: תאונת רכב." },
-  { label: "\u{1F3CD}\uFE0F אופנוע", value: "סוג התאונה שלי: תאונת אופנוע." },
-  { label: "\u{1F6F4} קורקינט", value: "סוג התאונה שלי: תאונת קורקינט או אופניים חשמליים." },
-  { label: "\u{1F6B6} הולך/ת רגל", value: "סוג התאונה שלי: נפגעתי כהולך רגל." },
-  { label: "\u{1F3D7}\uFE0F תאונת עבודה", value: "סוג התאונה שלי: תאונת עבודה." },
+  { label: "הבנתי, זה אינו יעוץ משפטי — המשך", value: "DISCLAIMER:accept" },
+  { label: "אני מעוניין בייעוץ משפטי ישיר", value: "DISCLAIMER:whatsapp" },
 ];
 
 const ACCIDENT_QUICK_REPLIES = [
@@ -336,7 +334,7 @@ export default function useChat(customOpening) {
   const [calc, setCalc] = useState(null);
   const [err, setErr] = useState("");
   const [showReferral, setShowReferral] = useState(false);
-  const [state, setState] = useState(STATE_ROLE);
+  const [state, setState] = useState(STATE_DISCLAIMER);
   const [data, setData] = useState({ role: null, medical: null, isWork: null, location: null, injury: null, disability: null, monthsOff: null, age: null });
   const [quickReplies, setQuickReplies] = useState(INITIAL_QUICK_REPLIES);
   const [progress, setProgress] = useState(0);
@@ -466,7 +464,7 @@ export default function useChat(customOpening) {
     setInp("");
     setErr("");
     setShowReferral(false);
-    setState(STATE_ROLE);
+    setState(STATE_DISCLAIMER);
     setData({ role: null, medical: null, isWork: null, location: null, injury: null, disability: null, monthsOff: null, age: null });
     // Allow events to fire again for a genuine new calculation
     firedCalcComplete.current = false;
@@ -486,6 +484,38 @@ export default function useChat(customOpening) {
   function send(txt) {
     if (!txt.trim() || load) return;
     setQuickReplies([]); // Always clear immediately on any interaction
+
+    // Handle disclaimer confirmation
+    if (txt.trim().startsWith("DISCLAIMER:")) {
+      const action = txt.trim().replace("DISCLAIMER:", "");
+      setInp("");
+      hasInteracted.current = true;
+      if (action === "whatsapp") {
+        setMsgs(prev => [...prev,
+          { role: "user", content: "אני מעוניין בייעוץ משפטי ישיר" },
+          { role: "assistant", content: "מעביר אותך לשיחה ישירה עם עו״ד דן אלון בוואטסאפ." },
+        ]);
+        setState(STATE_DONE);
+        setTimeout(() => {
+          window.location.href = `https://wa.me/${WA}?text=${encodeURIComponent("שלום דן, אני מעוניין בייעוץ משפטי בנושא תאונת דרכים.")}`;
+        }, 500);
+        return;
+      }
+      // action === "accept"
+      setMsgs(prev => [...prev,
+        { role: "user", content: "הבנתי, זה אינו יעוץ משפטי — המשך" },
+        { role: "assistant", content: "נתחיל: איך היית מעורב/ת בתאונה?" },
+      ]);
+      setState(STATE_ROLE);
+      setQuickReplies(ACCIDENT_QUICK_REPLIES);
+      return;
+    }
+
+    // Block any free-text input before disclaimer is accepted
+    if (state === STATE_DISCLAIMER) {
+      setQuickReplies(INITIAL_QUICK_REPLIES);
+      return;
+    }
 
     // Handle gender selection — show in chat history
     if (txt.trim().startsWith("GENDER:")) {
