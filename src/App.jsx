@@ -218,8 +218,8 @@ export default function App() {
         .pulse{animation:p 2s ease-in-out infinite}
         @keyframes p{0%,100%{opacity:1}50%{opacity:.5}}
         .ck{position:fixed;bottom:0;right:0;left:0;background:#ffffff;border-top:1px solid #dde3ea;padding:14px 20px;display:flex;align-items:center;justify-content:space-between;gap:16px;z-index:98;font-size:13px;color:#7a8fa5}
-        @media(min-width:769px){.hero-wrap{max-width:1200px!important;padding:60px 80px!important}.ht{font-size:4.5rem!important;line-height:1.2!important}.hero-sub{font-size:1.6rem!important}.hero-bullets{font-size:1.2rem!important;max-width:800px!important;margin:0 auto 32px!important}.sect-inner{max-width:1200px!important}}
-        @media(max-width:768px){.g2,.g3{grid-template-columns:1fr}.g4{grid-template-columns:1fr 1fr}.hm{display:none!important}.ht{font-size:34px!important}}
+        @media(min-width:769px){.hero-wrap{max-width:1200px!important;padding:60px 80px!important}.hero-bullets{font-size:1.2rem!important;max-width:800px!important;margin:0 auto 32px!important}.sect-inner{max-width:1200px!important}}
+        @media(max-width:768px){.g2,.g3{grid-template-columns:1fr}.g4{grid-template-columns:1fr 1fr}.hm{display:none!important}}
         @media(max-width:480px){.g4{grid-template-columns:1fr 1fr}}
       `}</style>
 
@@ -258,12 +258,12 @@ export default function App() {
           <div style={{ position:"absolute", top:"20%", right:"-8%", width:500, height:500, background:"radial-gradient(circle, #2a7ab509 0%, transparent 70%)", pointerEvents:"none" }} aria-hidden="true" />
           <div className="hero-wrap" style={{ maxWidth:900, margin:"0 auto", padding:"48px 24px 24px", width:"100%", textAlign:"center" }}>
 
-              <h1 className="ht" style={{ fontSize:48, fontWeight:900, lineHeight:1.25, marginBottom:18 }}>
+              <h1 className="ht" style={{ fontSize:"clamp(32px, 5vw, 56px)", fontWeight:800, lineHeight:1.2, marginBottom:18 }}>
                 נפגעת בתאונת דרכים?<br />
-                <span style={{ color:G }}>בדוק מה מגיע לך לפי החוק</span>
+                <span style={{ color:G }}>גלה כמה מגיע לך לפי החוק</span>
               </h1>
 
-              <p style={{ fontSize:16, color:"#5a6a7a", lineHeight:1.75, maxWidth:700, margin:"0 auto 24px", padding:"0 12px" }}>
+              <p style={{ fontSize:"clamp(17px, 2.5vw, 22px)", fontWeight:500, color:"#1a1a2e", lineHeight:1.8, maxWidth:700, margin:"0 auto 24px", padding:"0 12px" }}>
                 הבוט היחיד בישראל שמחשב פיצוי לפי הנוסחה הסטטוטורית של חוק פלת"ד — לא הערכה כללית.
               </p>
 
