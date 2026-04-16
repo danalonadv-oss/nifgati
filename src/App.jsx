@@ -264,7 +264,7 @@ export default function App() {
               </h1>
 
               <p style={{ fontSize:"clamp(17px, 2.5vw, 22px)", fontWeight:500, color:"#1a1a2e", lineHeight:1.8, maxWidth:700, margin:"0 auto 24px", padding:"0 12px" }}>
-                הבוט היחיד בישראל שמחשב פיצוי לפי הנוסחה הסטטוטורית של חוק פלת"ד — לא הערכה כללית.
+                הבוט היחיד בישראל שמחשב פיצוי לפי הנוסחה הסטטוטורית של חוק פלת"ד.
               </p>
 
               <div style={{ marginBottom:12 }}>
