@@ -135,8 +135,17 @@ export default function Bot({ onClose, inline = false, openingMessage }) {
 
             {calc && !load && (
               <div className={s.calcCard}>
-                <div className={s.calcLabel}>הערכת פיצוי ראשונית</div>
-                <div className={s.calcAmount}>₪{calc.min.toLocaleString("he-IL")} – ₪{calc.max.toLocaleString("he-IL")}</div>
+                <div className={s.calcLabel}>{calc.dual ? "הערכת פיצוי ראשונית — שתי חלופות" : "הערכת פיצוי ראשונית"}</div>
+                {calc.dual ? (
+                  <>
+                    <div style={{ fontSize:14, color:"#ffffffcc", marginBottom:4 }}>א. בהנחת 0% נכות:</div>
+                    <div className={s.calcAmount}>₪{calc.zeroMin.toLocaleString("he-IL")} – ₪{calc.zeroMax.toLocaleString("he-IL")}</div>
+                    <div style={{ fontSize:14, color:"#ffffffcc", marginTop:8, marginBottom:4 }}>ב. בהנחת 10% נכות:</div>
+                    <div className={s.calcAmount}>₪{calc.tenMin.toLocaleString("he-IL")} – ₪{calc.tenMax.toLocaleString("he-IL")}</div>
+                  </>
+                ) : (
+                  <div className={s.calcAmount}>₪{calc.min.toLocaleString("he-IL")} – ₪{calc.max.toLocaleString("he-IL")}</div>
+                )}
                 <div className={s.calcFee}>לפני שכ"ט (8%–13%)</div>
                 <p style={{ fontSize:11, color:"#ffffffbb", textAlign:"center", margin:"8px 0 12px", lineHeight:1.5 }}>* הערכה זו אינה מהווה ייעוץ משפטי ואינה תחליף לו.<br/>ייעוץ משפטי מחייב יינתן על ידי עו״ד דן אלון בלבד.</p>
                 {!leadSubmitted ? (

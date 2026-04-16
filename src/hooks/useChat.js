@@ -46,8 +46,9 @@ const INJURY_TYPES_BY_LOCATION = {
 };
 
 function parseLocations(txt) {
-  // Split on ו, וב, commas, גם, ובנוסף, עם
-  return txt.split(/\s*[,،]\s*|\s+וב|\s+ו(?:גם\s+|בנוסף\s+|\s+)|\s+גם\s+|\s+עם\s+/)
+  // Normalize: remove leading ב from each part, split on connectors
+  return txt
+    .split(/\s*[,،]\s*|\s+וב(?=\S)|\s+ו\s*גם\s+|\s+ובנוסף\s+|\s+עם\s+|\s+ו\s+/)
     .map(s => s.trim().replace(/^ב/, ""))
     .filter(s => s.length > 1);
 }
@@ -602,11 +603,6 @@ export default function useChat(customOpening) {
       } else {
         newData.role = role;
         botMsgs.push({ role: "assistant", content: roleResponse(role) });
-        // Show urgency tip once, right after vehicle type confirmed
-        if (!shownUrgency.current) {
-          shownUrgency.current = true;
-          botMsgs.push({ role: "assistant", content: URGENCY_MSG });
-        }
         botMsgs.push({ role: "assistant", content: getMedicalQuestion(gender) });
         setState(STATE_MEDICAL);
         setProgress(25);
@@ -625,6 +621,11 @@ export default function useChat(customOpening) {
       } else {
         newData.medical = yes;
         botMsgs.push({ role: "assistant", content: medicalResponse(yes) });
+        // Show urgency tip once, after medical confirmation
+        if (yes && !shownUrgency.current) {
+          shownUrgency.current = true;
+          botMsgs.push({ role: "assistant", content: URGENCY_MSG });
+        }
         botMsgs.push({ role: "assistant", content: CONTEXT_QUESTION });
         setState(STATE_CONTEXT);
         trackStep(3, "hospitalized");
@@ -801,7 +802,7 @@ export default function useChat(customOpening) {
         const cZero = calculateCompensation(newData, [...msgs, userMsg], 0);
         const cTen = calculateCompensation(newData, [...msgs, userMsg], 10);
         botMsgs.push({ role: "assistant", content: `על בסיס הנתונים שלך — שתי הערכות:\n\nא. בהנחת 0% נכות: ₪${cZero.min.toLocaleString("he-IL")} – ₪${cZero.max.toLocaleString("he-IL")}\nב. בהנחת 10% נכות: ₪${cTen.min.toLocaleString("he-IL")} – ₪${cTen.max.toLocaleString("he-IL")}` });
-        c = cTen; // use the higher estimate for the calc card display
+        c = { min: cTen.min, max: cTen.max, dual: true, zeroMin: cZero.min, zeroMax: cZero.max, tenMin: cTen.min, tenMax: cTen.max };
       } else {
         c = calculateCompensation(newData, [...msgs, userMsg]);
         botMsgs.push({ role: "assistant", content: "על בסיס הנתונים שלך:" });
