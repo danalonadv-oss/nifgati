@@ -376,18 +376,18 @@ export default function App() {
         {/* ATTORNEY SECTION */}
         <section aria-label="אודות עורך הדין" style={{ padding:"68px 24px", background:"#f8f9fb" }}>
           <Reveal>
-            <div className="sect-inner" style={{ maxWidth:700, margin:"0 auto" }}>
-              <div>
-                <h2 style={{ fontSize:26, fontWeight:900, marginBottom:18 }}>עו״ד דן אלון</h2>
-                <div style={{ display:"flex", flexDirection:"column", gap:12 }}>
+            <div className="sect-inner" style={{ maxWidth:700, margin:"0 auto", textAlign:"center" }}>
+              <div style={{ display:"flex", flexDirection:"column", alignItems:"center" }}>
+                <h2 style={{ fontSize:28, fontWeight:700, marginBottom:18, color:"#1a1a2e", textAlign:"center" }}>עו״ד דן אלון</h2>
+                <div style={{ display:"flex", flexDirection:"column", gap:12, alignItems:"center" }}>
                   {attorneyBullets.map(b => (
-                    <div key={b} style={{ display:"flex", gap:10, alignItems:"flex-start", fontSize:15, color:"#bcc8d4", lineHeight:1.6 }}>
-                      <span style={{ color:G, fontWeight:700, flexShrink:0, fontSize:16 }}>✓</span>
+                    <div key={b} style={{ display:"flex", gap:10, alignItems:"flex-start", fontSize:17, color:"#1a1a2e", lineHeight:2, fontWeight:500 }}>
+                      <span style={{ color:"#2255a4", fontWeight:700, flexShrink:0, fontSize:18 }}>✓</span>
                       <span>{b}</span>
                     </div>
                   ))}
                 </div>
-                <button style={{ ...gBtn, marginTop:24 }} onClick={openBot} aria-label="בדיקת פיצוי">💬 בדיקת פיצוי חינם</button>
+                <button style={{ ...gBtn, display:"block", margin:"24px auto 0 auto" }} onClick={openBot} aria-label="בדיקת פיצוי">💬 בדיקת פיצוי חינם</button>
               </div>
             </div>
           </Reveal>
