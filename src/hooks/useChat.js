@@ -17,8 +17,10 @@ const STATE_DONE = 10;
 
 const LOCATION_EXAMPLES = ["ברך", "כתף", "צוואר", "גב תחתון", "ראש", "יד", "קרסול", "צלעות", "בטן", "ירך", "מרפק", "אגן"];
 
-function getLocationQuestion() {
+function getLocationQuestion(g) {
   const shuffled = [...LOCATION_EXAMPLES].sort(() => Math.random() - 0.5);
+  if (g === "female") return `היכן נפגעת?\nלדוגמה: ${shuffled[0]}, ${shuffled[1]} — או כל מקום אחר.`;
+  if (g === "male") return `היכן נפגעת?\nלדוגמה: ${shuffled[0]}, ${shuffled[1]} — או כל מקום אחר.`;
   return `היכן נפגעת?\nלדוגמה: ${shuffled[0]}, ${shuffled[1]} — או כל מקום אחר.`;
 }
 
@@ -31,7 +33,11 @@ const CAR_RE = /תאונת רכב|ברכב/i;
 const WORK_ACCIDENT_RE = /תאונת עבודה|בעבודה/i;
 const QUICK_REPLY_PREFIX_RE = /סוג התאונה שלי:/;
 
-const MEDICAL_QUESTION = "האם פונית למיון או לבית חולים?";
+function getMedicalQuestion(g) {
+  if (g === "female") return "האם פנית למיון או לבית חולים?";
+  if (g === "male") return "האם פנית למיון או לבית חולים?";
+  return "האם פנית למיון או לבית חולים?";
+}
 const YES_RE = /כן|בטח|פונ|מיון|בית.?חולים|אמבולנס|ניתוח|אשפוז/i;
 const NO_RE = /לא|אף|בלי/i;
 
@@ -40,8 +46,15 @@ const WORK_RE = /עבודה|בדרך ל|בחזרה מ|עובד|נסיעה לעב
 
 const INJURY_QUESTION = "מה סוג הפגיעה?\nלמשל: צליפת שוט, שבר, פריצת דיסק, PTSD, פגיעה רכה — או תאר במילים שלך.";
 const DISABILITY_QUESTION = "האם נקבעו לך אחוזי נכות?";
-const MONTHS_OFF_QUESTION = "כמה ימים לא עבדת (או צפוי שלא תעבוד) בגלל התאונה?";
-const AGE_QUESTION = "בן כמה אתה?";
+function getMonthsOffQuestion(g) {
+  if (g === "female") return "כמה ימים לא עבדת (או צפוי שלא תעבדי) בגלל התאונה?";
+  return "כמה ימים לא עבדת (או צפוי שלא תעבוד) בגלל התאונה?";
+}
+function getAgeQuestion(g) {
+  if (g === "female") return "בת כמה את?";
+  if (g === "male") return "בן כמה אתה?";
+  return "בן/בת כמה אתה/את?";
+}
 
 // ── Injury → estimated disability mapping ──
 function estimateDisability(injuryText) {
@@ -176,7 +189,7 @@ function getPersonalizedOpening() {
   return 'שלום 👋 נפגעת בתאונה? בוא נבדוק ב-60 שניות כמה פיצוי מגיע לך — חינם, ללא התחייבות.';
 }
 
-const DEFAULT_OPENING = "שלום, אני הבוט של ניפגעתי.\nאני מחשב פיצוי לפי הנוסחה של חוק פלת\"ד — כאב וסבל, ימי אשפוז, אחוזי נכות.\nזה לא אומדן כללי — זו הנוסחה שבתי המשפט משתמשים בה.\n\nנתחיל: איך היית מעורב בתאונה?";
+const DEFAULT_OPENING = "שלום, אני הבוט של ניפגעתי.\nאני מחשב פיצוי לפי הנוסחה של חוק פלת\"ד — כאב וסבל, ימי אשפוז, אחוזי נכות.\nזה לא אומדן כללי — זו הנוסחה שבתי המשפט משתמשים בה.\n\nנתחיל: איך היית מעורב/ת בתאונה?";
 const PERSONALIZED_SUFFIX = "";
 
 function getInitialMsgs(customOpening) {
@@ -514,7 +527,7 @@ export default function useChat(customOpening) {
     if (state === STATE_ROLE) {
       const role = classifyRole(txt);
       if (!role) {
-        botMsgs.push({ role: "assistant", content: "לא הבנתי. היית הנהג, נוסע, הולך רגל, או רוכב אופנוע/קורקינט?" });
+        botMsgs.push({ role: "assistant", content: gender === "female" ? "לא הבנתי. היית הנהגת, נוסעת, הולכת רגל, או רוכבת אופנוע/קורקינט?" : "לא הבנתי. היית הנהג, נוסע, הולך רגל, או רוכב אופנוע/קורקינט?" });
       } else {
         newData.role = role;
         botMsgs.push({ role: "assistant", content: roleResponse(role) });
@@ -523,7 +536,7 @@ export default function useChat(customOpening) {
           shownEarlyEstimate.current = true;
           botMsgs.push({ role: "assistant", content: EARLY_ESTIMATE_MSG });
         }
-        botMsgs.push({ role: "assistant", content: MEDICAL_QUESTION });
+        botMsgs.push({ role: "assistant", content: getMedicalQuestion(gender) });
         setState(STATE_MEDICAL);
         setProgress(25);
         trackStep(2, "accident_type");
@@ -537,7 +550,7 @@ export default function useChat(customOpening) {
       const yes = YES_RE.test(txt);
       const no = NO_RE.test(txt);
       if (!yes && !no) {
-        botMsgs.push({ role: "assistant", content: "פונית למיון או לבית חולים? כן או לא?" });
+        botMsgs.push({ role: "assistant", content: gender === "female" ? "פנית למיון או לבית חולים? כן או לא?" : "פנית למיון או לבית חולים? כן או לא?" });
       } else {
         newData.medical = yes;
         botMsgs.push({ role: "assistant", content: medicalResponse(yes) });
@@ -551,7 +564,7 @@ export default function useChat(customOpening) {
       newData.isWork = isWork;
       botMsgs.push({ role: "assistant", content: contextResponse(isWork) });
       trackStep(4, "work_related");
-      botMsgs.push({ role: "assistant", content: getLocationQuestion() });
+      botMsgs.push({ role: "assistant", content: getLocationQuestion(gender) });
       setState(STATE_LOCATION);
     } else if (state === STATE_LOCATION) {
       newData.location = txt.trim();
@@ -592,7 +605,7 @@ export default function useChat(customOpening) {
         setMsgs(p => [...p, userMsg, ...botMsgs]);
         return;
       }
-      botMsgs.push({ role: "assistant", content: MONTHS_OFF_QUESTION });
+      botMsgs.push({ role: "assistant", content: getMonthsOffQuestion(gender) });
       setState(STATE_MONTHS_OFF);
       setProgress(75);
       setQuickReplies([
@@ -606,18 +619,18 @@ export default function useChat(customOpening) {
     } else if (state === STATE_MONTHS_OFF) {
       const monthMatch = txt.match(/(\d+)/);
       if (!monthMatch) {
-        botMsgs.push({ role: "assistant", content: "כמה ימים לא עבדת? כתוב מספר." });
+        botMsgs.push({ role: "assistant", content: gender === "female" ? "כמה ימים לא עבדת? כתבי מספר." : "כמה ימים לא עבדת? כתוב מספר." });
       } else {
         newData.monthsOff = parseInt(monthMatch[1]);
         botMsgs.push({ role: "assistant", content: `${newData.monthsOff} ימים — זה ייכלל בחישוב הפסדי השכר.` });
-        botMsgs.push({ role: "assistant", content: AGE_QUESTION });
+        botMsgs.push({ role: "assistant", content: getAgeQuestion(gender) });
         setState(STATE_AGE);
         trackStep(5, "age_asked");
       }
     } else if (state === STATE_AGE) {
       const ageMatch = txt.match(/(\d+)/);
       if (!ageMatch) {
-        botMsgs.push({ role: "assistant", content: "בן כמה אתה? כתוב מספר." });
+        botMsgs.push({ role: "assistant", content: gender === "female" ? "בת כמה את? כתבי מספר." : "בן כמה אתה? כתוב מספר." });
       } else {
         newData.age = ageMatch[1];
         const salaryQ = gender === "female"
