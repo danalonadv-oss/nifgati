@@ -202,8 +202,10 @@ export default function App() {
         a{text-decoration:none;color:inherit}
         ::-webkit-scrollbar{width:4px}
         ::-webkit-scrollbar-thumb{background:#dde3ea;border-radius:2px}
-        .nl{color:#5a6a7a;font-size:14px;font-weight:500;border-bottom:2px solid transparent;transition:all .2s}
-        .nl:hover{color:#2a7ab5;border-bottom-color:#2a7ab5}
+        .nl{color:#ffffff;font-size:15px;font-weight:500;border-bottom:2px solid transparent;transition:all .2s}
+        .nl:hover{color:#ffffff;border-bottom-color:#ffffff}
+        @keyframes phonePulse{0%,100%{box-shadow:0 0 0 0 rgba(230,57,70,0.5)}50%{box-shadow:0 0 0 10px rgba(230,57,70,0)}}
+        .phone-pulse{animation:phonePulse 2s ease-in-out infinite}
         .card{background:#ffffff;border:1px solid #dde3ea;border-radius:18px;padding:28px 24px;transition:all .3s}
         .card:hover{border-color:#2a7ab555;transform:translateY(-4px)}
         .step{background:#f8f9fb;border:1px solid #dde3ea;border-radius:18px;padding:28px 24px}
@@ -238,12 +240,12 @@ export default function App() {
           <a href="/" aria-label="ניפגעתי — עמוד בית" style={{ display:"flex", alignItems:"center" }}>
             <img src="/logo.png" alt="nifgati" width={isMobile ? 112 : 225} height={isMobile ? 28 : 56} style={{ height: isMobile ? 28 : 56, width:"auto", objectFit:"contain" }} />
           </a>
-          <nav role="navigation" aria-label="ניווט ראשי" style={{ display:"flex", gap:28, alignItems:"center" }} className="hm">
+          <nav role="navigation" aria-label="ניווט ראשי" style={{ display:"flex", gap:32, alignItems:"center" }} className="hm">
             {nav.map(n => <a key={n.l} href={n.h} className="nl">{n.l}</a>)}
           </nav>
           <div style={{ display:"flex", alignItems:"center", gap:12 }}>
-            <a href="tel:0544338212" aria-label="התקשר אלינו" onClick={() => { window.dataLayer=window.dataLayer||[]; window.dataLayer.push({event:'phone_click',event_category:'engagement',event_label:'phone_button'}); }} style={{ display:"inline-flex", alignItems:"center", justifyContent:"center", width: isMobile ? 36 : 48, height: isMobile ? 36 : 48, background:"#2a7ab5", borderRadius: isMobile ? 10 : 14, color:"#fff", fontSize: isMobile ? 17 : 22, textDecoration:"none", flexShrink:0, boxShadow:"0 2px 8px #2a7ab555" }}>📞</a>
-            <button style={{ ...gBtn, height: isMobile ? 36 : 48, padding: isMobile ? "0 12px" : "0 20px", fontSize: isMobile ? 13 : 15 }} onClick={openBot} aria-label="בדיקת גובה הפיצוי">בדיקת פיצוי</button>
+            <a href="tel:0544338212" aria-label="התקשר אלינו" className="phone-pulse" onClick={() => { window.dataLayer=window.dataLayer||[]; window.dataLayer.push({event:'phone_click',event_category:'engagement',event_label:'phone_button'}); }} style={{ display:"inline-flex", alignItems:"center", justifyContent:"center", width:48, height:48, background:"#E63946", borderRadius:14, color:"#fff", fontSize:22, textDecoration:"none", flexShrink:0 }}>📞</a>
+            <button style={{ background:"#F4A300", color:"#ffffff", border:"none", borderRadius:8, fontFamily:"inherit", fontWeight:800, fontSize: isMobile ? 14 : 16, padding:"10px 20px", cursor:"pointer", display:"inline-flex", alignItems:"center", gap:8, whiteSpace:"nowrap" }} onClick={openBot} aria-label="בדיקת פיצוי חינם">בדיקת פיצוי חינם</button>
           </div>
         </div>
       </header>
