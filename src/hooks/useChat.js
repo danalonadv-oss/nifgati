@@ -11,10 +11,11 @@ const STATE_CONTEXT = 3;
 const STATE_LOCATION = 4;
 const STATE_INJURY_LOOP = 5;
 const STATE_DISABILITY = 6;
-const STATE_MONTHS_OFF = 7;
-const STATE_AGE = 8;
-const STATE_SALARY = 9;
-const STATE_DONE = 10;
+const STATE_HOSPITALIZATION = 7;
+const STATE_MONTHS_OFF = 8;
+const STATE_AGE = 9;
+const STATE_SALARY = 10;
+const STATE_DONE = 11;
 
 const LOCATION_QUESTION = "היכן נפגעת וממה אתה סובל?";
 
@@ -127,20 +128,27 @@ function extractSalary(msgs) {
 // ── Paltad-based calculation ──
 function calculateCompensation(data, msgs) {
   const ageNum = parseInt(data.age) || 30;
-  const disability = data.disability || 10;
-  const monthsOff = data.monthsOff || 3;
+  const disability = data.disability != null ? data.disability : 10;
+  const hospitalizationDays = data.hospitalizationDays != null ? data.hospitalizationDays : 0;
+  const daysOff = data.monthsOff != null ? data.monthsOff : 0;
   const salary = extractSalary(msgs) || 13566;
+  const dailySalary = salary / 22;
 
-  // Age factor: younger = higher multiplier (more years of suffering)
-  const ageFactor = ageNum <= 25 ? 1.3 : ageNum <= 40 ? 1.1 : ageNum <= 55 ? 1.0 : 0.85;
+  // Age reduction for pain & suffering: 1% per year over 30
+  const ageReduction = Math.max(0, ageNum - 30) * 0.01;
+  const ageFactor = Math.max(0.5, 1 - ageReduction);
 
-  // Pain & suffering (paltad formula base)
-  const painSuffering = (disability / 100) * ageFactor * 182000;
+  // Pain & suffering — two components:
+  // 1. Disability component (nכות-based)
+  const painDisability = (disability / 100) * ageFactor * 182000;
+  // 2. Hospitalization component (₪360/day, applies even at 0% disability)
+  const painHospitalization = hospitalizationDays * 360;
+  const painSuffering = painDisability + painHospitalization;
 
-  // Lost wages
-  const lostWages = salary * monthsOff;
+  // Lost wages (days off work × daily salary)
+  const lostWages = daysOff * dailySalary;
 
-  // Work capacity loss for significant disability
+  // Work capacity loss for significant disability (10%+)
   const futureCapacity = disability >= 10 ? (disability / 100) * salary * 12 * 3 : 0;
 
   // Medical expenses estimate
@@ -276,7 +284,7 @@ function contextResponse(isWork) {
 }
 
 function buildSummary(data, calc) {
-  const { role, medical, isWork, injuries, age, injury, disability, monthsOff } = data;
+  const { role, medical, isWork, injuries, age, injury, disability, hospitalizationDays, monthsOff } = data;
   const ageNum = parseInt(age) || 30;
   const roleLabel = roleToLabel(role) || "לא צוין";
   const contextLabel = isWork ? "תאונה בדרך לעבודה (זכאות כפולה — ביטוח + ביטוח לאומי)" : "תאונה פרטית";
@@ -284,8 +292,9 @@ function buildSummary(data, calc) {
   const injuryLines = injuries && Object.keys(injuries).length > 0
     ? Object.entries(injuries).map(([loc, inj]) => `  - ${loc}: ${inj}`).join("\n")
     : (injury || "לא צוין");
+  const hospLabel = hospitalizationDays != null ? hospitalizationDays : "לא צוין";
 
-  return `סיכום:\n• תפקיד: ${roleLabel}\n• ${medLabel}\n• ${contextLabel}\n• פגיעות:\n${injuryLines}\n• אחוזי נכות: ${disability}%\n• ימי היעדרות: ${monthsOff}\n• גיל: ${ageNum}\n\nהערכת פיצוי ראשונית: ₪${calc.min.toLocaleString("he-IL")} – ₪${calc.max.toLocaleString("he-IL")}\n\nזוהי הערכה ראשונית בלבד לפי נוסחת הפלת״ד. לחץ על הכפתור למטה כדי לדבר עם עו"ד דן אלון בוואטסאפ ולקבל הערכה מדויקת.`;
+  return `סיכום:\n• תפקיד: ${roleLabel}\n• ${medLabel}\n• ${contextLabel}\n• פגיעות:\n${injuryLines}\n• אחוזי נכות: ${disability}%\n• ימי אשפוז: ${hospLabel}\n• ימי היעדרות מעבודה: ${monthsOff}\n• גיל: ${ageNum}\n\nהערכת פיצוי ראשונית: ₪${calc.min.toLocaleString("he-IL")} – ₪${calc.max.toLocaleString("he-IL")}\n\nזוהי הערכה ראשונית בלבד לפי נוסחת הפלת״ד. לחץ על הכפתור למטה כדי לדבר עם עו"ד דן אלון בוואטסאפ ולקבל הערכה מדויקת.`;
 }
 
 
@@ -366,7 +375,7 @@ export default function useChat(customOpening) {
   const [err, setErr] = useState("");
   const [showReferral, setShowReferral] = useState(false);
   const [state, setState] = useState(STATE_DISCLAIMER);
-  const [data, setData] = useState({ role: null, medical: null, isWork: null, locations: [], injuries: {}, currentLocation: null, injury: null, disability: null, monthsOff: null, age: null });
+  const [data, setData] = useState({ role: null, medical: null, isWork: null, locations: [], injuries: {}, currentLocation: null, injury: null, disability: null, hospitalizationDays: null, monthsOff: null, age: null });
   const [quickReplies, setQuickReplies] = useState(INITIAL_QUICK_REPLIES);
   const [progress, setProgress] = useState(0);
   const [gender, setGender] = useState(null);
@@ -497,7 +506,7 @@ export default function useChat(customOpening) {
     setErr("");
     setShowReferral(false);
     setState(STATE_DISCLAIMER);
-    setData({ role: null, medical: null, isWork: null, locations: [], injuries: {}, currentLocation: null, injury: null, disability: null, monthsOff: null, age: null });
+    setData({ role: null, medical: null, isWork: null, locations: [], injuries: {}, currentLocation: null, injury: null, disability: null, hospitalizationDays: null, monthsOff: null, age: null });
     // Allow events to fire again for a genuine new calculation
     firedCalcComplete.current = false;
     firedWhatsAppClick.current = false;
@@ -719,17 +728,35 @@ export default function useChat(customOpening) {
         setMsgs(p => [...p, userMsg, ...botMsgs]);
         return;
       }
-      botMsgs.push({ role: "assistant", content: getMonthsOffQuestion(gender) });
-      setState(STATE_MONTHS_OFF);
-      setProgress(75);
+      botMsgs.push({ role: "assistant", content: "כמה ימים אושפזת בבית חולים?" });
+      setState(STATE_HOSPITALIZATION);
+      setProgress(65);
       setQuickReplies([
-        { label: "0 ימים", value: "0" },
-        { label: "7 ימים", value: "7" },
-        { label: "14 ימים", value: "14" },
-        { label: "30 ימים", value: "30" },
-        { label: "60 ימים", value: "60" },
-        { label: "90+ ימים", value: "90" },
+        { label: "0 — לא אושפזתי", value: "0" },
+        { label: "1-2 ימים", value: "2" },
+        { label: "3-7 ימים", value: "5" },
+        { label: "7-14 ימים", value: "10" },
+        { label: "מעל 14 ימים", value: "20" },
       ]);
+    } else if (state === STATE_HOSPITALIZATION) {
+      const hospMatch = txt.match(/(\d+)/);
+      if (!hospMatch) {
+        botMsgs.push({ role: "assistant", content: "כמה ימים אושפזת? כתוב מספר, או 0 אם לא אושפזת." });
+      } else {
+        newData.hospitalizationDays = parseInt(hospMatch[1]);
+        botMsgs.push({ role: "assistant", content: newData.hospitalizationDays > 0 ? `${newData.hospitalizationDays} ימי אשפוז — ייכללו בחישוב כאב וסבל.` : "הבנתי — ללא אשפוז." });
+        botMsgs.push({ role: "assistant", content: getMonthsOffQuestion(gender) });
+        setState(STATE_MONTHS_OFF);
+        setProgress(75);
+        setQuickReplies([
+          { label: "0 ימים", value: "0" },
+          { label: "7 ימים", value: "7" },
+          { label: "14 ימים", value: "14" },
+          { label: "30 ימים", value: "30" },
+          { label: "60 ימים", value: "60" },
+          { label: "90+ ימים", value: "90" },
+        ]);
+      }
     } else if (state === STATE_MONTHS_OFF) {
       const monthMatch = txt.match(/(\d+)/);
       if (!monthMatch) {
@@ -833,6 +860,7 @@ export default function useChat(customOpening) {
       lines.push(`פגיעה: ${data.injury}`);
     }
     if (data.disability != null) lines.push(`נכות: ${data.disability}%`);
+    if (data.hospitalizationDays != null) lines.push(`ימי אשפוז: ${data.hospitalizationDays}`);
     if (calc) lines.push(`הערכת פיצוי: ₪${calc.min.toLocaleString("he-IL")} – ₪${calc.max.toLocaleString("he-IL")}`);
     lines.push("אשמח לבדיקה מעמיקה.");
     waMsg = lines.join("\n");
