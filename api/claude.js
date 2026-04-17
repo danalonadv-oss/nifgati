@@ -185,7 +185,7 @@ export default async function handler(req, res) {
   const timeout = setTimeout(() => controller.abort(), timeoutMs);
 
   // Log sanitized message structure for debugging (roles + content types, no data)
-  console.log("API request:", JSON.stringify(sanitized.map(m => ({
+  console.log("API request:", "domain=" + (domain || "default"), JSON.stringify(sanitized.map(m => ({
     role: m.role,
     contentType: typeof m.content === "string" ? "string" : (Array.isArray(m.content) ? m.content.map(p=>p.type) : typeof m.content),
   }))));
@@ -201,7 +201,7 @@ export default async function handler(req, res) {
       },
       body: JSON.stringify({
         model:      selectedModel,
-        max_tokens: isMedical ? 150 : 2000,
+        max_tokens: isMedical ? 200 : 2000,
         ...(isMedical ? { temperature: 0.2 } : {}),
         system:     isMedical ? MEDICAL_SYSTEM : SYSTEM,
         messages:   sanitized,

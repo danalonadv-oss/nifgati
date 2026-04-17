@@ -37,7 +37,9 @@ function formatDateHe(iso) {
 
 function calcSol(incidentISO, discoveryISO) {
   if (!incidentISO) return null;
-  const start = new Date(discoveryISO || incidentISO);
+  // Ignore discovery date if it's before the incident (illogical)
+  const effectiveDiscovery = (discoveryISO && discoveryISO >= incidentISO) ? discoveryISO : null;
+  const start = new Date(effectiveDiscovery || incidentISO);
   if (isNaN(start.getTime())) return null;
   const deadline = new Date(start.getFullYear() + 7, start.getMonth(), start.getDate());
   const now = new Date();
@@ -108,7 +110,7 @@ function buildWhatsAppText({ caseType, incidentDate, detectedCount }) {
   const dateStr = formatDateHe(incidentDate);
   const detectedLine = detectedCount === 0
     ? "הבדיקה הראשונית לא הציפה סוגיה בולטת, אך אשמח בכל זאת להתייעצות."
-    : `זוהו: ${detectedCount} סוגיות בבדיקה הראשונית.`;
+    : `בבדיקה הראשונית עלו ${detectedCount} סוגיות לבחינה מעמיקה.`;
   const dateLine = dateStr ? `תאריך האירוע: ${dateStr}\n` : "";
   return `שלום, פניתי דרך אתר נפגעתי לגבי בדיקת זכאות לרשלנות רפואית.
 סוג מקרה: ${caseType || "לא צוין"}
@@ -185,6 +187,7 @@ export default function MedicalBot() {
 
   async function submitLead(e) {
     e?.preventDefault?.();
+    if (leadSubmitting || leadSubmitted) return;
     if (!leadName.trim()) return;
     if (!validateIsraeliPhone(leadPhone)) { setPhoneErr("אנא הזן מספר טלפון ישראלי תקין"); return; }
     setPhoneErr("");
@@ -247,7 +250,7 @@ export default function MedicalBot() {
     <div style={card}>
       <div style={headerBar}>
         <span style={{ fontSize:16, fontWeight:800 }}>🩺 בדיקת זכאות - רשלנות רפואית</span>
-        <span style={{ fontSize:13, fontWeight:700, color:"#ffffffcc" }}>שלב {step} מתוך 5</span>
+        <span role="status" aria-live="polite" style={{ fontSize:13, fontWeight:700, color:"#ffffffcc" }}>שלב {step} מתוך 5</span>
       </div>
       <div style={{ background:"#dde3ea", height:4 }}>
         <div style={{ background:ACCENT, height:4, width:`${progressPct}%`, transition:"width .4s ease" }} />
@@ -262,7 +265,7 @@ export default function MedicalBot() {
             <div style={{ fontSize:14, color:"#2d3e52", fontWeight:600, marginBottom:14 }}>בחר את סוג המקרה שהכי מתאים למה שקרה:</div>
             <div style={{ display:"flex", flexDirection:"column", gap:10 }}>
               {CASE_TYPES.map(t => (
-                <button key={t} onClick={() => handleCaseType(t)} style={choiceBtn(caseType === t)}>{t}</button>
+                <button key={t} onClick={() => handleCaseType(t)} aria-pressed={caseType === t} style={choiceBtn(caseType === t)}>{t}</button>
               ))}
             </div>
           </div>
@@ -279,6 +282,8 @@ export default function MedicalBot() {
               rows={isMobile ? 6 : 7}
               style={{ ...input, minHeight: isMobile ? 140 : 160, resize:"vertical", lineHeight:1.7 }}
               disabled={apiLoading}
+              aria-label="תיאור האירוע הרפואי"
+              maxLength={2000}
             />
             {freeTextErr && <div style={{ ...bannerErr, marginTop:10, marginBottom:0 }}>{freeTextErr}</div>}
             <div style={{ fontSize:11, color:"#7a8fa5", marginTop:8, textAlign:"left" }}>{freeText.length}/2000</div>
@@ -327,7 +332,7 @@ export default function MedicalBot() {
               <div style={label}>האם נגרם נזק קבוע, נכות או אשפוז ממושך?</div>
               <div style={{ display:"grid", gridTemplateColumns: isMobile ? "1fr" : "repeat(3,1fr)", gap:8 }}>
                 {PERM_DAMAGE_OPTIONS.map(o => (
-                  <button key={o} onClick={() => setPermanentDamage(o)} style={choiceBtn(permanentDamage === o)}>{o}</button>
+                  <button key={o} onClick={() => setPermanentDamage(o)} aria-pressed={permanentDamage === o} style={choiceBtn(permanentDamage === o)}>{o}</button>
                 ))}
               </div>
             </div>
@@ -336,7 +341,7 @@ export default function MedicalBot() {
               <div style={label}>האם בידיך התיעוד הרפואי של הטיפול?</div>
               <div style={{ display:"grid", gridTemplateColumns: isMobile ? "1fr" : "repeat(3,1fr)", gap:8 }}>
                 {RECORDS_OPTIONS.map(o => (
-                  <button key={o} onClick={() => setHasRecords(o)} style={choiceBtn(hasRecords === o)}>{o}</button>
+                  <button key={o} onClick={() => setHasRecords(o)} aria-pressed={hasRecords === o} style={choiceBtn(hasRecords === o)}>{o}</button>
                 ))}
               </div>
             </div>
@@ -345,7 +350,7 @@ export default function MedicalBot() {
               <div style={label}>איזה מוסד טיפל?</div>
               <div style={{ display:"grid", gridTemplateColumns: isMobile ? "1fr" : "repeat(2,1fr)", gap:8 }}>
                 {INSTITUTION_OPTIONS.map(o => (
-                  <button key={o} onClick={() => setInstitutionType(o)} style={choiceBtn(institutionType === o)}>{o}</button>
+                  <button key={o} onClick={() => setInstitutionType(o)} aria-pressed={institutionType === o} style={choiceBtn(institutionType === o)}>{o}</button>
                 ))}
               </div>
             </div>
@@ -364,13 +369,13 @@ export default function MedicalBot() {
 
             {detectedCategories.length > 0 ? (
               <>
-                <div style={subtitle}>תודה על המידע. בהתבסס על הנתונים שמסרת, זיהינו {detectedCategories.length} סוגיות שעשויות להצדיק בדיקה מעמיקה יותר:</div>
+                <div style={subtitle}>תודה על המידע. בהתבסס על הנתונים שמסרת, עלו {detectedCategories.length} סוגיות לבדיקה מעמיקה יותר:</div>
                 <div style={{ marginBottom:14 }}>
                   {detectedCategories.map(c => <span key={c} style={pill}>{c}</span>)}
                 </div>
               </>
             ) : (
-              <div style={subtitle}>לא זיהינו סוגיה בולטת מתוך התיאור, אך הדבר אינו שולל עילת תביעה. בדיקה מלאה של התיעוד הרפואי עם עורך דין היא הדרך היחידה לתשובה מוסמכת.</div>
+              <div style={subtitle}>לא עלתה סוגיה בולטת מתוך התיאור, אך הדבר אינו שולל עילת תביעה. בדיקה מלאה של התיעוד הרפואי עם עורך דין היא הדרך היחידה לתשובה מוסמכת.</div>
             )}
 
             {apiErrored && (

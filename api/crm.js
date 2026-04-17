@@ -72,6 +72,42 @@ async function appendRow(accessToken, spreadsheetId, sheetName, values) {
   return res.json();
 }
 
+// Ensure a sheet tab exists (best-effort — logs and swallows errors so it can't
+// block a lead write). Creates the tab with a header row if missing.
+async function ensureSheetExists(accessToken, spreadsheetId, sheetName, headers) {
+  try {
+    const getUrl = `https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}?fields=sheets(properties(title))`;
+    const meta = await fetch(getUrl, { headers: { Authorization: `Bearer ${accessToken}` } });
+    if (!meta.ok) return;
+    const data = await meta.json();
+    const exists = (data.sheets || []).some(s => s.properties?.title === sheetName);
+    if (exists) return;
+    const batchUrl = `https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}:batchUpdate`;
+    await fetch(batchUrl, {
+      method: "POST",
+      headers: { Authorization: `Bearer ${accessToken}`, "Content-Type": "application/json" },
+      body: JSON.stringify({ requests: [{ addSheet: { properties: { title: sheetName } } }] }),
+    });
+    if (headers?.length) {
+      const headerRange = encodeURIComponent(`${sheetName}!A1:${colLetter(headers.length)}1`);
+      await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}/values/${headerRange}?valueInputOption=USER_ENTERED`, {
+        method: "PUT",
+        headers: { Authorization: `Bearer ${accessToken}`, "Content-Type": "application/json" },
+        body: JSON.stringify({ values: [headers] }),
+      });
+    }
+  } catch (e) {
+    console.error("ensureSheetExists failed:", e.message);
+  }
+}
+
+const MEDICAL_HEADERS = [
+  "timestamp","domain","name","phone","case_type","free_text",
+  "detected_categories","incident_date","discovery_date","sol_remaining_months",
+  "sol_bucket","has_permanent_damage","has_medical_records","institution_type",
+  "gclid","user_agent",
+];
+
 // Rate limiting (in-memory — resets on cold start)
 const rateMap = new Map();
 const RATE_LIMIT = 20;
@@ -188,6 +224,9 @@ export default async function handler(req, res) {
 
   try {
     const token = await getAccessToken(clientEmail, privateKey);
+    if (isMedical) {
+      await ensureSheetExists(token, spreadsheetId, sheetName, MEDICAL_HEADERS);
+    }
     await appendRow(token, spreadsheetId, sheetName, row);
     return res.status(200).json({ ok: true });
   } catch (err) {
