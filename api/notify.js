@@ -11,6 +11,28 @@ const ALLOWED_ORIGINS = [
   "https://www.nifgati.co.il",
 ];
 
+// Cap the request body — the default Vercel limit (~4.5MB) is far larger
+// than any legitimate lead notification and lets an abuser flood Resend.
+export const config = {
+  api: { bodyParser: { sizeLimit: "64kb" } },
+};
+
+const MAX_NAME_LEN = 120;
+const MAX_PHONE_LEN = 40;
+const MAX_SUMMARY_LEN = 1000;
+const MAX_TEXT_LEN = 2500;
+const MAX_MSGS = 80;
+
+function tooLong(val, cap) {
+  return typeof val === "string" && val.length > cap;
+}
+
+// Block header-injection attempts in the email subject.
+// Resend likely already sanitizes, but strip locally for belt-and-suspenders.
+function cleanSubjectPart(str) {
+  return String(str || "").replace(/[\r\n]+/g, " ").slice(0, 120);
+}
+
 // Rate limiting (in-memory — resets on cold start)
 const rateMap = new Map();
 const RATE_LIMIT = 10;
@@ -50,10 +72,46 @@ export default async function handler(req, res) {
 
   // Parse body
   const body = req.body || {};
+
+  // Honeypot — reject blind form-fillers.
+  if (body.website || body._hp || body.url || body.homepage) {
+    return res.status(200).json({ ok: true, skipped: true });
+  }
+
   const { summary, calculation, conversation, name, phone, data, msgs } = body;
 
   if (!summary && !name) {
     return res.status(400).json({ error: "missing lead data" });
+  }
+
+  // Field length caps — a lead summary email is small by nature; oversized
+  // inputs are either a mistake or abuse (e.g. paste of a long document).
+  if (
+    tooLong(name, MAX_NAME_LEN) ||
+    tooLong(phone, MAX_PHONE_LEN) ||
+    tooLong(summary, MAX_SUMMARY_LEN)
+  ) {
+    return res.status(400).json({ error: "payload too large" });
+  }
+  if (Array.isArray(conversation)) {
+    if (conversation.length > MAX_MSGS) {
+      return res.status(400).json({ error: "payload too large" });
+    }
+    for (const line of conversation) {
+      if (tooLong(line, MAX_TEXT_LEN)) {
+        return res.status(400).json({ error: "payload too large" });
+      }
+    }
+  }
+  if (Array.isArray(msgs)) {
+    if (msgs.length > MAX_MSGS) {
+      return res.status(400).json({ error: "payload too large" });
+    }
+    for (const m of msgs) {
+      if (m && tooLong(m.content, MAX_TEXT_LEN)) {
+        return res.status(400).json({ error: "payload too large" });
+      }
+    }
   }
 
   // Check for Resend API key
@@ -97,7 +155,7 @@ export default async function handler(req, res) {
       : "<p>לא זמינה</p>";
 
   const d = data || {};
-  const emailSubject = `\u{1F514} ליד חדש: ${safeName} | ${displayPhone} | \u20AA${fmtNum(calcMin)}\u2013\u20AA${fmtNum(calcMax)}`;
+  const emailSubject = cleanSubjectPart(`\u{1F514} ליד חדש: ${safeName} | ${displayPhone} | \u20AA${fmtNum(calcMin)}\u2013\u20AA${fmtNum(calcMax)}`);
 
   const html = `
     <div dir="rtl" style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;">

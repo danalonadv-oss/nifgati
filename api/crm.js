@@ -125,6 +125,16 @@ function checkRate(ip) {
   return true;
 }
 
+// Field length caps — reject oversized submissions before they hit the sheet
+const MAX_NAME_LEN = 120;
+const MAX_PHONE_LEN = 40;
+const MAX_SHORT_LEN = 200;
+const MAX_FREETEXT_LEN = 2500;
+
+function tooLong(val, cap) {
+  return typeof val === "string" && val.length > cap;
+}
+
 // Prevent CSV/formula injection in Google Sheets
 function sanitizeCell(val) {
   if (val === null || val === undefined) return "";
@@ -153,6 +163,14 @@ export default async function handler(req, res) {
   const ip = (req.headers["x-forwarded-for"] || "unknown").split(",")[0].trim();
   if (!checkRate(ip)) return res.status(429).json({ error: "Too many requests" });
 
+  const body = req.body || {};
+
+  // Honeypot — legitimate frontend never sends these fields. Bots that
+  // auto-fill every form input will trip and be rejected silently-looking.
+  if (body.website || body._hp || body.url || body.homepage) {
+    return res.status(200).json({ ok: true, skipped: true });
+  }
+
   const {
     // pl"t fields
     name, phone, accidentType, hospitalized, workAccident,
@@ -161,9 +179,28 @@ export default async function handler(req, res) {
     domain, case_type, free_text, detected_categories, incident_date, discovery_date,
     sol_remaining_months, sol_bucket, has_permanent_damage, has_medical_records,
     institution_type, user_agent,
-  } = req.body || {};
+  } = body;
 
   const isMedical = domain === "medical";
+
+  // Field length caps — protect the sheet + downstream readers from
+  // oversized submissions (deliberate spam or accidental paste of a document).
+  if (
+    tooLong(name, MAX_NAME_LEN) ||
+    tooLong(phone, MAX_PHONE_LEN) ||
+    tooLong(accidentType, MAX_SHORT_LEN) ||
+    tooLong(case_type, MAX_SHORT_LEN) ||
+    tooLong(institution_type, MAX_SHORT_LEN) ||
+    tooLong(sol_bucket, MAX_SHORT_LEN) ||
+    tooLong(compensationRange, MAX_SHORT_LEN) ||
+    tooLong(free_text, MAX_FREETEXT_LEN) ||
+    tooLong(user_agent, 500) ||
+    tooLong(page, 200) ||
+    tooLong(utmSource, 200) ||
+    tooLong(gclid, 500)
+  ) {
+    return res.status(400).json({ error: "payload too large" });
+  }
 
   // Required-field guard per domain
   if (isMedical) {
