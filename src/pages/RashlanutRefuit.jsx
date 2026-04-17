@@ -1,6 +1,8 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, lazy, Suspense } from "react";
 import { captureGclid } from "../utils/gclid.js";
 import { sendToCrm } from "../utils/crm.js";
+
+const MedicalBot = lazy(() => import("../MedicalBot.jsx"));
 
 const PHONE    = "0544338212";
 const WA_PHONE = "972544338212";
@@ -307,6 +309,13 @@ export default function RashlanutRefuit() {
               </p>
             </div>
           </div>
+        </section>
+
+        {/* BOT: בדיקה ראשונית */}
+        <section id="bot" aria-label="בדיקה ראשונית" style={{ padding:"40px 16px 48px", background:"#eef3f8" }}>
+          <Suspense fallback={<div style={{ minHeight:340, maxWidth:680, margin:"0 auto", background:"#ffffff", border:"1px solid #dde3ea", borderRadius:18 }} />}>
+            <MedicalBot />
+          </Suspense>
         </section>
 
         {/* SECTION 2: סוגי מקרים */}

@@ -48,8 +48,14 @@ async function getAccessToken(clientEmail, privateKey) {
 }
 
 // ── Append row to Google Sheets ──
+function colLetter(n) {
+  let s = "";
+  while (n > 0) { const m = (n - 1) % 26; s = String.fromCharCode(65 + m) + s; n = Math.floor((n - 1) / 26); }
+  return s;
+}
+
 async function appendRow(accessToken, spreadsheetId, sheetName, values) {
-  const range = encodeURIComponent(`${sheetName}!A:M`);
+  const range = encodeURIComponent(`${sheetName}!A:${colLetter(values.length)}`);
   const url = `https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}/values/${range}:append?valueInputOption=USER_ENTERED&insertDataOption=INSERT_ROWS`;
   const res = await fetch(url, {
     method: "POST",
@@ -112,12 +118,23 @@ export default async function handler(req, res) {
   if (!checkRate(ip)) return res.status(429).json({ error: "Too many requests" });
 
   const {
+    // pl"t fields
     name, phone, accidentType, hospitalized, workAccident,
     age, disability, compensationRange, page, whatsappClick, utmSource, gclid,
+    // medical fields
+    domain, case_type, free_text, detected_categories, incident_date, discovery_date,
+    sol_remaining_months, sol_bucket, has_permanent_damage, has_medical_records,
+    institution_type, user_agent,
   } = req.body || {};
 
-  // At minimum need some lead data
-  if (!accidentType && !whatsappClick) {
+  const isMedical = domain === "medical";
+
+  // Required-field guard per domain
+  if (isMedical) {
+    if (!name || !phone) {
+      return res.status(400).json({ error: "missing lead data" });
+    }
+  } else if (!accidentType && !whatsappClick) {
     return res.status(400).json({ error: "missing lead data" });
   }
 
@@ -132,7 +149,24 @@ export default async function handler(req, res) {
 
   const ts = new Date().toLocaleString("he-IL", { timeZone: "Asia/Jerusalem" });
 
-  const row = [
+  const row = isMedical ? [
+    ts,                                                                          // A: timestamp
+    "medical",                                                                   // B: domain
+    sanitizeCell(name),                                                          // C: name
+    sanitizeCell(phone),                                                         // D: phone
+    sanitizeCell(case_type),                                                     // E: case_type
+    sanitizeCell(free_text),                                                     // F: free_text
+    sanitizeCell(JSON.stringify(detected_categories || [])),                     // G: detected_categories (JSON)
+    sanitizeCell(incident_date),                                                 // H: incident_date
+    sanitizeCell(discovery_date),                                                // I: discovery_date
+    sol_remaining_months == null ? "" : String(sol_remaining_months),            // J: sol_remaining_months
+    sanitizeCell(sol_bucket),                                                    // K: sol_bucket
+    sanitizeCell(has_permanent_damage),                                          // L: has_permanent_damage
+    sanitizeCell(has_medical_records),                                           // M: has_medical_records
+    sanitizeCell(institution_type),                                              // N: institution_type
+    sanitizeCell(gclid),                                                         // O: gclid
+    sanitizeCell(user_agent),                                                    // P: user_agent
+  ] : [
     ts,                                                                          // A: תאריך ושעה
     sanitizeCell(name),                                                          // B: שם
     sanitizeCell(phone),                                                         // C: טלפון
@@ -148,9 +182,13 @@ export default async function handler(req, res) {
     sanitizeCell(gclid),                                                         // M: GCLID
   ];
 
+  const sheetName = isMedical
+    ? (process.env.GOOGLE_SHEET_NAME_MEDICAL || "Medical")
+    : (process.env.GOOGLE_SHEET_NAME || "Sheet1");
+
   try {
     const token = await getAccessToken(clientEmail, privateKey);
-    await appendRow(token, spreadsheetId, process.env.GOOGLE_SHEET_NAME || "Sheet1", row);
+    await appendRow(token, spreadsheetId, sheetName, row);
     return res.status(200).json({ ok: true });
   } catch (err) {
     console.error("CRM error:", err.message);

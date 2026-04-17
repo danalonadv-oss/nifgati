@@ -1,6 +1,7 @@
 ﻿// api/claude.js — שרת ביניים מאובטח
 // ═══════════════════════════════════════════
 import { SYSTEM, MY_NAME, MY_TITLE } from "../src/constants/systemPrompt.js";
+import { MEDICAL_SYSTEM } from "../src/constants/medicalSystemPrompt.js";
 // אבטחה:
 //  1. API Key — Environment Variable בלבד, לא בקוד
 //  2. CORS    — רק מהדומיינים המורשים
@@ -93,7 +94,8 @@ export default async function handler(req, res) {
   }
 
   // ── Validation ────────────────────────────
-  const { messages, model } = req.body || {};
+  const { messages, model, domain } = req.body || {};
+  const isMedical = domain === "medical";
   if (!messages || !Array.isArray(messages) || messages.length === 0) {
     return res.status(400).json({ error: "פרמטרים שגויים" });
   }
@@ -199,8 +201,9 @@ export default async function handler(req, res) {
       },
       body: JSON.stringify({
         model:      selectedModel,
-        max_tokens: 2000,
-        system:     SYSTEM,
+        max_tokens: isMedical ? 150 : 2000,
+        ...(isMedical ? { temperature: 0.2 } : {}),
+        system:     isMedical ? MEDICAL_SYSTEM : SYSTEM,
         messages:   sanitized,
       }),
     });
