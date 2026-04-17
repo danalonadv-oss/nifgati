@@ -73,6 +73,12 @@
     <changefreq>weekly</changefreq>
   </url>
   <url>
+    <loc>https://nifgati.co.il/rashlanut-refuit</loc>
+    <lastmod>2026-04-17</lastmod>
+    <priority>0.8</priority>
+    <changefreq>monthly</changefreq>
+  </url>
+  <url>
     <loc>https://nifgati.co.il/privacy</loc>
     <lastmod>2026-04-11</lastmod>
     <priority>0.3</priority>

@@ -15,6 +15,7 @@ const Shever = lazy(() => import("./pages/Shever.jsx"));
 const PTSD = lazy(() => import("./pages/PTSD.jsx"));
 const Machshevon = lazy(() => import("./pages/Machshevon.jsx"));
 const Nechut = lazy(() => import("./pages/Nechut.jsx"));
+const RashlanutRefuit = lazy(() => import("./pages/RashlanutRefuit.jsx"));
 
 class ErrorBoundary extends React.Component {
   constructor(props) { super(props); this.state = { hasError: false }; }
@@ -56,6 +57,7 @@ ReactDOM.createRoot(document.getElementById("root")).render(
             <Route path="/ptsd" element={<PTSD />} />
             <Route path="/machshevon" element={<Machshevon />} />
             <Route path="/nechut" element={<Nechut />} />
+            <Route path="/rashlanut-refuit" element={<RashlanutRefuit />} />
           </Routes>
         </Suspense>
       </BrowserRouter>
