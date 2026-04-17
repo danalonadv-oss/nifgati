@@ -218,6 +218,10 @@ export default function RashlanutRefuit() {
         a{text-decoration:none;color:inherit}
         ::-webkit-scrollbar{width:4px}
         ::-webkit-scrollbar-thumb{background:#dde3ea;border-radius:2px}
+        .nl{color:#ffffff;font-size:15px;font-weight:500;border-bottom:2px solid transparent;transition:all .2s}
+        .nl:hover{color:#ffffff;border-bottom-color:#ffffff}
+        .hm{display:flex}
+        @media(max-width:768px){.hm{display:none!important}}
         .wa-btn-float{position:fixed;bottom:24px;left:24px;background:#25d366;color:#fff;border:none;border-radius:50%;width:56px;height:56px;font-size:24px;cursor:pointer;box-shadow:0 8px 24px #25d36655;z-index:99;display:flex;align-items:center;justify-content:center;transition:transform .2s}
         .wa-btn-float:hover{transform:scale(1.1)}
         .rr-prose p{font-size:16px;line-height:1.95;color:#2d3e52;margin-bottom:14px}
@@ -244,7 +248,21 @@ export default function RashlanutRefuit() {
           <a href="/" aria-label="nifgati — עמוד בית" style={{ display:"flex", alignItems:"center", gap:10 }}>
             <img src="/logo.png" alt="nifgati" width={isMobile ? 112 : 225} height={isMobile ? 28 : 56} style={{ height: isMobile ? 28 : 56, width:"auto", objectFit:"contain" }} />
           </a>
-          <a href={`tel:${PHONE}`} aria-label="התקשר אלינו" style={{ display:"inline-flex", alignItems:"center", justifyContent:"center", width: isMobile ? 36 : 48, height: isMobile ? 36 : 48, background:"#0a2240", borderRadius: isMobile ? 10 : 14, color:"#ffffff", border:`1px solid ${BLUE}`, fontSize: isMobile ? 17 : 22, textDecoration:"none", flexShrink:0, boxShadow:"0 2px 8px #0a224055" }}>📞</a>
+          <div style={{ display:"flex", alignItems:"center", gap:24 }}>
+            <nav role="navigation" aria-label="ניווט" className="hm" style={{ gap:32, alignItems:"center" }}>
+              <a
+                href="/"
+                className="nl"
+                onClick={() => {
+                  window.dataLayer = window.dataLayer || [];
+                  window.dataLayer.push({ event: 'cross_domain_nav', from: 'medical', to: 'homepage' });
+                }}
+              >
+                תאונות דרכים
+              </a>
+            </nav>
+            <a href={`tel:${PHONE}`} aria-label="התקשר אלינו" style={{ display:"inline-flex", alignItems:"center", justifyContent:"center", width: isMobile ? 36 : 48, height: isMobile ? 36 : 48, background:"#0a2240", borderRadius: isMobile ? 10 : 14, color:"#ffffff", border:`1px solid ${BLUE}`, fontSize: isMobile ? 17 : 22, textDecoration:"none", flexShrink:0, boxShadow:"0 2px 8px #0a224055" }}>📞</a>
+          </div>
         </div>
       </header>
 
