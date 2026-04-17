@@ -24,7 +24,8 @@
     { "source": "/shever",        "destination": "/index.html" },
     { "source": "/ptsd",          "destination": "/index.html" },
     { "source": "/machshevon",    "destination": "/index.html" },
-    { "source": "/nechut",        "destination": "/index.html" }
+    { "source": "/nechut",        "destination": "/index.html" },
+    { "source": "/rashlanut-refuit","destination": "/index.html" }
   ],
   "headers": [
     {
