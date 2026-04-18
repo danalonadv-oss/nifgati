@@ -305,15 +305,12 @@ function getCtaVariant(data, calc) {
   const amount = calc ? `₪${calc.min.toLocaleString("he-IL")}–₪${calc.max.toLocaleString("he-IL")}` : "";
   const variants = [
     `שלח לי את הערכת הפיצוי (${amount}) לייעוץ — דן אלון, עו״ד`,
-    "דן, בדוק אם חברת הביטוח תנסה להפחית לי מהפיצוי",
   ];
   if (data.accidentDate === "recent") {
     variants.push("התאונה קרתה לאחרונה, אני רוצה לשמור על הזכויות שלי");
   }
   return variants[Math.floor(Math.random() * variants.length)];
 }
-
-const INSURANCE_TACTICS_MSG = "מה חברת הביטוח תנסה לקזז מהפיצוי שלך:\n- תביעה שאין לה תיעוד רפואי מספק\n- פגיעה \"קודמת\" שאינה קשורה לתאונה\n- הפחתת אחוזי נכות על ידי רופא מטעמם\n- טענה שלא פעלת להקטנת הנזק\n\nעו\"ד דן אלון מכיר את הטכניקות האלה ויודע לנטרל אותן.";
 
 // ── Session / resume support ──
 const RESUME_KEY_PREFIX = "nifgati_chat_";
@@ -855,9 +852,7 @@ export default function useChat(customOpening) {
         if (sC) parts.push(`תרחיש ג — נכות תפקודית צמיתה (15%–25%):\n${fmt(sC)}`);
         if (sD) parts.push(`תרחיש ד — נכות תפקודית גבוהה (30%+):\n${fmt(sD)}`);
 
-        const intro = hasFn
-          ? "מכיוון שציינת הגבלה תפקודית, הנכות הצפויה עשויה להיות גבוהה יותר.\nעל בסיס הנתונים שלך:"
-          : "על בסיס הנתונים שלך:";
+        const intro = "על בסיס הנתונים שלך:";
         const footer = "הקביעה הסופית נעשית על ידי ועדה רפואית. זוהי הערכה ראשונית בלבד.";
         botMsgs.push({ role: "assistant", content: `${intro}\n\n${parts.join("\n\n")}\n\n${footer}` });
 
@@ -870,8 +865,6 @@ export default function useChat(customOpening) {
       if (newData.isWork || data.isWork) {
         botMsgs.push({ role: "assistant", content: "\u26A0\uFE0F הסכום לפני ניכויי ביטוח לאומי. דמי פגיעה: 75% משכרך לעד 13 שבועות." });
       }
-      // Insurance tactics warning
-      botMsgs.push({ role: "assistant", content: INSURANCE_TACTICS_MSG });
       setCalc(c);
       setShowReferral(true);
       setState(STATE_DONE); setProgress(100);
