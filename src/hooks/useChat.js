@@ -21,6 +21,7 @@ const STATE_MONTHS_OFF = 13;
 const STATE_AGE = 14;
 const STATE_SALARY = 15;
 const STATE_DONE = 16;
+const STATE_PROGNOSIS = 17;
 
 // ── Questions ──
 const LOCATION_QUESTION = "היכן נפגעת וממה אתה סובל?";
@@ -164,6 +165,19 @@ function extractSalary(msgs) {
   return 13566;
 }
 
+// ── Severe-injury detection (for תרחיש ד) ──
+function hasSevereInjury(data, msgs) {
+  const parts = [
+    ...(data.locations || []),
+    ...Object.values(data.injuries || {}),
+    data.injury || "",
+    ...(msgs || []).filter(m => m.role === "user").map(m => m.content || ""),
+  ];
+  const text = parts.join(" ").toLowerCase();
+  const severe = /קטיעה|קטועה|כריתה|אמפוטציה|amputation|שיתוק|משותק|פאראפלג|פרפלג|קוודריפלג|טטראפלג|paraplegia|quadriplegia|פגיעה מוחית קשה|פגיעת ראש קשה|נזק מוחי קשה|tbi\s*קשה|severe\s*tbi|חוסר הכרה ממושך|קומה\s|תרדמת|פוליטראומה|שברים מרובים|מרובי שברים|ריבוי שברים|שברים רבים|שברים מסובכים|שבר מסובך עם סיבוכים|אי איחוי|איחוי לקוי|זיהום כרוני/i;
+  return severe.test(text);
+}
+
 // ── 4 Heads of Damage Calculation ──
 function calculateCompensation(data, msgs, overrideDisability) {
   const ageNum = parseInt(data.age) || 30;
@@ -299,7 +313,7 @@ export default function useChat(customOpening) {
   const [err, setErr] = useState("");
   const [showReferral, setShowReferral] = useState(false);
   const [state, setState] = useState(STATE_DISCLAIMER);
-  const [data, setData] = useState({ role: null, medical: null, hasDocs: null, isWork: null, accidentDate: null, locations: [], injuries: {}, currentLocation: null, injury: null, functionalImpairment: null, disability: null, disabilityScenario: null, hospitalizationDays: null, monthsOff: null, age: null });
+  const [data, setData] = useState({ role: null, medical: null, hasDocs: null, isWork: null, accidentDate: null, locations: [], injuries: {}, currentLocation: null, injury: null, functionalImpairment: null, functionalPrognosis: null, disability: null, disabilityScenario: null, hospitalizationDays: null, monthsOff: null, age: null });
   const [quickReplies, setQuickReplies] = useState(INITIAL_QUICK_REPLIES);
   const [progress, setProgress] = useState(0);
   const [gender, setGender] = useState(null);
@@ -386,7 +400,7 @@ export default function useChat(customOpening) {
     setMsgs([...getInitialMsgs(customOpening)]);
     setCalc(null); setInp(""); setErr(""); setShowReferral(false);
     setState(STATE_DISCLAIMER);
-    setData({ role: null, medical: null, hasDocs: null, isWork: null, accidentDate: null, locations: [], injuries: {}, currentLocation: null, injury: null, functionalImpairment: null, disability: null, disabilityScenario: null, hospitalizationDays: null, monthsOff: null, age: null });
+    setData({ role: null, medical: null, hasDocs: null, isWork: null, accidentDate: null, locations: [], injuries: {}, currentLocation: null, injury: null, functionalImpairment: null, functionalPrognosis: null, disability: null, disabilityScenario: null, hospitalizationDays: null, monthsOff: null, age: null });
     firedCalcComplete.current = false;
     firedWhatsAppClick.current = false;
   }
@@ -613,9 +627,31 @@ export default function useChat(customOpening) {
       newData.functionalImpairment = hasFunctional;
       if (hasFunctional) {
         botMsgs.push({ role: "assistant", content: "קושי תפקודי מזכה בפיצוי נוסף בגין ׳עזרת צד ג׳׳ — ראש נזק שמעלה משמעותית את סכום הפיצוי הכולל." });
+        botMsgs.push({ role: "assistant", content: "האם הרופא ציין שהבעיה צפויה להשתפר לחלוטין, או שהיא עשויה להישאר לטווח ארוך?" });
+        setState(STATE_PROGNOSIS); setProgress(58);
+        setQuickReplies([
+          { label: "צפוי להחלים לחלוטין", value: "הרופא אמר שאני צפוי להחלים לחלוטין." },
+          { label: "לא ברור / לא יודע", value: "לא ברור / לא יודע." },
+          { label: "להישאר לטווח ארוך", value: "הרופא ציין שהבעיה תישאר לטווח ארוך." },
+        ]);
       } else {
-        botMsgs.push({ role: "assistant", content: "הבנתי." });
+        newData.functionalPrognosis = null;
+        botMsgs.push({ role: "assistant", content: "הבנתי — אין הגבלה תפקודית משמעותית." });
+        botMsgs.push({ role: "assistant", content: DISABILITY_QUESTION });
+        setState(STATE_DISABILITY); setProgress(62);
       }
+
+    // ═══ STEP 6c: PROGNOSIS (only when functional limitation confirmed) ═══
+    } else if (state === STATE_PROGNOSIS) {
+      let prognosis;
+      if (/החלים לחלוטין|להחלים|אחלים|החלמה מלאה|יעבור|יחלוף/.test(txt)) {
+        prognosis = "full_recovery";
+      } else if (/טווח ארוך|תישאר|ישאר|יישאר|צמית|קבוע|לא ישתפר|כרוני/.test(txt)) {
+        prognosis = "long_term";
+      } else {
+        prognosis = "unclear";
+      }
+      newData.functionalPrognosis = prognosis;
       botMsgs.push({ role: "assistant", content: DISABILITY_QUESTION });
       setState(STATE_DISABILITY); setProgress(62);
 
@@ -704,14 +740,32 @@ export default function useChat(customOpening) {
       let c;
       if (scenario === "pending") {
         const hasFn = newData.functionalImpairment != null ? newData.functionalImpairment : data.functionalImpairment;
-        const cZero = calculateCompensation(newData, [...msgs, userMsg], 0);
-        const highPct = hasFn ? 15 : 10;
-        const cHigh = calculateCompensation(newData, [...msgs, userMsg], highPct);
-        const labelA = "ללא נכות מוכרת (0%)";
-        const labelB = hasFn ? `עם נכות תפקודית מוכרת (${highPct}%)` : `בהנחת ${highPct}% נכות`;
-        const intro = hasFn ? "מכיוון שיש לך הגבלה תפקודית, הנכות הצפויה עשויה להיות גבוהה יותר." : "על בסיס הנתונים שלך — שתי הערכות:";
-        botMsgs.push({ role: "assistant", content: `${intro}\n\nא. ${labelA}:\n₪${cZero.min.toLocaleString("he-IL")} – ₪${cZero.max.toLocaleString("he-IL")}\n\nב. ${labelB}:\n₪${cHigh.min.toLocaleString("he-IL")} – ₪${cHigh.max.toLocaleString("he-IL")}\n\nהקביעה הסופית תיעשה על ידי ועדה רפואית.` });
-        c = { min: cHigh.min, max: cHigh.max, dual: true, zeroMin: cZero.min, zeroMax: cZero.max, tenMin: cHigh.min, tenMax: cHigh.max };
+        const prognosis = newData.functionalPrognosis != null ? newData.functionalPrognosis : data.functionalPrognosis;
+        const severe = hasSevereInjury(newData, [...msgs, userMsg]);
+
+        const showB = !hasFn || prognosis === "full_recovery";
+        const showC = hasFn && (prognosis === "unclear" || prognosis === "long_term");
+        const showD = showC && severe;
+
+        const fmt = (x) => `₪${x.min.toLocaleString("he-IL")} – ₪${x.max.toLocaleString("he-IL")}`;
+        const sA = calculateCompensation(newData, [...msgs, userMsg], 0);
+        const sB = showB ? calculateCompensation(newData, [...msgs, userMsg], 10) : null;
+        const sC = showC ? calculateCompensation(newData, [...msgs, userMsg], 20) : null;
+        const sD = showD ? calculateCompensation(newData, [...msgs, userMsg], 35) : null;
+
+        const parts = [`תרחיש א — ללא נכות (0%):\n${fmt(sA)}`];
+        if (sB) parts.push(`תרחיש ב — נכות רפואית לפי תקנות מל"ל (5%–20%):\n${fmt(sB)}`);
+        if (sC) parts.push(`תרחיש ג — נכות תפקודית צמיתה (15%–25%):\n${fmt(sC)}`);
+        if (sD) parts.push(`תרחיש ד — נכות תפקודית גבוהה (30%+):\n${fmt(sD)}`);
+
+        const intro = hasFn
+          ? "מכיוון שציינת הגבלה תפקודית, הנכות הצפויה עשויה להיות גבוהה יותר.\nעל בסיס הנתונים שלך:"
+          : "על בסיס הנתונים שלך:";
+        const footer = "הקביעה הסופית נעשית על ידי ועדה רפואית. זוהי הערכה ראשונית בלבד.";
+        botMsgs.push({ role: "assistant", content: `${intro}\n\n${parts.join("\n\n")}\n\n${footer}` });
+
+        const top = sD || sC || sB || sA;
+        c = { min: sA.min, max: top.max, dual: true, zeroMin: sA.min, zeroMax: sA.max, tenMin: top.min, tenMax: top.max };
       } else {
         c = calculateCompensation(newData, [...msgs, userMsg]);
         botMsgs.push({ role: "assistant", content: "על בסיס הנתונים שלך:" });
