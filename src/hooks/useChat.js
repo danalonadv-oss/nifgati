@@ -543,7 +543,7 @@ export default function useChat(customOpening) {
         }
       }
       if (/בדרך לעבודה|בחזרה מעבודה|בדרך הביתה מעבודה/.test(txt)) newData.isWork = true;
-      if (/פגע וברח|לא עצר|ברח מהזירה|פגע ונמלט/.test(txt)) newData.hitAndRun = true;
+      if (/פגע וברח|פגע וחרב|לא עצר|ברח מהזירה|פגע ונמלט/.test(txt)) newData.hitAndRun = true;
       if (/ptsd|פוסט[\s\-]?טראומ|חרדה|דיכאון|סיוטים|פלאשבק|התקפי בהלה/i.test(txt)) newData.psychologicalSymptoms = true;
 
       botMsgs.push({ role: "assistant", content: gender === "female" ? "תודה. אשאל עכשיו כמה שאלות ממוקדות כדי להשלים את ההערכה." : "תודה. אשאל עכשיו כמה שאלות ממוקדות כדי להשלים את ההערכה." });
@@ -595,9 +595,9 @@ export default function useChat(customOpening) {
       if (yrs != null) {
         const remaining = 7 - yrs;
         if (remaining < 1) {
-          botMsgs.push({ role: "assistant", content: "\u26A0\uFE0F נותר פחות משנה לתביעה — דחיפות גבוהה." });
+          botMsgs.push({ role: "assistant", content: "\u26A0\uFE0F נותר פחות משנה להגשת תביעה — דחיפות גבוהה." });
         } else if (remaining <= 3) {
-          botMsgs.push({ role: "assistant", content: `שים לב: נותרו כ-${remaining} שנים לתביעה לפי חוק הפלת״ד.` });
+          botMsgs.push({ role: "assistant", content: `שים לב: נותרו כ-${remaining} שנים להגשת תביעה לפי חוק הפלת״ד.` });
         }
       }
       botMsgs.push({ role: "assistant", content: "האם פנית לטיפול רפואי?" });
