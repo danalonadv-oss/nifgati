@@ -1,5 +1,68 @@
 {
+  "buildCommand": "vite build",
+  "outputDirectory": "dist",
+  "redirects": [
+    {
+      "source": "/:path*",
+      "has": [{ "type": "host", "value": "nifgati.co.il" }],
+      "destination": "https://www.nifgati.co.il/:path*",
+      "permanent": true
+    }
+  ],
   "rewrites": [
-    { "source": "/(.*)", "destination": "/maintenance.html" }
+    { "source": "/api/claude",    "destination": "/api/claude.js" },
+    { "source": "/api/notify",    "destination": "/api/notify.js" },
+    { "source": "/privacy",       "destination": "/index.html" },
+    { "source": "/accessibility", "destination": "/index.html" },
+    { "source": "/taonat-drakhim","destination": "/index.html" },
+    { "source": "/ofanoa",        "destination": "/index.html" },
+    { "source": "/avoda",         "destination": "/index.html" },
+    { "source": "/korkinet",      "destination": "/index.html" },
+    { "source": "/holeh-regel",   "destination": "/index.html" },
+    { "source": "/tzlipat-shot",  "destination": "/index.html" },
+    { "source": "/pritzat-disc",  "destination": "/index.html" },
+    { "source": "/shever",        "destination": "/index.html" },
+    { "source": "/ptsd",          "destination": "/index.html" },
+    { "source": "/machshevon",    "destination": "/index.html" },
+    { "source": "/nechut",        "destination": "/index.html" },
+    { "source": "/rashlanut-refuit","destination": "/index.html" }
+  ],
+  "headers": [
+    {
+      "source": "/",
+      "headers": [
+        { "key": "Cache-Control", "value": "public, max-age=0, must-revalidate" }
+      ]
+    },
+    {
+      "source": "/assets/(.*)",
+      "headers": [
+        { "key": "Cache-Control", "value": "public, max-age=31536000, immutable" }
+      ]
+    },
+    {
+      "source": "/(.*\\.(?:png|jpg|jpeg|webp|svg|ico|gif))",
+      "headers": [
+        { "key": "Cache-Control", "value": "public, max-age=86400" }
+      ]
+    },
+    {
+      "source": "/sitemap.xml",
+      "headers": [
+        { "key": "Cache-Control", "value": "public, max-age=86400" }
+      ]
+    },
+    {
+      "source": "/(.*)",
+      "headers": [
+        { "key": "Strict-Transport-Security", "value": "max-age=31536000; includeSubDomains; preload" },
+        { "key": "Cross-Origin-Opener-Policy", "value": "same-origin-allow-popups" },
+        { "key": "X-Content-Type-Options", "value": "nosniff" },
+        { "key": "X-Frame-Options",        "value": "DENY" },
+        { "key": "Referrer-Policy",        "value": "strict-origin-when-cross-origin" },
+        { "key": "Permissions-Policy",     "value": "camera=(), microphone=(self), geolocation=()" },
+        { "key": "Content-Security-Policy", "value": "default-src 'self'; script-src 'self' 'unsafe-inline' https://www.googletagmanager.com https://www.google-analytics.com https://pagead2.googlesyndication.com https://connect.facebook.net https://td.doubleclick.net https://cdn.userway.org; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdn.userway.org https://*.userway.org; font-src 'self' https://fonts.gstatic.com https://cdn.userway.org; connect-src 'self' https://www.google-analytics.com https://analytics.google.com https://www.googletagmanager.com https://pagead2.googlesyndication.com https://stats.g.doubleclick.net https://td.doubleclick.net https://region1.analytics.google.com https://region1.google-analytics.com https://www.google.com https://cdn.userway.org https://*.userway.org; img-src 'self' data: blob: https: https://cdn.userway.org https://*.userway.org; frame-src https://www.googletagmanager.com https://td.doubleclick.net https://www.facebook.com https://cdn.userway.org https://*.userway.org; frame-ancestors 'none'" }
+      ]
+    }
   ]
 }
