@@ -22,6 +22,7 @@ const STATE_AGE = 14;
 const STATE_SALARY = 15;
 const STATE_DONE = 16;
 const STATE_PROGNOSIS = 17;
+const STATE_NARRATIVE = 18;
 
 // ── Questions ──
 const LOCATION_QUESTION = "היכן נפגעת וממה אתה סובל?";
@@ -121,7 +122,7 @@ function roleToLabel(role) {
 }
 
 function roleResponse(role) {
-  if (role === "hitrun") return "תאונת פגע וברח מטופלת דרך קרן הפיצויים לנפגעי תאונות דרכים (קרנית) — גוף ממשלתי שמחליף את חברת הביטוח כשהנוהג אינו ידוע.\nהליך שונה אך הזכויות נשמרות. עו״ד דן אלון מתמחה בתיקי קרנית.";
+  if (role === "hitrun") return "תאונת פגע וברח מטופלת דרך קרן הפיצויים לנפגעי תאונות דרכים (קרנית) — גוף ממשלתי שמחליף את חברת הביטוח כשהנוהג אינו ידוע.\nהליך שונה אך הזכויות נשמרות. עו״ד דן אלון מטפל בתיקי קרנית.";
   if (role === "driver") return "הבנתי. חברת הביטוח של הנהג האחר אחראית.";
   if (role === "passenger") return "הבנתי. אתה יכול לתבוע גם את חברת הביטוח של הנהג וגם של הרכב שלך.";
   if (role === "motorcycle") return "הבנתי. תאונות אופנוע מזכות לרוב בפיצוי גבוה במיוחד — חברת הביטוח של הרכב הפוגע אחראית לפצות אותך.";
@@ -226,11 +227,20 @@ function getUrlParams() {
 
 function buildCrmPayload(data, calc, whatsappClick) {
   const { source, page } = getUrlParams();
+  const hasInjury = !!(data.injury || (data.injuries && Object.keys(data.injuries).length));
   return {
     name: data.name || "", phone: data.phone || "",
     accidentType: roleToLabel(data.role), hospitalized: data.medical,
     workAccident: data.isWork, age: data.age || "", disability: data.disability,
     compensationRange: calc ? `₪${calc.min.toLocaleString("he-IL")} – ₪${calc.max.toLocaleString("he-IL")}` : "",
+    // Extra signals for lead scoring (internal)
+    hasDocs: data.hasDocs, hospitalizationDays: data.hospitalizationDays,
+    monthsOff: data.monthsOff, yearsSinceAccident: data.yearsSinceAccident,
+    hasInjury, injury: data.injury || "",
+    functionalImpairment: data.functionalImpairment,
+    functionalPrognosis: data.functionalPrognosis,
+    hitAndRun: !!data.hitAndRun, psychologicalSymptoms: !!data.psychologicalSymptoms,
+    narrative: data.narrative || "",
     page, whatsappClick: !!whatsappClick, utmSource: source || "",
   };
 }
@@ -268,8 +278,9 @@ function buildNiiResponse(txt) {
 }
 
 // ── Opening + Disclaimer ──
-const DEFAULT_OPENING = "שלום, אני הבוט של ניפגעתי.\n\nאני מחשב הערכת פיצוי ראשונית המבוססת על:\nחוק פיצויים לנפגעי תאונות דרכים, תשל״ה-1975, תקנות הפיצויים לנפגעי תאונות דרכים (חישוב פיצויים בשל נזק שאינו נזק ממון), ופסיקת בתי המשפט.\n\nהאמור אינו מהווה יעוץ משפטי ואינו מחליף בירור מעמיק עם עו״ד דן אלון המותאם לנסיבותיך הספציפיות.";
-const PERSONALIZED_SUFFIX = "";
+const AI_DISCLOSURE = "הצ׳אט מופעל על ידי AI ומפוקח על ידי עו״ד אנושי.";
+const DEFAULT_OPENING = "שלום, אני הבוט של ניפגעתי.\n" + AI_DISCLOSURE + "\n\nאני מחשב הערכת פיצוי ראשונית המבוססת על:\nחוק פיצויים לנפגעי תאונות דרכים, תשל״ה-1975, תקנות הפיצויים לנפגעי תאונות דרכים (חישוב פיצויים בשל נזק שאינו נזק ממון), ופסיקת בתי המשפט.\n\nהאמור אינו מהווה יעוץ משפטי ואינו מחליף בירור מעמיק עם עו״ד דן אלון המותאם לנסיבותיך הספציפיות.";
+const PERSONALIZED_SUFFIX = "\n" + AI_DISCLOSURE;
 
 function getInitialMsgs(customOpening) {
   const content = customOpening ? customOpening + PERSONALIZED_SUFFIX : DEFAULT_OPENING;
@@ -304,19 +315,53 @@ function getCtaVariant(data, calc) {
 
 const INSURANCE_TACTICS_MSG = "מה חברת הביטוח תנסה לקזז מהפיצוי שלך:\n- תביעה שאין לה תיעוד רפואי מספק\n- פגיעה \"קודמת\" שאינה קשורה לתאונה\n- הפחתת אחוזי נכות על ידי רופא מטעמם\n- טענה שלא פעלת להקטנת הנזק\n\nעו\"ד דן אלון מכיר את הטכניקות האלה ויודע לנטרל אותן.";
 
+// ── Session / resume support ──
+const RESUME_KEY_PREFIX = "nifgati_chat_";
+const RESUME_SID_KEY = "nifgati_sid";
+
+function getOrCreateSessionId() {
+  if (typeof window === "undefined") return "";
+  const params = new URLSearchParams(window.location.search);
+  const urlSid = params.get("resume");
+  if (urlSid && /^[a-z0-9_-]{6,32}$/i.test(urlSid)) {
+    sessionStorage.setItem(RESUME_SID_KEY, urlSid);
+    return urlSid;
+  }
+  let sid = sessionStorage.getItem(RESUME_SID_KEY);
+  if (!sid) {
+    sid = (Date.now().toString(36) + Math.random().toString(36).slice(2, 8));
+    sessionStorage.setItem(RESUME_SID_KEY, sid);
+  }
+  return sid;
+}
+
+function loadResumeState(sid) {
+  if (!sid || typeof window === "undefined") return null;
+  try {
+    const raw = sessionStorage.getItem(RESUME_KEY_PREFIX + sid);
+    if (!raw) return null;
+    const parsed = JSON.parse(raw);
+    if (!parsed || !Array.isArray(parsed.msgs)) return null;
+    return parsed;
+  } catch { return null; }
+}
+
 // ═══ Hook ═══
 export default function useChat(customOpening) {
-  const [msgs, setMsgs] = useState([...getInitialMsgs(customOpening)]);
+  const sessionIdRef = useRef(getOrCreateSessionId());
+  const resumed = useRef(loadResumeState(sessionIdRef.current));
+
+  const [msgs, setMsgs] = useState(resumed.current?.msgs || [...getInitialMsgs(customOpening)]);
   const [inp, setInp] = useState("");
   const [load, setLoad] = useState(false);
-  const [calc, setCalc] = useState(null);
+  const [calc, setCalc] = useState(resumed.current?.calc || null);
   const [err, setErr] = useState("");
-  const [showReferral, setShowReferral] = useState(false);
-  const [state, setState] = useState(STATE_DISCLAIMER);
-  const [data, setData] = useState({ role: null, medical: null, hasDocs: null, isWork: null, accidentDate: null, locations: [], injuries: {}, currentLocation: null, injury: null, functionalImpairment: null, functionalPrognosis: null, disability: null, disabilityScenario: null, hospitalizationDays: null, monthsOff: null, age: null });
-  const [quickReplies, setQuickReplies] = useState(INITIAL_QUICK_REPLIES);
-  const [progress, setProgress] = useState(0);
-  const [gender, setGender] = useState(null);
+  const [showReferral, setShowReferral] = useState(resumed.current?.showReferral || false);
+  const [state, setState] = useState(resumed.current?.state ?? STATE_DISCLAIMER);
+  const [data, setData] = useState(resumed.current?.data || { role: null, medical: null, hasDocs: null, isWork: null, accidentDate: null, yearsSinceAccident: null, narrative: null, hitAndRun: false, psychologicalSymptoms: false, locations: [], injuries: {}, currentLocation: null, injury: null, functionalImpairment: null, functionalPrognosis: null, disability: null, disabilityScenario: null, hospitalizationDays: null, monthsOff: null, age: null });
+  const [quickReplies, setQuickReplies] = useState(resumed.current?.quickReplies || INITIAL_QUICK_REPLIES);
+  const [progress, setProgress] = useState(resumed.current?.progress || 0);
+  const [gender, setGender] = useState(resumed.current?.gender || null);
   const endRef = useRef(null);
   const hasInteracted = useRef(false);
   const userMsgCount = useRef(0);
@@ -329,6 +374,14 @@ export default function useChat(customOpening) {
     if (lastMsg?.role === "user") endRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [msgs]);
   useEffect(() => { if (!err) return; const t = setTimeout(() => setErr(""), 6000); return () => clearTimeout(t); }, [err]);
+
+  // Persist snapshot for resume via ?resume=<sid>. sessionStorage only (per-tab).
+  useEffect(() => {
+    try {
+      const snapshot = { msgs, data, state, progress, gender, calc, showReferral, quickReplies };
+      sessionStorage.setItem(RESUME_KEY_PREFIX + sessionIdRef.current, JSON.stringify(snapshot));
+    } catch { /* quota or serialization — ignore */ }
+  }, [msgs, data, state, progress, gender, calc, showReferral, quickReplies]);
 
   // ── Contextual quick replies ──
   useEffect(() => {
@@ -397,10 +450,11 @@ export default function useChat(customOpening) {
   }, [msgs, state]);
 
   function restart() {
+    try { sessionStorage.removeItem(RESUME_KEY_PREFIX + sessionIdRef.current); } catch {}
     setMsgs([...getInitialMsgs(customOpening)]);
     setCalc(null); setInp(""); setErr(""); setShowReferral(false);
     setState(STATE_DISCLAIMER);
-    setData({ role: null, medical: null, hasDocs: null, isWork: null, accidentDate: null, locations: [], injuries: {}, currentLocation: null, injury: null, functionalImpairment: null, functionalPrognosis: null, disability: null, disabilityScenario: null, hospitalizationDays: null, monthsOff: null, age: null });
+    setData({ role: null, medical: null, hasDocs: null, isWork: null, accidentDate: null, yearsSinceAccident: null, narrative: null, hitAndRun: false, psychologicalSymptoms: false, locations: [], injuries: {}, currentLocation: null, injury: null, functionalImpairment: null, functionalPrognosis: null, disability: null, disabilityScenario: null, hospitalizationDays: null, monthsOff: null, age: null });
     firedCalcComplete.current = false;
     firedWhatsAppClick.current = false;
   }
@@ -467,17 +521,39 @@ export default function useChat(customOpening) {
       if (txt.trim().startsWith("GENDER:")) {
         const g = txt.trim().replace("GENDER:", "");
         setGender(g);
-        const greeting = g === "female" ? "במה היית מעורבת בתאונה?" : "במה היית מעורב בתאונה?";
         botMsgs.push({ role: "user", content: g === "female" ? "פני אליי בלשון נקבה" : "פנה אליי בלשון זכר" });
-        botMsgs.push({ role: "assistant", content: greeting });
-        setState(STATE_ROLE);
-        setProgress(18);
-        setQuickReplies(ACCIDENT_QUICK_REPLIES);
+        botMsgs.push({ role: "assistant", content: g === "female" ? "ספרי לי מה קרה בתאונה? כתבי בחופשיות, ולאחר מכן אחדד עם מספר שאלות." : "ספר לי מה קרה בתאונה? כתוב בחופשיות, ולאחר מכן אחדד עם מספר שאלות." });
+        setState(STATE_NARRATIVE);
+        setProgress(14);
+        setQuickReplies([]);
         setData(newData); setMsgs(p => [...p, ...botMsgs]); return;
       }
       // Fallback
       botMsgs.push({ role: "assistant", content: "בחר בבקשה:" });
       setQuickReplies([{ label: "פנה אליי בלשון זכר", value: "GENDER:male" }, { label: "פני אליי בלשון נקבה", value: "GENDER:female" }]);
+
+    // ═══ STEP 1b: OPEN NARRATIVE ═══
+    } else if (state === STATE_NARRATIVE) {
+      newData.narrative = txt;
+      // Auto-extract signals from narrative
+      const extracted = extractInjuryInfo(txt);
+      if (extracted.locations.length) {
+        newData.locations = extracted.locations;
+        if (extracted.injuries.length) {
+          newData.injuries = {};
+          extracted.locations.forEach(loc => { newData.injuries[loc] = extracted.injuries.join(" + "); });
+          newData.injury = extracted.locations.map(loc => `${loc}: ${extracted.injuries.join(" + ")}`).join(", ");
+        }
+      }
+      if (/בדרך לעבודה|בחזרה מעבודה|בדרך הביתה מעבודה/.test(txt)) newData.isWork = true;
+      if (/פגע וברח|לא עצר|ברח מהזירה|פגע ונמלט/.test(txt)) newData.hitAndRun = true;
+      if (/ptsd|פוסט[\s\-]?טראומ|חרדה|דיכאון|סיוטים|פלאשבק|התקפי בהלה/i.test(txt)) newData.psychologicalSymptoms = true;
+
+      botMsgs.push({ role: "assistant", content: gender === "female" ? "תודה. אשאל עכשיו כמה שאלות ממוקדות כדי להשלים את ההערכה." : "תודה. אשאל עכשיו כמה שאלות ממוקדות כדי להשלים את ההערכה." });
+      botMsgs.push({ role: "assistant", content: gender === "female" ? "במה היית מעורבת בתאונה?" : "במה היית מעורב בתאונה?" });
+      setState(STATE_ROLE);
+      setProgress(18);
+      setQuickReplies(ACCIDENT_QUICK_REPLIES);
 
     // ═══ STEP 2: ACCIDENT TYPE ═══
     } else if (state === STATE_ROLE) {
@@ -495,7 +571,10 @@ export default function useChat(customOpening) {
           { label: "השבוע", value: "התאונה קרתה השבוע." },
           { label: "בחודש האחרון", value: "התאונה קרתה בחודש האחרון." },
           { label: "בשנה האחרונה", value: "התאונה קרתה בשנה האחרונה." },
-          { label: "לפני מעל שנה", value: "התאונה קרתה לפני מעל שנה." },
+          { label: "לפני 1-3 שנים", value: "התאונה קרתה לפני 1-3 שנים." },
+          { label: "לפני 3-5 שנים", value: "התאונה קרתה לפני 3-5 שנים." },
+          { label: "לפני 5-7 שנים", value: "התאונה קרתה לפני 5-7 שנים." },
+          { label: "יותר מ-7 שנים", value: "התאונה קרתה לפני יותר מ-7 שנים." },
         ]);
       }
 
@@ -503,8 +582,26 @@ export default function useChat(customOpening) {
     } else if (state === STATE_DATE) {
       const isRecent = /השבוע|בחודש האחרון/.test(txt);
       newData.accidentDate = isRecent ? "recent" : "past";
+      // Extract approximate years since accident for SOL urgency
+      let yrs = null;
+      if (/השבוע|בחודש האחרון/.test(txt)) yrs = 0;
+      else if (/בשנה האחרונה/.test(txt)) yrs = 1;
+      else if (/1-3 שנים/.test(txt)) yrs = 2;
+      else if (/3-5 שנים/.test(txt)) yrs = 4;
+      else if (/5-7 שנים/.test(txt)) yrs = 6;
+      else if (/יותר מ-7 שנים|מעל 7 שנים/.test(txt)) yrs = 8;
+      newData.yearsSinceAccident = yrs;
       if (isRecent) {
         botMsgs.push({ role: "assistant", content: "\u26A0\uFE0F חשוב מאוד: בשלב זה הראיות עדיין טריות.\nפעל עכשיו:\n- צלם את מקום התאונה ונזקי הרכב\n- שמור את דוח המשטרה\n- אל תדבר עם חוקר הביטוח לבד\n- פנה לטיפול רפואי מיידי אם לא עשית זאת" });
+      }
+      // SOL urgency — standard 7-year cap (25 for minors; refined after age is known).
+      if (yrs != null) {
+        const remaining = 7 - yrs;
+        if (remaining < 1) {
+          botMsgs.push({ role: "assistant", content: "\u26A0\uFE0F נותר פחות משנה לתביעה — דחיפות גבוהה." });
+        } else if (remaining <= 3) {
+          botMsgs.push({ role: "assistant", content: `שים לב: נותרו כ-${remaining} שנים לתביעה לפי חוק הפלת״ד.` });
+        }
       }
       botMsgs.push({ role: "assistant", content: "האם פנית לטיפול רפואי?" });
       setState(STATE_MEDICAL);

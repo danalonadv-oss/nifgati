@@ -143,6 +143,48 @@ function sanitizeCell(val) {
   return str;
 }
 
+// ── Lead scoring — internal only, never returned to user ──
+function computeLeadScore(body) {
+  const yrs = body.yearsSinceAccident;
+  const ageNum = body.age ? parseInt(body.age) : null;
+  const isMinor = ageNum != null && ageNum < 18;
+  const solCap = isMinor ? 25 : 7;
+
+  // Hard disqualification gates
+  if (yrs != null && yrs > solCap) {
+    return { score: 0, tier: "REJECT", gate: "REJECTED_SOL" };
+  }
+  const hasInjury = !!body.hasInjury ||
+                    !!body.injury ||
+                    body.hospitalized === true ||
+                    (body.hospitalizationDays != null && Number(body.hospitalizationDays) > 0) ||
+                    (body.disability != null && Number(body.disability) > 0);
+  if (!hasInjury && body.accidentType) {
+    return { score: 0, tier: "REJECT", gate: "REJECTED_NO_INJURY" };
+  }
+
+  let s = 0;
+  if (body.hospitalized === true || (body.hospitalizationDays != null && Number(body.hospitalizationDays) > 0)) s += 25;
+  if (body.disability != null && Number(body.disability) > 0) s += 20;
+  if (body.workAccident === true) s += 15;
+  if (ageNum != null && ageNum < 40) s += 10;
+  if (body.hasDocs === true) s += 10;
+  if (body.monthsOff != null && Number(body.monthsOff) > 0) s += 8;
+  if (yrs != null) {
+    if (yrs < 1) s += 8;
+    else if (yrs <= 3) s += 5;
+    else if (yrs <= 7) s += 2;
+  }
+  s = Math.min(s, 100);
+
+  let tier;
+  if (s >= 70) tier = "CHASE_HARD";
+  else if (s >= 40) tier = "CHASE";
+  else if (s >= 20) tier = "REFER";
+  else tier = "REJECT";
+  return { score: s, tier, gate: null };
+}
+
 export default async function handler(req, res) {
   res.setHeader("X-Content-Type-Options", "nosniff");
 
@@ -239,21 +281,26 @@ export default async function handler(req, res) {
     sanitizeCell(institution_type),                                              // N: institution_type
     sanitizeCell(gclid),                                                         // O: gclid
     sanitizeCell(user_agent),                                                    // P: user_agent
-  ] : [
-    ts,                                                                          // A: תאריך ושעה
-    sanitizeCell(name),                                                          // B: שם
-    sanitizeCell(phone),                                                         // C: טלפון
-    sanitizeCell(accidentType),                                                  // D: סוג תאונה
-    hospitalized != null ? (hospitalized ? "כן" : "לא") : "",                    // E: אושפז
-    workAccident != null ? (workAccident ? "כן" : "לא") : "",                    // F: תאונת עבודה
-    sanitizeCell(age),                                                           // G: גיל
-    disability != null ? `${disability}%` : "",                                  // H: אחוזי נכות
-    sanitizeCell(compensationRange),                                             // I: טווח פיצוי
-    sanitizeCell(page),                                                          // J: דף נחיתה
-    whatsappClick ? "כן" : "לא",                                                 // K: לחץ WhatsApp
-    sanitizeCell(utmSource),                                                     // L: מקור
-    sanitizeCell(gclid),                                                         // M: GCLID
-  ];
+  ] : (() => {
+    const scored = computeLeadScore(body);
+    return [
+      ts,                                                                          // A: תאריך ושעה
+      sanitizeCell(name),                                                          // B: שם
+      sanitizeCell(phone),                                                         // C: טלפון
+      sanitizeCell(accidentType),                                                  // D: סוג תאונה
+      hospitalized != null ? (hospitalized ? "כן" : "לא") : "",                    // E: אושפז
+      workAccident != null ? (workAccident ? "כן" : "לא") : "",                    // F: תאונת עבודה
+      sanitizeCell(age),                                                           // G: גיל
+      disability != null ? `${disability}%` : "",                                  // H: אחוזי נכות
+      sanitizeCell(compensationRange),                                             // I: טווח פיצוי
+      sanitizeCell(page),                                                          // J: דף נחיתה
+      whatsappClick ? "כן" : "לא",                                                 // K: לחץ WhatsApp
+      sanitizeCell(utmSource),                                                     // L: מקור
+      sanitizeCell(gclid),                                                         // M: GCLID
+      sanitizeCell(scored.gate || scored.score),                                   // N: score (or gate tag)
+      sanitizeCell(scored.tier),                                                   // O: tier
+    ];
+  })();
 
   const sheetName = isMedical
     ? (process.env.GOOGLE_SHEET_NAME_MEDICAL || "Medical")

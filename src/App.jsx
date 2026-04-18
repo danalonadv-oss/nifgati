@@ -189,7 +189,7 @@ export default function App() {
 
   const attorneyBullets = [
     "25 שנות ניסיון בפלת״ד ונזקי גוף",
-    "מומחה לניהול תביעות מול כל חברות הביטוח",
+    "עוסק בניהול תביעות מול כל חברות הביטוח",
     "שכר טרחה על בסיס הצלחה בלבד",
     "זמינות אישית ישירה לכל לקוח",
   ];
@@ -278,7 +278,7 @@ export default function App() {
                 הבוט היחיד בישראל שמחשב פיצוי לפי הנוסחה הסטטוטורית של חוק פלת"ד.
               </p>
 
-              <button onClick={openBot} aria-label="חשב כעת" style={{ display:"block", margin:"0 auto", background:"#F4A300", color:"#ffffff", fontSize:20, fontWeight:700, fontFamily:"inherit", padding:"18px 48px", borderRadius:50, border:"none", cursor:"pointer", boxShadow:"0 4px 20px rgba(244,163,0,0.4)", transition:"all .2s" }}>חשב כעת — חינם</button>
+              <button onClick={openBot} aria-label="בדוק לכמה פיצוי מגיע לך" style={{ display:"block", margin:"0 auto", background:"#F4A300", color:"#ffffff", fontSize:20, fontWeight:700, fontFamily:"inherit", padding:"18px 48px", borderRadius:50, border:"none", cursor:"pointer", boxShadow:"0 4px 20px rgba(244,163,0,0.4)", transition:"all .2s" }}>בדוק לכמה פיצוי מגיע לך — תוך 2 דקות</button>
 
               <div style={{ display:"flex", gap:16, justifyContent:"center", fontSize:14, color:"rgba(255,255,255,0.7)", marginTop:16 }}>
                 <span>🔒 אנונימי</span>
@@ -425,7 +425,7 @@ export default function App() {
               <h2 style={{ fontSize:32, fontWeight:900, marginBottom:12 }}>דברו איתנו עכשיו</h2>
               <p style={{ color:"#7a8fa5", fontSize:15, marginBottom:36 }}>ייעוץ ראשוני חינמי, ללא התחייבות</p>
               <div style={{ display:"flex", flexDirection:"column", gap:12 }}>
-                <button style={{ ...gBtn, width:"100%", justifyContent:"center", fontSize:16, padding:16 }} onClick={openBot} aria-label="פתח מחשבון פיצויים">🤖 חשב כמה מגיע לך — חינם</button>
+                <button style={{ ...gBtn, width:"100%", justifyContent:"center", fontSize:16, padding:16 }} onClick={openBot} aria-label="פתח מחשבון פיצויים">🤖 בדוק לכמה פיצוי מגיע לך — תוך 2 דקות</button>
                 <a href={`tel:${PHONE}`}>
                   <button style={{ ...oBtn, width:"100%", justifyContent:"center", fontSize:16, padding:16 }} aria-label={`התקשר: ${PHONE}`}>📞 {PHONE} — התקשר עכשיו</button>
                 </a>
