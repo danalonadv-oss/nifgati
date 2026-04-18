@@ -47,7 +47,46 @@ function FAQItem({ q, a }) {
   );
 }
 
-export default function App() {
+function PasswordGate() {
+  const [pw, setPw] = useState("");
+  const [err, setErr] = useState(false);
+  function submit(e) {
+    if (e && e.preventDefault) e.preventDefault();
+    if (pw === "7023") {
+      sessionStorage.setItem("nifgati_auth", "true");
+      window.location.reload();
+    } else {
+      setErr(true);
+      setPw("");
+    }
+  }
+  return (
+    <div style={{ minHeight:"100vh", background:"#0a2240", color:"#ffffff", display:"flex", alignItems:"center", justifyContent:"center", padding:"24px", fontFamily:"'Heebo',Arial,sans-serif", direction:"rtl" }}>
+      <div style={{ width:"100%", maxWidth:380, textAlign:"center" }}>
+        <h1 style={{ fontSize:22, fontWeight:800, marginBottom:28, lineHeight:1.5 }}>האתר בתחזוקה קצרה — נחזור בקרוב</h1>
+        <form onSubmit={submit}>
+          <input
+            type="password"
+            value={pw}
+            onChange={e => { setPw(e.target.value); if (err) setErr(false); }}
+            placeholder="סיסמה"
+            autoFocus
+            style={{ width:"100%", boxSizing:"border-box", padding:"14px 16px", fontSize:16, borderRadius:10, border:"1px solid #1a4a7a", background:"#ffffff", color:"#0a2240", fontFamily:"inherit", direction:"rtl", textAlign:"right", marginBottom:12 }}
+          />
+          <button
+            type="submit"
+            style={{ width:"100%", padding:"14px 16px", fontSize:16, fontWeight:800, borderRadius:10, border:"none", background:"#F4A300", color:"#ffffff", cursor:"pointer", fontFamily:"inherit" }}
+          >
+            כניסה
+          </button>
+        </form>
+        {err && <p style={{ color:"#ff5b5b", marginTop:12, fontSize:14 }}>סיסמה שגויה</p>}
+      </div>
+    </div>
+  );
+}
+
+function MainApp() {
   const [scrolled, setScrolled]       = useState(false);
   const [showBot, setShowBot]         = useState(false);
   const [cookie, setCookie]           = useState(() => sessionStorage.getItem("nifgati_consent") === "granted");
@@ -487,4 +526,10 @@ export default function App() {
       {showBot && <Suspense fallback={<div style={{position:"fixed",inset:0,background:"#0a2240cc",zIndex:200,display:"flex",alignItems:"center",justifyContent:"center",color:"#ffffff",fontSize:18,fontWeight:700}}>טוען...</div>}><Bot onClose={() => setShowBot(false)} /></Suspense>}
     </div>
   );
+}
+
+export default function App() {
+  const authed = typeof window !== "undefined" && sessionStorage.getItem("nifgati_auth") === "true";
+  if (!authed) return <PasswordGate />;
+  return <MainApp />;
 }
