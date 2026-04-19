@@ -86,6 +86,7 @@ export default function RashlanutRefuit() {
   const [scrolled, setScrolled]     = useState(false);
   const [showBanner, setShowBanner] = useState(true);
   const [isMobile, setIsMobile]     = useState(window.innerWidth <= 768);
+  const [menuOpen, setMenuOpen]     = useState(false);
 
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: 'instant' });
@@ -189,6 +190,17 @@ export default function RashlanutRefuit() {
     return () => window.removeEventListener('resize', handler);
   }, []);
 
+  // Close mobile menu on desktop resize / outside click / Escape
+  useEffect(() => { if (!isMobile && menuOpen) setMenuOpen(false); }, [isMobile, menuOpen]);
+  useEffect(() => {
+    if (!menuOpen) return;
+    const onClick = (e) => { if (!e.target.closest('[data-mobile-menu-root]')) setMenuOpen(false); };
+    const onKey = (e) => { if (e.key === 'Escape') setMenuOpen(false); };
+    document.addEventListener('click', onClick);
+    document.addEventListener('keydown', onKey);
+    return () => { document.removeEventListener('click', onClick); document.removeEventListener('keydown', onKey); };
+  }, [menuOpen]);
+
   useEffect(() => {
     const fn = () => setScrolled(window.scrollY > 50);
     window.addEventListener("scroll", fn);
@@ -245,8 +257,22 @@ export default function RashlanutRefuit() {
       )}
 
       {/* HEADER */}
-      <header role="banner" style={{ position:"fixed", top:showBanner ? 40 : 0, right:0, left:0, zIndex:100, background:"#0a2240", backdropFilter:scrolled ? "blur(12px)" : "none", borderBottom:scrolled ? `1px solid ${BLUE}` : "1px solid transparent", transition:"all .3s", padding: isMobile ? "0 8px" : "0 24px" }}>
+      <header role="banner" data-mobile-menu-root style={{ position:"fixed", top:showBanner ? 40 : 0, right:0, left:0, zIndex:100, background:"#0a2240", backdropFilter:scrolled ? "blur(12px)" : "none", borderBottom:scrolled ? `1px solid ${BLUE}` : "1px solid transparent", transition:"all .3s", padding: isMobile ? "0 8px" : "0 24px" }}>
         <div style={{ maxWidth:1100, margin:"0 auto", height: isMobile ? 52 : 64, display:"flex", alignItems:"center", justifyContent:"space-between" }}>
+          {isMobile && (
+            <button
+              type="button"
+              onClick={(e) => { e.stopPropagation(); setMenuOpen(p => !p); }}
+              aria-label="תפריט"
+              aria-expanded={menuOpen}
+              aria-controls="mobile-menu-panel-rr"
+              style={{ background:"transparent", border:"none", padding:8, cursor:"pointer", display:"inline-flex", flexDirection:"column", justifyContent:"center", alignItems:"center", gap:5, width:36, height:36 }}
+            >
+              <span style={{ display:"block", width:22, height:2, background:"#ffffff", borderRadius:1 }} />
+              <span style={{ display:"block", width:22, height:2, background:"#ffffff", borderRadius:1 }} />
+              <span style={{ display:"block", width:22, height:2, background:"#ffffff", borderRadius:1 }} />
+            </button>
+          )}
           <a href="/" aria-label="nifgati — עמוד בית" style={{ display:"flex", alignItems:"center", gap:10 }}>
             <img src="/logo.png" alt="nifgati" width={isMobile ? 112 : 225} height={isMobile ? 28 : 56} style={{ height: isMobile ? 28 : 56, width:"auto", objectFit:"contain" }} />
           </a>
@@ -266,6 +292,28 @@ export default function RashlanutRefuit() {
             <a href={`tel:${PHONE}`} aria-label="התקשר אלינו" style={{ display:"inline-flex", alignItems:"center", justifyContent:"center", width: isMobile ? 36 : 48, height: isMobile ? 36 : 48, background:"#0a2240", borderRadius: isMobile ? 10 : 14, color:"#ffffff", border:`1px solid ${BLUE}`, fontSize: isMobile ? 17 : 22, textDecoration:"none", flexShrink:0, boxShadow:"0 2px 8px #0a224055" }}>📞</a>
           </div>
         </div>
+        {isMobile && menuOpen && (
+          <div
+            id="mobile-menu-panel-rr"
+            role="menu"
+            style={{ position:"absolute", top:"100%", right:0, left:0, background:"#0a2240", borderTop:`1px solid ${BLUE}`, boxShadow:"0 8px 16px rgba(0,0,0,0.3)" }}
+          >
+            <a
+              href="/"
+              role="menuitem"
+              onClick={() => {
+                setMenuOpen(false);
+                window.dataLayer = window.dataLayer || [];
+                window.dataLayer.push({ event: 'cross_domain_nav', from: 'medical', to: 'homepage' });
+              }}
+              style={{ display:"block", padding:"16px 20px", color:"#ffffff", fontSize:16, fontWeight:600, textAlign:"right", textDecoration:"none", transition:"background 0.15s" }}
+              onMouseEnter={e => e.currentTarget.style.background = BLUE}
+              onMouseLeave={e => e.currentTarget.style.background = "transparent"}
+            >
+              תאונות דרכים
+            </a>
+          </div>
+        )}
       </header>
 
       {/* MAIN */}

@@ -93,6 +93,7 @@ function MainApp() {
   const [showBanner, setShowBanner]   = useState(true);
   const [showExit, setShowExit]       = useState(false);
   const [isMobile, setIsMobile]       = useState(window.innerWidth <= 768);
+  const [menuOpen, setMenuOpen]       = useState(false);
   const botOpenedRef = useRef(false);
   const exitSentRef  = useRef(false);
 
@@ -103,6 +104,17 @@ function MainApp() {
     window.addEventListener('resize', handler);
     return () => window.removeEventListener('resize', handler);
   }, []);
+
+  // Close mobile menu on desktop resize / outside click / Escape
+  useEffect(() => { if (!isMobile && menuOpen) setMenuOpen(false); }, [isMobile, menuOpen]);
+  useEffect(() => {
+    if (!menuOpen) return;
+    const onClick = (e) => { if (!e.target.closest('[data-mobile-menu-root]')) setMenuOpen(false); };
+    const onKey = (e) => { if (e.key === 'Escape') setMenuOpen(false); };
+    document.addEventListener('click', onClick);
+    document.addEventListener('keydown', onKey);
+    return () => { document.removeEventListener('click', onClick); document.removeEventListener('keydown', onKey); };
+  }, [menuOpen]);
 
   /* ── Auto-open bot after 12 seconds, once per session ── */
   useEffect(() => {
@@ -274,8 +286,22 @@ function MainApp() {
       )}
 
       {/* HEADER */}
-      <header role="banner" style={{ position:"fixed", top:showBanner ? 40 : 0, right:0, left:0, zIndex:100, background:scrolled ? "#0a2240" : "#0a2240", backdropFilter:scrolled ? "blur(12px)" : "none", borderBottom:scrolled ? "1px solid #1a4a7a" : "1px solid transparent", transition:"all .3s", padding: isMobile ? "0 8px" : "0 24px" }}>
+      <header role="banner" data-mobile-menu-root style={{ position:"fixed", top:showBanner ? 40 : 0, right:0, left:0, zIndex:100, background:scrolled ? "#0a2240" : "#0a2240", backdropFilter:scrolled ? "blur(12px)" : "none", borderBottom:scrolled ? "1px solid #1a4a7a" : "1px solid transparent", transition:"all .3s", padding: isMobile ? "0 8px" : "0 24px" }}>
         <div style={{ maxWidth:1100, margin:"0 auto", minHeight: isMobile ? 52 : 80, display:"flex", alignItems:"center", justifyContent:"space-between" }}>
+          {isMobile && (
+            <button
+              type="button"
+              onClick={(e) => { e.stopPropagation(); setMenuOpen(p => !p); }}
+              aria-label="תפריט"
+              aria-expanded={menuOpen}
+              aria-controls="mobile-menu-panel"
+              style={{ background:"transparent", border:"none", padding:8, cursor:"pointer", display:"inline-flex", flexDirection:"column", justifyContent:"center", alignItems:"center", gap:5, width:36, height:36 }}
+            >
+              <span style={{ display:"block", width:22, height:2, background:"#ffffff", borderRadius:1 }} />
+              <span style={{ display:"block", width:22, height:2, background:"#ffffff", borderRadius:1 }} />
+              <span style={{ display:"block", width:22, height:2, background:"#ffffff", borderRadius:1 }} />
+            </button>
+          )}
           <a href="/" aria-label="ניפגעתי — עמוד בית" style={{ display:"flex", alignItems:"center" }}>
             <img src="/logo.png" alt="nifgati" width={isMobile ? 112 : 225} height={isMobile ? 28 : 56} style={{ height: isMobile ? 28 : 56, width:"auto", objectFit:"contain" }} />
           </a>
@@ -299,6 +325,39 @@ function MainApp() {
             <button style={{ background:"#F4A300", color:"#ffffff", border:"none", borderRadius:8, fontFamily:"inherit", fontWeight:800, fontSize: isMobile ? 14 : 16, padding:"10px 20px", cursor:"pointer", display:"inline-flex", alignItems:"center", gap:8, whiteSpace:"nowrap" }} onClick={openBot} aria-label="בדוק כמה מגיע לך">בדוק כמה מגיע לך</button>
           </div>
         </div>
+        {isMobile && menuOpen && (
+          <div
+            id="mobile-menu-panel"
+            role="menu"
+            style={{ position:"absolute", top:"100%", right:0, left:0, background:"#0a2240", borderTop:"1px solid #1a4a7a", boxShadow:"0 8px 16px rgba(0,0,0,0.3)" }}
+          >
+            {[
+              { href:"/rashlanut-refuit", label:"רשלנות רפואית", isExternal:true },
+              { href:"#how", label:"איך עובד" },
+              { href:"#results", label:"תוצאות" },
+              { href:"#faq", label:"שאלות" },
+              { href:"#contact", label:"צור קשר" },
+            ].map((item, i, arr) => (
+              <a
+                key={item.href}
+                href={item.href}
+                role="menuitem"
+                onClick={() => {
+                  setMenuOpen(false);
+                  if (item.isExternal) {
+                    window.dataLayer = window.dataLayer || [];
+                    window.dataLayer.push({ event: 'cross_domain_nav', from: 'homepage', to: 'medical' });
+                  }
+                }}
+                style={{ display:"block", padding:"16px 20px", color:"#ffffff", fontSize:16, fontWeight:600, textAlign:"right", textDecoration:"none", borderBottom: i < arr.length - 1 ? "1px solid #1a4a7a" : "none", transition:"background 0.15s" }}
+                onMouseEnter={e => e.currentTarget.style.background = "#1a4a7a"}
+                onMouseLeave={e => e.currentTarget.style.background = "transparent"}
+              >
+                {item.label}
+              </a>
+            ))}
+          </div>
+        )}
       </header>
 
       {/* MAIN */}
