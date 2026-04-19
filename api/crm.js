@@ -106,6 +106,9 @@ const MEDICAL_HEADERS = [
   "detected_categories","incident_date","discovery_date","sol_remaining_months",
   "sol_bucket","has_permanent_damage","has_medical_records","institution_type",
   "gclid","user_agent",
+  // ── Appended by the Atticus-style rebuild (2026-04). Order matters; do not reorder. ──
+  "disclosure_level","damage_type","documentation_status",
+  "sol_years_remaining","submission_type",
 ];
 
 // Rate limiting (in-memory — resets on cold start)
@@ -221,9 +224,13 @@ export default async function handler(req, res) {
     domain, case_type, free_text, detected_categories, incident_date, discovery_date,
     sol_remaining_months, sol_bucket, has_permanent_damage, has_medical_records,
     institution_type, user_agent,
+    // medical-quiz rebuild fields (2026-04)
+    disclosure_level, damage_type, documentation_status,
+    sol_years_remaining, submission_type,
   } = body;
 
   const isMedical = domain === "medical";
+  const isFastPath = submission_type === "whatsapp_fast";
 
   // Field length caps — protect the sheet + downstream readers from
   // oversized submissions (deliberate spam or accidental paste of a document).
@@ -244,9 +251,11 @@ export default async function handler(req, res) {
     return res.status(400).json({ error: "payload too large" });
   }
 
-  // Required-field guard per domain
+  // Required-field guard per domain.
+  // Medical WhatsApp fast-path writes a partial lead without name/phone — those
+  // are captured out-of-band via the WhatsApp conversation itself.
   if (isMedical) {
-    if (!name || !phone) {
+    if (!isFastPath && (!name || !phone)) {
       return res.status(400).json({ error: "missing lead data" });
     }
   } else if (!accidentType && !whatsappClick) {
@@ -281,6 +290,11 @@ export default async function handler(req, res) {
     sanitizeCell(institution_type),                                              // N: institution_type
     sanitizeCell(gclid),                                                         // O: gclid
     sanitizeCell(user_agent),                                                    // P: user_agent
+    sanitizeCell(disclosure_level),                                              // Q: disclosure_level
+    sanitizeCell(damage_type),                                                   // R: damage_type
+    sanitizeCell(documentation_status),                                          // S: documentation_status
+    sol_years_remaining == null ? "" : String(sol_years_remaining),              // T: sol_years_remaining
+    sanitizeCell(submission_type),                                               // U: submission_type
   ] : (() => {
     const scored = computeLeadScore(body);
     return [
