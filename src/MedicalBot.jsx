@@ -387,23 +387,24 @@ export default function MedicalBot() {
   };
   const primaryDisabled = { ...primaryBtn, opacity: .55, cursor: "not-allowed" };
 
-  const waBtnStyle = {
-    background: WA_GREEN,
+  const ctaPrimary = {
+    background: `linear-gradient(180deg, ${NAVY_DEEP} 0%, ${NAVY} 100%)`,
     color: "#ffffff",
-    border: "none",
+    border: `1px solid ${GOLD}`,
     borderRadius: 12,
-    padding: "14px 22px",
+    padding: "15px 22px",
     fontSize: 16,
     fontWeight: 800,
     fontFamily: "inherit",
     cursor: "pointer",
-    minHeight: 48,
+    minHeight: 52,
     width: "100%",
     display: "inline-flex",
     alignItems: "center",
     justifyContent: "center",
-    gap: 8,
-    boxShadow: "0 6px 14px rgba(37,211,102,0.35)",
+    gap: 10,
+    boxShadow: "0 8px 20px rgba(10,34,64,0.32)",
+    letterSpacing: "0.01em",
   };
 
   const ghostBtn = {
@@ -728,9 +729,9 @@ export default function MedicalBot() {
               </div>
 
               <div style={{ display: "flex", flexDirection: "column", gap: 10, marginTop: 8 }}>
-                <button onClick={openWhatsAppFast} disabled={fastLoading} style={fastLoading ? { ...waBtnStyle, opacity: .7, cursor: "wait" } : waBtnStyle}>
-                  <span aria-hidden="true">💬</span>
-                  <span>{fastLoading ? "פותח וואטסאפ..." : "קבע שיחה — חינם"}</span>
+                <button onClick={openWhatsAppFast} disabled={fastLoading} style={fastLoading ? { ...ctaPrimary, opacity: .7, cursor: "wait" } : ctaPrimary}>
+                  <span aria-hidden="true" style={{ color: GOLD_BRIGHT, fontSize: 18 }}>💬</span>
+                  <span>{fastLoading ? "פותח ווטסאפ..." : "קבע שיחה — חינם"}</span>
                 </button>
                 <button onClick={() => setScreen(7)} style={ghostBtn}>השאר פרטים ונחזור אליך</button>
               </div>
@@ -780,7 +781,10 @@ export default function MedicalBot() {
                 {formErr && (
                   <div style={warnStrip("red")}>
                     אירעה תקלה בשליחה. אפשר לפנות ישירות בוואטסאפ:
-                    <button type="button" onClick={openWhatsAppFast} style={{ ...waBtnStyle, marginTop: 10 }}>💬 לשליחה מהירה</button>
+                    <button type="button" onClick={openWhatsAppFast} style={{ ...ctaPrimary, marginTop: 10 }}>
+                      <span aria-hidden="true" style={{ color: GOLD_BRIGHT, fontSize: 18 }}>💬</span>
+                      <span>לשליחה מהירה</span>
+                    </button>
                   </div>
                 )}
 
