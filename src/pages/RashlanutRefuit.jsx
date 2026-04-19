@@ -236,8 +236,8 @@ export default function RashlanutRefuit() {
         .nl:hover{color:#ffffff;border-bottom-color:#ffffff}
         .hm{display:flex}
         @media(max-width:768px){.hm{display:none!important}}
-        .wa-btn-float{position:fixed;bottom:24px;left:24px;background:#25d366;color:#fff;border:none;border-radius:50%;width:56px;height:56px;font-size:24px;cursor:pointer;box-shadow:0 8px 24px #25d36655;z-index:99;display:flex;align-items:center;justify-content:center;transition:transform .2s}
-        .wa-btn-float:hover{transform:scale(1.1)}
+        .wa-btn-float{position:fixed;bottom:24px;left:24px;background:#128C7E;color:#fff;border:none;border-radius:50%;width:56px;height:56px;font-size:24px;cursor:pointer;box-shadow:0 8px 24px #128C7E55;z-index:99;display:flex;align-items:center;justify-content:center;transition:background .2s,transform .2s}
+        .wa-btn-float:hover{background:#1AA896;transform:scale(1.1)}
         .rr-prose p{font-size:16px;line-height:1.95;color:#2d3e52;margin-bottom:14px}
         .rr-prose p:last-child{margin-bottom:0}
         .rr-h2{font-size:clamp(22px,3.8vw,30px);font-weight:900;color:#0a2240;margin-bottom:18px;position:relative;padding-bottom:10px}

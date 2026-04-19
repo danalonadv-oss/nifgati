@@ -260,8 +260,8 @@ function MainApp() {
         .card{background:#ffffff;border:1px solid #e0e0e0;border-radius:18px;padding:28px 24px;transition:all .3s;box-shadow:0 2px 12px rgba(0,0,0,0.08)}
         .card:hover{border-color:#2a7ab555;transform:translateY(-4px)}
         .step{background:#f8f9fb;border:1px solid #dde3ea;border-radius:18px;padding:28px 24px}
-        .wa-btn{position:fixed;bottom:24px;left:24px;background:#25d366;color:#fff;border:none;border-radius:50%;width:60px;height:60px;min-width:48px;min-height:48px;font-size:26px;cursor:pointer;box-shadow:0 8px 24px #25d36655;z-index:99;display:flex;align-items:center;justify-content:center;transition:transform .2s}
-        .wa-btn:hover{transform:scale(1.1)}
+        .wa-btn{position:fixed;bottom:24px;left:24px;background:#128C7E;color:#fff;border:none;border-radius:50%;width:60px;height:60px;min-width:48px;min-height:48px;font-size:26px;cursor:pointer;box-shadow:0 8px 24px #128C7E55;z-index:99;display:flex;align-items:center;justify-content:center;transition:background .2s,transform .2s}
+        .wa-btn:hover{background:#1AA896;transform:scale(1.1)}
         .g2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
         .g3{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
         .g4{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}

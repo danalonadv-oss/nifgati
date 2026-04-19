@@ -432,8 +432,8 @@ export default function LandingPage({ pageTitle, pageSubtitle, heroEmoji, bullet
         ::-webkit-scrollbar-thumb{background:#dde3ea;border-radius:2px}
         .nl{color:#5a6a7a;font-size:14px;font-weight:500;border-bottom:2px solid transparent;transition:all .2s}
         .nl:hover{color:#2a7ab5;border-bottom-color:#2a7ab5}
-        .wa-btn{position:fixed;bottom:24px;left:24px;background:#25d366;color:#fff;border:none;border-radius:50%;width:56px;height:56px;font-size:24px;cursor:pointer;box-shadow:0 8px 24px #25d36655;z-index:99;display:flex;align-items:center;justify-content:center;transition:transform .2s}
-        .wa-btn:hover{transform:scale(1.1)}
+        .wa-btn{position:fixed;bottom:24px;left:24px;background:#128C7E;color:#fff;border:none;border-radius:50%;width:56px;height:56px;font-size:24px;cursor:pointer;box-shadow:0 8px 24px #128C7E55;z-index:99;display:flex;align-items:center;justify-content:center;transition:background .2s,transform .2s}
+        .wa-btn:hover{background:#1AA896;transform:scale(1.1)}
         .hm{display:flex}
         @media(min-width:769px){.hero-wrap{max-width:1200px!important;padding:60px 80px!important}.hero-bullets{font-size:1.2rem!important;max-width:800px!important;margin:0 auto 32px!important}.sect-inner{max-width:1200px!important}}
         @media(max-width:768px){.hm{display:none!important}}
